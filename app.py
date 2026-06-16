@@ -2310,7 +2310,7 @@ def api_calc_pdf():
     tbl_rows = [
         [h("Item"), h("Qty"),
          h(f"Net Price<br/><font size=6>(excl. tax){rate_note}</font>"),
-         h("10% Service<br/><font size=6>Surcharge</font>"),
+         h("Service Fee<br/><font size=6>(incl.)</font>"),
          h("Final Unit<br/><font size=6>Price (incl.)</font>"),
          h("Total Subtotal<br/><font size=6>(incl. tax)</font>")],
     ]
@@ -2371,19 +2371,18 @@ def api_calc_pdf():
     story.append(tbl)
     story.append(Spacer(1,8))
 
-    # ── Formal Total (Marked Up) ──
+    # ── Formal Total ──
     formal_total_val = data.get("formalTotal", grand_total_val)
     formal_sym = "¥" if currency == "CNY" else "$"
     story.append(HRFlowable(width="100%", thickness=0.3, color=C_BORD, spaceAfter=4, spaceBefore=2))
     story.append(Paragraph(
-        f"<b>FORMAL QUOTATION PRICE (including +{markup_pct}% markup):</b>"
+        f"<b>TOTAL QUOTATION PRICE:</b>"
         f" <font color='#c62828' size=14>{formal_sym}{formal_total_val}</font>",
         ps("formal","ArialBD",10,C_DARK,TA_CENTER,leading=16,before=4,after=4)))
 
     # ── Notes ──
     notes = [
-        ("Markup:", f"+{markup_pct}% markup applied to base cost covering business operation fees, freight forwarder handling, warehousing, customer negotiation reserve, and variable cost fluctuations."),
-        ("Marking:", "All-inclusive: materials, processing, accessories, crate, shipping, customs, delivery." if currency=="CNY" else "All-inclusive: materials, processing, accessories, crate, shipping, customs, delivery."),
+        ("Coverage:", "All-inclusive: materials, processing, accessories, crate, shipping, customs, delivery."),
         ("Payment:", "50% deposit to start production. 50% balance before shipment."),
         ("Lead Time:", "10 working days (counted from day after deposit received)."),
         ("Validity:", "Quote valid 30 days from date of issue."),
@@ -2444,7 +2443,7 @@ def _build_ai_polish_prompt(ptype, mat_label, is_electro, electro_color, kelvin,
                              items, total_qty, total_len_cm, power_desc, has_acrylic, is_rgb):
     """Build a prompt for AI to write professional product description."""
     item_str = ', '.join(f"{it['w']}×{it['h']}×{it['thick']}cm ×{it['qty']}pcs" for it in items)
-    prompt = f"""You are a professional sales engineer for Zhongshan Bohui Advertising Craft Products Co., Ltd., a premium LED sign manufacturer. Write a formal, polished product description for this quotation in English.
+    prompt = f"""You are a quotation writer for Zhongshan Bohui Advertising Craft Products Co., Ltd., a premium LED sign manufacturer. Write a clear, natural product description for this quotation in English. The tone should be professional yet approachable — imagine explaining the product to a potential customer in a friendly, confident way.
 
 PRODUCT TYPE: {ptype}
 MATERIAL: {mat_label}{f', {electro_color} electroplating finish' if is_electro else ''}
@@ -2454,7 +2453,7 @@ POWER: {power_desc}
 ACRYLIC: {"Yes, 5mm high-transparency milky white acrylic" if has_acrylic else "No"}
 RGB: {"Yes, full-color dynamic LED" if is_rgb else "No"}
 
-Please generate a professional quotation description with these 6 sections. Each section should be 1-2 sentences, formal business English:
+Please generate a clean quotation description with these 6 sections. Each section should be 1-2 sentences, natural business English — write it the way a helpful salesperson would speak to a customer:
 
 1) PRODUCT: One-line product name
 2) MATERIAL & FINISH: Describe the material and any surface treatment
@@ -2463,7 +2462,7 @@ Please generate a professional quotation description with these 6 sections. Each
 5) INSTALLATION: How it's mounted
 6) PACKAGING: 15mm plywood crate with foam interior
 
-IMPORTANT: Do NOT mention any markup, discount, or internal pricing. This is a customer-facing quotation.
+IMPORTANT: Do NOT mention any markup, discount, or internal pricing. This is for a customer-facing quotation. Sound natural and confident, not stiff.
 Respond in this format:
 PRODUCT: <text>
 MATERIAL: <text>
@@ -2621,7 +2620,7 @@ def api_calc_ai_quote():
     story.append(hdr)
     story.append(Spacer(1,4))
     story.append(HRFlowable(width="100%", thickness=1, color=C_PRI, spaceAfter=6, spaceBefore=2))
-    story.append(Paragraph("FORMAL QUOTATION", S["status"]))
+    story.append(Paragraph("QUOTATION", S["status"]))
     story.append(HRFlowable(width="100%", thickness=0.5, color=C_BORD, spaceAfter=8, spaceBefore=2))
 
     # CLIENT
@@ -2707,7 +2706,7 @@ def api_calc_ai_quote():
 
     # ── Notes ──
     story.append(HRFlowable(width="100%", thickness=0.3, color=C_BORD, spaceAfter=4, spaceBefore=2))
-    story.append(Paragraph("<b>TERMS & CONDITIONS:</b>", ps("nb","ArialBD",8.5,C_ACC,leading=13)))
+    story.append(Paragraph("<b>TERMS:</b>", ps("nb","ArialBD",8.5,C_ACC,leading=13)))
     notes = [
         "Payment: 50% deposit to start production. 50% balance before shipment.",
         "Production Lead Time: 10 working days (counted from day after deposit received).",
@@ -2916,7 +2915,7 @@ def api_quote_ai_quote(qid):
     story.append(hdr)
     story.append(Spacer(1,4))
     story.append(HRFlowable(width="100%", thickness=1, color=C_PRI, spaceAfter=6, spaceBefore=2))
-    story.append(Paragraph("FORMAL QUOTATION", S["status"]))
+    story.append(Paragraph("QUOTATION", S["status"]))
     story.append(HRFlowable(width="100%", thickness=0.5, color=C_BORD, spaceAfter=8, spaceBefore=2))
 
     # CLIENT
@@ -3003,7 +3002,7 @@ def api_quote_ai_quote(qid):
 
     # ── Terms ──
     story.append(HRFlowable(width="100%", thickness=0.3, color=C_BORD, spaceAfter=4, spaceBefore=2))
-    story.append(Paragraph("<b>TERMS & CONDITIONS:</b>", ps("nb","ArialBD",8.5,C_ACC,leading=13)))
+    story.append(Paragraph("<b>TERMS:</b>", ps("nb","ArialBD",8.5,C_ACC,leading=13)))
     for n in [
         "Payment: 50% deposit to start production. 50% balance before shipment.",
         "Lead Time: 10 working days after deposit received.",
