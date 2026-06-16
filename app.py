@@ -1838,7 +1838,7 @@ def api_generate_quote(pid):
 
     # Status
     elements.append(Paragraph(
-        "QUOTATION STATUS: OFFICIAL FINAL PROPOSAL (Tax & Service Included Version)", s_bold))
+        "QUOTATION (All-Inclusive Price)", s_bold))
     elements.append(Spacer(1, 3*mm))
 
     # ===== SECTION I: SPECIFICATIONS =====
@@ -1869,7 +1869,7 @@ def api_generate_quote(pid):
         elements.append(Spacer(1, 2*mm))
 
     # ===== SECTION II: PRICING =====
-    elements.append(Paragraph("II. PARTNER PRICING ANALYSIS", s_section))
+    elements.append(Paragraph("II. PRICING", s_section))
 
     tiers = p.get("price_tiers", [])
     currency = p.get("currency", "USD")
@@ -2282,7 +2282,7 @@ def api_calc_pdf():
     story.append(hdr)
     story.append(Spacer(1,4))
     story.append(HRFlowable(width="100%", thickness=1, color=C_PRI, spaceAfter=6, spaceBefore=2))
-    story.append(Paragraph("OFFICIAL FINAL PROPOSAL (Tax & Service Fee Included)", S["status"]))
+    story.append(Paragraph("QUOTATION (All-Inclusive Price)", S["status"]))
     story.append(HRFlowable(width="100%", thickness=0.5, color=C_BORD, spaceAfter=8, spaceBefore=2))
 
     # CLIENT
@@ -2296,7 +2296,7 @@ def api_calc_pdf():
     story.append(Spacer(1,10))
 
     # ── SECTION II: PRICING ──
-    story.append(Paragraph("II. PARTNER PRICING ANALYSIS", S["sec_hdr"]))
+    story.append(Paragraph("II. PRICING", S["sec_hdr"]))
     story.append(Spacer(1,6))
 
     col_w = [CW*0.20, CW*0.09, CW*0.15, CW*0.13, CW*0.16, CW*0.27]
