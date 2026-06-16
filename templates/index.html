@@ -7658,7 +7658,7 @@ function renderTaskEditor(container, tasks) {
       + '<input type="hidden" class="task-editor-id" value="' + t.id + '">'
       + '<input type="text" class="task-editor-name field" value="' + esc(t.task_name) + '" style="flex:1;padding:5px 8px;font-size:12px;border-radius:6px">'
       + '<input type="hidden" class="task-editor-sort" value="' + (t.sort_order || i) + '">'
-      + '<button class="btn btn-xs" onclick="this.closest('.prod-task-item').remove()" style="border-color:#ef444480;color:#ef4444;flex-shrink:0"><i class="fas fa-times"></i></button>'
+      + "<button class=\"btn btn-xs\" onclick=\"this.closest('.prod-task-item').remove()\" style=\"border-color:#ef444480;color:#ef4444;flex-shrink:0\"><i class=\"fas fa-times\"></i></button>"
       + '</div>';
   });
   container.innerHTML = html;
