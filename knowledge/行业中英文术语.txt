@@ -1,0 +1,85 @@
+行业中英文术语对照表
+═══════════════════════════════════
+类别: 行业术语
+
+=== 核心产品 ===
+发光字 ─ Illuminated Sign / Lighted Sign / LED Sign
+炫彩发光字 ─ Chromatic LED Sign / Color-Changing LED Sign
+亚克力字 ─ Acrylic Letter / Acrylic Sign
+不锈钢字 ─ Stainless Steel Letter
+冲孔字 ─ Perforated Sign / Hole Letter
+精工字 ─ Premium / Precision Letter
+超级字 ─ Super Letter (3D acrylic front + flat back)
+迷你字 ─ Mini Letter (solid acrylic with side lighting)
+树脂字 ─ Resin Letter
+通体发光字 ─ Edge-lit Letter / Full-body Illuminated Letter
+霓虹灯字 ─ Neon Sign / LED Neon Flex Sign
+发光招牌 ─ Illuminated Signage / LED Signage
+门头招牌 ─ Storefront Sign / Shop Sign
+亚克力制品 ─ Acrylic Fabrication / Acrylic Product
+亚克力展示架 ─ Acrylic Display Stand / Acrylic Showcase
+亚克力家具 ─ Acrylic Furniture
+宣传片 ─ Promotional Video / Brand Video
+
+=== 材料 ===
+不锈钢 ─ Stainless Steel
+铝板 ─ Aluminum Sheet
+镀锌板 ─ Galvanized Sheet
+亚克力板 ─ Acrylic Sheet / Plexiglass Sheet
+PVC板 ─ PVC Board / Foamex Board
+铝塑板 ─ Aluminum Composite Panel (ACP)
+LED模组 ─ LED Module
+变压器 ─ Transformer / Driver / Power Supply
+密封胶 ─ Silicone Sealant
+
+=== 工艺 ===
+开槽 ─ Grooving / Channeling
+折弯 ─ Bending
+焊接 ─ Welding
+打磨 ─ Grinding / Polishing
+抛光 ─ Buffing / Polishing
+激光切割 ─ Laser Cutting
+等离子切割 ─ Plasma Cutting
+折弯机 ─ Bending Machine
+雕刻 ─ Engraving / Carving
+热弯 ─ Heat Bending
+UV打印 ─ UV Printing
+丝印 ─ Screen Printing
+贴膜 ─ Lamination
+组装 ─ Assembly
+安装 ─ Installation
+
+=== 表面处理 ===
+烤漆 ─ Baking Paint / Spray Paint
+电镀 ─ Electroplating
+阳极氧化 ─ Anodizing
+拉丝 ─ Brushed Finish
+镜面 ─ Mirror Finish
+喷砂 ─ Sandblasting
+
+=== 参数 ===
+色温 ─ Color Temperature (CCT)
+显色指数 ─ Color Rendering Index (CRI)
+防护等级 ─ Ingress Protection (IP Rating)
+功率 ─ Power (Wattage)
+电压 ─ Voltage
+亮度 ─ Brightness / Luminance
+尺寸 ─ Dimension / Size
+厚度 ─ Thickness
+间距 ─ Pitch / Spacing
+使用寿命 ─ Lifespan
+
+=== 商务 ===
+报价 ─ Quotation / Quote
+样品 ─ Sample
+模具 ─ Mold
+交期 ─ Lead Time / Delivery Time
+出厂价 ─ Ex-factory Price / FOB Price
+运费 ─ Shipping Cost / Freight
+关税 ─ Customs Duty / Tariff
+付款条款 ─ Payment Terms
+定金 ─ Deposit / Down Payment
+尾款 ─ Balance Payment
+保修 ─ Warranty
+售后 ─ After-sales Service
+认证 ─ Certification

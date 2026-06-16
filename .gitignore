@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+
+# Database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs
+*.log
+*.output
+
+# Environment & config
+.claude/
+.claude*
+.crm_lock/
+.whatsapp_session/
+.communication_style.json
+.sales_profile.json
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Generated files
+crm_output.log
+server.log
+server_output.log
+crm_log.txt
+start.bat
+
+# OS
+Thumbs.db
+.DS_Store

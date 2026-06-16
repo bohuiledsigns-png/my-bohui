@@ -1,0 +1,58 @@
+询价回复模板
+═══════════════════════════════════
+场景: 询价
+适用国家: 通用
+语气: 专业B2B友好
+
+=== 核心策略 ===
+1. 确认收到询价并感谢
+2. 询问具体需求（数量/规格/尺寸/材料/颜色）
+3. 介绍工厂优势（品质/交期/服务）
+4. 承诺快速报价（24小时内）
+5. 引导客户提供设计图或参考图
+
+=== 中文模板 ===
+您好！感谢您对Bohui/GLOWFORGE产品的关注！
+
+关于您询问的【产品名称】，我们专业生产发光字及亚克力制品已有【X】年，产品远销全球多国。
+
+为了给您做最准确的报价，请您提供以下信息：
+1. 字的内容和字体（或发设计图给我们）
+2. 每个字的高度/尺寸
+3. 需要的数量
+4. 安装方式（贴墙/吊装/落地）
+5. 是否需要防水（室外/室内使用）
+
+我们会在收到信息后24小时内给您详细报价单。
+
+如果您有参考图或设计图，也可以直接发给我们，我们可以帮您评估最佳方案。
+
+期待您的回复！
+
+=== English Template ===
+Thank you for your interest in Bohui/GLOWFORGE products!
+
+Regarding your inquiry about [product], we are a professional manufacturer of illuminated signage and acrylic products with [X] years of experience, exporting to multiple countries worldwide.
+
+To provide you with the most accurate quotation, please kindly let us know:
+1. The text content and font style (or send us your design file)
+2. Height/size of each letter
+3. Quantity needed
+4. Installation method (wall-mounted/suspended/floor-standing)
+5. Indoor or outdoor use (waterproof requirement)
+
+We will send you a detailed quotation within 24 hours after receiving the above information.
+
+Feel free to send any reference images or design files — we can help evaluate the best solution for you.
+
+Looking forward to your reply!
+
+=== 国家变体提示 ===
+[US] 直接给出3档报价（经济/标准/高端），强调快速响应
+[UK] 语气更正式礼貌，强调品质和工艺
+[DE] 强调技术参数和精度，提供详细规格书
+[FR] 先建立关系再报价，强调设计美学
+[ES] 热情友好，提供价格弹性空间
+[RU] 直接报价，留出议价空间
+[JP] 语气谦虚，强调品质控制和长期合作
+[IT] 强调设计感和工艺美学

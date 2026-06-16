@@ -1,0 +1,13 @@
+炫彩发光字·动态变色效果
+═══════════════════════════════════
+类别: 生图 / 炫彩发光字
+场景: 产品特写
+最佳尺寸: 1024*1024
+
+提示词:
+Close-up product shot of a chromatic LED sign reading "GLOWFORGE". Multi-color dynamic lighting smoothly transitioning from warm gold to electric blue to magenta purple. Premium stainless steel casing, seamless acrylic face, edge-lit details. Dark background, dramatic studio lighting, high contrast, product photography style, sharp focus on letter surfaces, 8K ultra HD, commercial quality.
+
+变体:
+- 跑色效果: rainbow chromatic cycling, smooth color transitions
+- 单色炫彩: monochrome chromatic with subtle gradient shifts
+- 带背光: with halo backlighting behind each letter

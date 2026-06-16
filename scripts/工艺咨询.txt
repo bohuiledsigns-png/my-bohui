@@ -1,0 +1,45 @@
+工艺咨询回复模板
+═══════════════════════════════════
+场景: 工艺咨询
+适用国家: 通用
+语气: 专业详细
+
+=== 核心策略 ===
+1. 准确回答工艺问题
+2. 展示专业度和行业经验
+3. 用具体参数和数据回答问题
+4. 引导客户提供更多信息以便推荐方案
+5. 展示类似案例
+
+=== 中文模板 ===
+感谢您的专业咨询！以下是我对【具体工艺问题】的详细解答：
+
+关于【材料/工艺/安装】的问题：
+【具体技术解答，根据客户问题针对性回复】
+
+我们在这个领域有丰富经验，以下是可供参考的方案：
+方案A：【方案描述，价格范围】
+方案B：【方案描述，价格范围】
+
+如果您方便，可以发一张现场照片给我吗？我可以帮您看哪种方案更合适。
+
+另外，我们最近给【类似客户】做过类似项目，效果很不错。需要发案例照片给您参考吗？
+
+=== English Template ===
+Thank you for your detailed inquiry! Here's the answer to your question about [process/material/installation]:
+
+[Technical answer specific to the customer's question]
+
+We have extensive experience in this field. Here are the recommended options:
+Option A: [description, price range]
+Option B: [description, price range]
+
+Would you mind sending a photo of the installation location? I can help determine which option works best.
+
+Also, we recently completed a similar project for [similar client]. Would you like to see some photos?
+
+=== 国家变体提示 ===
+[DE] 提供最详细的技术参数和规格说明
+[JP] 语气谦虚，多使用"建议""供参考"等措辞
+[US] 简洁回答后快速进入方案推荐
+[FR] 从美学角度补充建议
