@@ -30,7 +30,7 @@ from database import get_cases, get_case, add_case, update_case, delete_case, ge
 from database import get_quotes, get_quote, add_quote, update_quote, delete_quote
 from database import get_users, get_user_by_username, add_user, update_user
 from database import get_orders, get_order, add_order, update_order, delete_order
-from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule, get_production_tasks, save_production_tasks, update_production_task_status, get_production_task_defaults
+from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule, get_production_tasks, save_production_tasks, update_production_task_status, get_production_task_defaults, get_shipments, get_shipment, add_shipment, update_shipment, delete_shipment
 from database import add_payment, get_ar_summary, get_ar_by_customer, get_payment_history, get_aging_analysis, migrate_payments_from_orders
 from database import get_leads, get_lead_summary, get_lead_funnel, assign_lead, update_lead_status, update_lead_source
 from database import get_leads_due_followup, get_today_followup_summary, update_last_contacted
@@ -3367,6 +3367,68 @@ def api_generate_tasks(oid):
         add_activity_log(uid, "create", "order", oid,
             f"生成默认生产步骤 - {order.get('order_no','')}")
     return jsonify({"ok": True, "tasks": get_production_tasks(oid)})
+
+
+# ==================== 发货管理 API ====================
+@app.route("/api/orders/<int:oid>/shipments")
+@login_required
+def api_order_shipments(oid):
+    """获取订单的发货记录列表"""
+    return jsonify(get_shipments(oid))
+
+
+@app.route("/api/orders/<int:oid>/shipments", methods=["POST"])
+@login_required
+def api_create_shipment(oid):
+    """创建发货记录"""
+    data = request.json or {}
+    data["order_id"] = oid
+    data["created_by"] = session.get("user_id")
+    result = add_shipment(data)
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        order = get_order(oid)
+        add_activity_log(uid, "create", "shipment", result["id"],
+            f"创建了发货记录 - 订单 {order.get('order_no','')}")
+    return jsonify({"ok": True, "id": result["id"]})
+
+
+@app.route("/api/shipments/<int:sid>")
+@login_required
+def api_get_shipment(sid):
+    """获取单条发货记录"""
+    s = get_shipment(sid)
+    if not s:
+        return jsonify({"error": "发货记录不存在"}), 404
+    return jsonify(s)
+
+
+@app.route("/api/shipments/<int:sid>", methods=["PUT"])
+@login_required
+def api_update_shipment(sid):
+    """更新发货记录"""
+    data = request.json or {}
+    update_shipment(sid, data)
+    uid = session.get("user_id")
+    if uid:
+        s = get_shipment(sid)
+        if s:
+            add_activity_log(uid, "update", "shipment", sid,
+                f"更新了发货记录 - 订单 #{s.get('order_id','')}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/shipments/<int:sid>", methods=["DELETE"])
+@login_required
+def api_delete_shipment(sid):
+    """删除发货记录"""
+    s = get_shipment(sid)
+    delete_shipment(sid)
+    uid = session.get("user_id")
+    if uid and s:
+        add_activity_log(uid, "delete", "shipment", sid,
+            f"删除了发货记录 - 订单 #{s.get('order_id','')}")
+    return jsonify({"ok": True})
 
 
 @app.route("/api/quotes/<int:qid>/convert", methods=["POST"])

@@ -398,6 +398,28 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_prod_tasks_order ON production_tasks(order_id)")
     except:
         pass
+    # 发货物流表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS shipments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            ship_date TEXT DEFAULT '',
+            tracking_no TEXT DEFAULT '',
+            carrier TEXT DEFAULT '',
+            shipping_cost REAL DEFAULT 0,
+            currency TEXT DEFAULT 'USD',
+            package_info TEXT DEFAULT '{}',
+            status TEXT DEFAULT 'pending',
+            notes TEXT DEFAULT '',
+            created_by INTEGER DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_shipments_order ON shipments(order_id)")
+    except:
+        pass
     conn.commit()
     conn.close()
 
@@ -2469,6 +2491,104 @@ def update_production_task_status(task_id, is_done, done_by=None):
     conn.commit()
     conn.close()
     return True
+
+
+# ========= 发货 CRUD =========
+def get_shipments(order_id):
+    """获取订单的所有发货记录"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT s.*, u.display_name AS created_name
+        FROM shipments s
+        LEFT JOIN users u ON s.created_by = u.id
+        WHERE s.order_id = ?
+        ORDER BY s.created_at DESC
+    """, (order_id,)).fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["package_info"] = json.loads(d.get("package_info", "{}"))
+        except:
+            d["package_info"] = {}
+        result.append(d)
+    return result
+
+
+def get_shipment(sid):
+    """获取单条发货记录"""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT s.*, u.display_name AS created_name
+        FROM shipments s
+        LEFT JOIN users u ON s.created_by = u.id
+        WHERE s.id = ?
+    """, (sid,)).fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    try:
+        d["package_info"] = json.loads(d.get("package_info", "{}"))
+    except:
+        d["package_info"] = {}
+    return d
+
+
+def add_shipment(data):
+    """创建发货记录"""
+    conn = get_db()
+    conn.execute(
+        """INSERT INTO shipments (order_id, ship_date, tracking_no, carrier,
+           shipping_cost, currency, package_info, status, notes, created_by)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (
+            data.get("order_id"),
+            data.get("ship_date", ""),
+            data.get("tracking_no", ""),
+            data.get("carrier", ""),
+            data.get("shipping_cost", 0),
+            data.get("currency", "USD"),
+            json.dumps(data.get("package_info", {})),
+            data.get("status", "pending"),
+            data.get("notes", ""),
+            data.get("created_by"),
+        )
+    )
+    conn.commit()
+    sid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    conn.close()
+    return {"id": sid}
+
+
+def update_shipment(sid, data):
+    """更新发货记录"""
+    allowed = ["ship_date", "tracking_no", "carrier", "shipping_cost",
+               "currency", "status", "notes"]
+    sets = []
+    vals = []
+    for k, v in data.items():
+        if k in allowed:
+            sets.append(f"{k}=?")
+            vals.append(v)
+    if "package_info" in data:
+        sets.append("package_info=?")
+        vals.append(json.dumps(data["package_info"]))
+    if sets:
+        sets.append("updated_at=CURRENT_TIMESTAMP")
+        conn = get_db()
+        conn.execute(f"UPDATE shipments SET {', '.join(sets)} WHERE id=?", (*vals, sid))
+        conn.commit()
+        conn.close()
+
+
+def delete_shipment(sid):
+    """删除发货记录"""
+    conn = get_db()
+    conn.execute("DELETE FROM shipments WHERE id=?", (sid,))
+    conn.commit()
+    conn.close()
 
 
 # ========= 库存管理 CRUD =========
