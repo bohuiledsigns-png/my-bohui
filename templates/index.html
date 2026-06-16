@@ -500,8 +500,301 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 .kanban-card .kc-actions button{font-size:9px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
 .kanban-card .kc-actions button:hover{background:var(--cyan);color:#fff;border-color:var(--cyan)}
 }
+
+.pool-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.pool-badge.unassigned{background:rgba(236,72,153,0.15);color:var(--pink)}
+.pool-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.pool-safe .pool-status-dot{background:#22c55e}
+.pool-warning .pool-status-dot{background:#fbbf24}
+.pool-expired .pool-status-dot{background:#ef4444}
+
+/* ===== 客户详情页 ===== */
+.customer-detail{display:flex;gap:20px;align-items:flex-start}
+.detail-profile-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:340px;flex-shrink:0;position:sticky;top:0}
+.detail-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#00b8d4);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#000;margin-bottom:10px}
+.detail-name{font-size:18px;font-weight:700;color:var(--text-bright);margin-bottom:2px}
+.detail-company{font-size:13px;color:var(--muted);margin-bottom:12px}
+.detail-field{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,36,72,0.3);font-size:12px}
+.detail-field .label{color:var(--muted)}
+.detail-field .value{color:var(--text-bright);text-align:right;max-width:60%;word-break:break-all}
+.detail-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.detail-actions .btn{flex:1;min-width:80px;justify-content:center}
+.detail-main{flex:1;min-width:0}
+.detail-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;background:rgba(255,255,255,0.02);border-radius:10px;padding:3px;width:fit-content}
+.detail-tab{padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);font-family:inherit}
+.detail-tab.active{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000;box-shadow:0 0 12px var(--cyan-glow)}
+.detail-tab:hover:not(.active){color:var(--text-bright);background:rgba(255,255,255,0.05)}
+.detail-tab-content{display:none}
+.detail-tab-content.active{display:block;animation:fadeIn 0.2s ease}
+.detail-notes{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+.detail-notes textarea{width:100%;padding:8px 12px;background:#090b14;border:1px solid var(--border);border-radius:8px;color:var(--text-bright);font-size:12px;font-family:inherit;resize:vertical;min-height:50px}
+.detail-timeline{max-height:500px;overflow-y:auto}
+.tl-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(30,36,72,0.3);font-size:12px}
+.tl-item:last-child{border-bottom:none}
+.tl-time{color:var(--muted);white-space:nowrap;min-width:90px;font-size:11px}
+.tl-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.tl-icon.msg{background:rgba(0,242,255,0.1);color:var(--cyan)}
+.tl-icon.quote{background:rgba(212,175,55,0.1);color:var(--gold)}
+.tl-icon.order{background:rgba(34,197,94,0.1);color:#22c55e}
+.tl-icon.email{background:rgba(99,102,241,0.1);color:#818cf8}
+.tl-icon.ai{background:rgba(168,85,247,0.1);color:#a855f7}
+.detail-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.detail-empty .icon{font-size:32px;margin-bottom:8px}
+.detail-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-left:4px;background:rgba(255,255,255,0.08)}
+/* == 通知系统 == */
+    .notif-bell{position:relative;cursor:pointer;padding:4px 6px;border-radius:6px;color:var(--muted);font-size:14px;transition:all .2s;margin-left:auto}
+    .notif-bell:hover{color:var(--text-bright);background:rgba(255,255,255,0.05)}
+    .notif-badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #0b0e17;line-height:1}
+    .notif-dropdown{position:absolute;bottom:100%;left:0;right:0;margin-bottom:4px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 -8px 30px rgba(0,0,0,0.5);z-index:100;overflow:hidden}
+    .notif-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;font-size:12px}
+    .notif-item:hover{background:rgba(255,255,255,0.03)}
+    .notif-item.unread{background:rgba(59,130,246,0.05)}
+    .notif-item .notif-icon{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .notif-item .notif-icon.assign{background:rgba(59,130,246,0.15);color:#60a5fa}
+    .notif-item .notif-icon.order{background:rgba(251,191,36,0.15);color:#fbbf24}
+    .notif-item .notif-icon.info{background:rgba(156,163,175,0.15);color:#9ca3af}
+    .notif-item .notif-icon.success{background:rgba(34,197,94,0.15);color:#22c55e}
+    .notif-item .notif-icon.warning{background:rgba(239,68,68,0.15);color:#ef4444}
+    .notif-item .notif-body{flex:1;min-width:0}
+    .notif-item .notif-title{font-weight:600;color:var(--text-bright);font-size:12px;line-height:1.3}
+    .notif-item .notif-msg{color:var(--muted);font-size:11px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .notif-item .notif-time{color:var(--muted);font-size:10px;margin-top:2px;opacity:0.6}
+    .notif-item .notif-dot{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-top:10px}
+    .notif-empty{padding:30px 20px;text-align:center;color:var(--muted);font-size:12px}
+    .notif-page-item{padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:flex-start;gap:12px;transition:background .15s}
+    .notif-page-item:hover{background:rgba(255,255,255,0.02)}
+    .notif-page-item.unread{background:rgba(59,130,246,0.04)}
+    .notif-page-item .notif-icon{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .notif-page-item .notif-icon.assign{background:rgba(59,130,246,0.15);color:#60a5fa}
+    .notif-page-item .notif-icon.order{background:rgba(251,191,36,0.15);color:#fbbf24}
+    .notif-page-item .notif-icon.info{background:rgba(156,163,175,0.15);color:#9ca3af}
+    .notif-page-item .notif-icon.success{background:rgba(34,197,94,0.15);color:#22c55e}
+    .notif-page-item .notif-icon.warning{background:rgba(239,68,68,0.15);color:#ef4444}
+    .notif-page-item .notif-body{flex:1;min-width:0}
+    .notif-page-item .notif-title{font-weight:600;color:var(--text-bright);font-size:13px}
+    .notif-page-item .notif-msg{color:var(--muted);font-size:12px;margin-top:2px}
+    .notif-page-item .notif-time{color:var(--muted);font-size:11px;margin-top:4px;opacity:0.6}
+    .notif-page-item .notif-dot{flex-shrink:0;width:10px;height:10px;border-radius:50%;background:#3b82f6;margin-top:12px}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+// ================= 客户详情页 (Customer Detail) =================
+var _detailCustomerId = null;
+var _detailData = null;
+
+async function showCustomerDetail(id) {
+  _detailCustomerId = id;
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-customer-detail').classList.add('active');
+  document.getElementById('pageTitle').innerHTML = '<i class="fas fa-user"></i> 客户详情';
+  try {
+    var data = await api('/api/customers/' + id + '/detail');
+    _detailData = data;
+    renderDetailProfile(data.customer);
+    renderDetailTabs(data);
+  } catch(e) { if (e.message !== "未登录") console.error(e); }
+}
+
+function backToCustomerList() {
+  document.querySelector('[data-page="customers"]').click();
+}
+
+function switchDetailTab(tab, btn) {
+  document.querySelectorAll('.detail-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.detail-tab-content').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('dtab-' + tab).classList.add('active');
+}
+
+function renderDetailProfile(c) {
+  document.getElementById('detailAvatar').textContent = (c.name || '?')[0].toUpperCase();
+  document.getElementById('detailName').textContent = c.name;
+  document.getElementById('detailCompany').textContent = c.company || '(未设置)';
+  var statusEl = document.getElementById('detailStatusBadge');
+  var statusLabels = {hot:'<i class="fas fa-fire"></i> Hot', warm:'<i class="fas fa-sun"></i> Warm', cold:'<i class="fas fa-snowflake"></i> Cold'};
+  statusEl.className = 'status status-' + (c.status || 'warm');
+  statusEl.innerHTML = statusLabels[c.status] || c.status || 'Warm';
+  var leadLabels = {new:'新潜客', contacted:'已联系', qualified:'合格', customer:'已成交', lost:'丢失'};
+  document.getElementById('detailLeadStatusBadge').textContent = leadLabels[c.lead_status] || c.lead_status || '-';
+  document.getElementById('dfWhatsapp').textContent = c.whatsapp || '-';
+  document.getElementById('dfCountry').textContent = c.country || '-';
+  document.getElementById('dfLanguage').textContent = c.language || 'English';
+  document.getElementById('dfSource').textContent = c.source || '-';
+  document.getElementById('dfCampaign').textContent = c.campaign || '-';
+  document.getElementById('dfAssignedTo').textContent = c.assigned_name || c.assigned_to || '未分配';
+  document.getElementById('dfLeadScore').textContent = c.lead_score != null ? c.lead_score : '-';
+  document.getElementById('dfCreatedAt').textContent = c.created_at || '-';
+  document.getElementById('dfUpdatedAt').textContent = c.updated_at || '-';
+  document.getElementById('dfFirstContacted').textContent = c.first_contacted_at || '-';
+  document.getElementById('dfLastContacted').textContent = c.last_contacted_at || '-';
+  document.getElementById('detailNotes').value = c.notes || '';
+}
+
+function renderDetailTabs(data) {
+  var c = data.customer;
+  // Messages tab
+  var msgs = data.messages || [];
+  document.getElementById('dtBadgeMsgs').textContent = msgs.length;
+  document.getElementById('detailRecentMsgs').innerHTML = msgs.length
+    ? msgs.slice().reverse().map(function(m) {
+        var dir = m.direction === 'sent' ? 'sent' : 'received';
+        var text = m.content_cn || m.content_en || '';
+        return '<div class="chat-msg ' + dir + '" style="max-width:100%;margin-bottom:8px">' +
+          '<div class="bubble" style="font-size:12px;padding:8px 12px">' + esc(text) + '</div>' +
+          '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (m.created_at || '') + '</div></div>';
+      }).join('')
+    : '<div class="detail-empty"><div class="icon"><i class="fas fa-comment-slash"></i></div>暂无消息记录</div>';
+  // Quotes tab
+  var quotes = data.quotes || [];
+  document.getElementById('dtBadgeQuotes').textContent = quotes.length;
+  document.getElementById('detailQuoteList').innerHTML = quotes.length
+    ? '<table class="data-table" style="width:100%;font-size:11px"><tr><th>编号</th><th>金额</th><th>状态</th><th>日期</th></tr>' +
+      quotes.map(function(q) {
+        var qs = {draft:"草稿",sent:"已发送",accepted:"已接受",rejected:"已拒绝",expired:"已过期"};
+        return '<tr><td style="cursor:pointer;color:var(--cyan)">' + esc(q.quote_no || q.id) + '</td>' +
+          '<td>' + (q.currency || 'USD') + ' ' + Number(q.total_amount || 0).toLocaleString() + '</td>' +
+          '<td><span style="color:var(--gold)">' + (qs[q.status] || q.status) + '</span></td>' +
+          '<td>' + (q.created_at || '').substring(0,10) + '</td></tr>';
+      }).join('') + '</table>'
+    : '<div class="detail-empty"><div class="icon"><i class="fas fa-file-invoice"></i></div>暂无报价</div>';
+  // Orders tab
+  var orders = data.orders || [];
+  document.getElementById('dtBadgeOrders').textContent = orders.length;
+  var olabels = {pending_approval:"待审核",confirmed:"已确认",in_production:"生产中",shipped:"已发货",delivered:"已交付",cancelled:"已取消"};
+  document.getElementById('detailOrderList').innerHTML = orders.length
+    ? '<table class="data-table" style="width:100%;font-size:11px"><tr><th>订单号</th><th>金额</th><th>状态</th><th>日期</th></tr>' +
+      orders.map(function(o) {
+        return '<tr><td style="cursor:pointer;color:var(--cyan)">' + esc(o.order_no || o.id) + '</td>' +
+          '<td>' + (o.currency || 'USD') + ' ' + Number(o.total_amount || 0).toLocaleString() + '</td>' +
+          '<td>' + (olabels[o.status] || o.status || '-') + '</td>' +
+          '<td>' + (o.created_at || '').substring(0,10) + '</td></tr>';
+      }).join('') + '</table>'
+    : '<div class="detail-empty"><div class="icon"><i class="fas fa-box-open"></i></div>暂无订单</div>';
+  // Email tab
+  var emails = data.email_log || [];
+  document.getElementById('detailEmailList').innerHTML = emails.length
+    ? '<table class="data-table" style="width:100%;font-size:11px"><tr><th>收件人</th><th>主题</th><th>状态</th><th>时间</th></tr>' +
+      emails.map(function(e) {
+        return '<tr><td>' + esc(e.to_email) + '</td>' +
+          '<td>' + esc(e.subject || '') + '</td>' +
+          '<td>' + (e.status || '-') + '</td>' +
+          '<td>' + (e.created_at || '').substring(0,10) + '</td></tr>';
+      }).join('') + '</table>'
+    : '<div class="detail-empty"><div class="icon"><i class="fas fa-envelope-open"></i></div>暂无邮件记录</div>';
+  // Activity timeline
+  var timeline = buildTimeline(data);
+  document.getElementById('detailTimeline').innerHTML = timeline.length
+    ? timeline.map(function(t) {
+        var icons = {msg:"fa-comment-dots",quote:"fa-file-invoice-dollar",order:"fa-box",email:"fa-envelope",ai:"fa-robot"};
+        return '<div class="tl-item">' +
+          '<div class="tl-icon ' + t.type + '"><i class="fas ' + (icons[t.type] || "fa-circle") + '"></i></div>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:12px">' + t.text + '</div>' +
+          '<div style="font-size:10px;color:var(--muted)">' + t.time + '</div></div></div>';
+      }).join('')
+    : '<div class="detail-empty"><div class="icon"><i class="fas fa-clock"></i></div>暂无动态</div>';
+}
+
+function buildTimeline(data) {
+  var entries = [];
+  (data.messages || []).forEach(function(m) {
+    entries.push({type:"msg", text: (m.direction === "sent" ? "发送: " : "收到: ") + esc((m.content_cn || m.content_en || "").substring(0,60)), time: m.created_at});
+  });
+  (data.quotes || []).forEach(function(q) {
+    entries.push({type:"quote", text: "创建报价 " + esc(q.quote_no || "") + " - " + (q.currency || "USD") + " " + Number(q.total_amount || 0).toLocaleString(), time: q.created_at});
+  });
+  (data.orders || []).forEach(function(o) {
+    entries.push({type:"order", text: "创建订单 " + esc(o.order_no || "") + " - " + (o.currency || "USD") + " " + Number(o.total_amount || 0).toLocaleString(), time: o.created_at});
+  });
+  (data.email_log || []).forEach(function(e) {
+    entries.push({type:"email", text: "发送邮件给 " + esc(e.to_email) + " - " + esc(e.subject || ""), time: e.created_at});
+  });
+  (data.ai_generations || []).forEach(function(g) {
+    entries.push({type:"ai", text: (g.type === "image" ? "AI生图" : "AI生成视频") + ": " + esc((g.prompt || "").substring(0,50)), time: g.created_at});
+  });
+  entries.sort(function(a,b) { return (b.time || "").localeCompare(a.time || ""); });
+  return entries.slice(0,50);
+}
+
+function detailSendMessage() { switchToChat(_detailCustomerId); }
+function detailGoToChat() { switchToChat(_detailCustomerId); }
+
+function detailEditCustomer() {
+  var c = _detailData ? _detailData.customer : null;
+  if (c) showCustomerModal(c);
+}
+
+async function detailSaveNotes() {
+  var notes = document.getElementById('detailNotes').value;
+  if (!_detailCustomerId) return;
+  try {
+    await api('/api/customers/' + _detailCustomerId, {method:"PUT", body:JSON.stringify({notes: notes})});
+    showCustomerDetail(_detailCustomerId);
+  } catch(e) { alert("保存失败: " + e.message); }
+}
+
+function detailChangeLeadStatus() {
+  var statuses = ["new","contacted","qualified","customer","lost"];
+  var labels = {new:"新潜客", contacted:"已联系", qualified:"合格", customer:"已成交", lost:"丢失"};
+  var current = _detailData ? (_detailData.customer.lead_status || "new") : "new";
+  var sel = document.createElement("select");
+  sel.style.cssText = "padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px";
+  statuses.forEach(function(s) {
+    var opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = labels[s] || s;
+    if (s === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = async function() {
+    try {
+      await api('/api/leads/' + _detailCustomerId + '/status', {method:"PUT", body:JSON.stringify({lead_status: sel.value})});
+      showCustomerDetail(_detailCustomerId);
+    } catch(e) { alert("更新失败: " + e.message); }
+  };
+  // Replace button with selector
+  var btn = document.getElementById('detailChangeStatusBtn');
+  btn.parentNode.replaceChild(sel, btn);
+}
+
+function detailAssign() {
+  fetch("/api/users").then(function(r){return r.json()}).then(function(users) {
+    var sel = document.createElement("select");
+    sel.style.cssText = "padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px";
+    sel.innerHTML = '<option value="">选择销售...</option>';
+    users.forEach(function(u) {
+      if (u.role === "sales" || u.role === "admin") {
+        var opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.display_name || u.username;
+        sel.appendChild(opt);
+      }
+    });
+    sel.onchange = async function() {
+      if (!sel.value) return;
+      try {
+        await api('/api/leads/' + _detailCustomerId + '/assign', {method:"PUT", body:JSON.stringify({user_id: parseInt(sel.value)})});
+        showCustomerDetail(_detailCustomerId);
+      } catch(e) { alert("分配失败: " + e.message); }
+    };
+    var btn = document.querySelector('.detail-actions .btn-ghost[onclick*="detailAssign"]');
+    if (btn) btn.parentNode.replaceChild(sel, btn);
+  }).catch(function(){});
+}
+
+async function detailDelete() {
+  if (!confirm("确定删除该客户？相关数据也会被删除。")) return;
+  try {
+    await api('/api/customers/' + _detailCustomerId, {method:"DELETE"});
+    backToCustomerList();
+  } catch(e) { alert("删除失败: " + e.message); }
+}
+
+function detailNewQuote() {
+  // Navigate to quotes page with pre-filter? For now just switch page
+  document.querySelector('[data-page="quotes"]').click();
+}
+
+</script>
 </head>
 <body>
 <!-- 登录页 -->
@@ -521,6 +814,8 @@ h2 .fas{color:var(--cyan);margin-right:8px}
   <div class="nav">
     <div class="nav-item active" data-page="dashboard"><i class="fas fa-clipboard-list"></i> 今日工作台</div>
     <div class="nav-item" data-page="customers"><i class="fas fa-users"></i> 客户管理</div>
+    <div class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> 潜客管理</div>
+    <div class="nav-item" data-page="lead-followup"><i class="fas fa-bell"></i> 跟进提醒</div>
     <div class="nav-item" data-page="chat"><i class="fas fa-comment-dots"></i> 消息中心</div>
     <div class="nav-item" data-page="media"><i class="fas fa-folder"></i> 文件库</div>
     <div class="nav-item" data-page="products"><i class="fas fa-cube"></i> 产品</div>
@@ -528,6 +823,8 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <div class="nav-item" data-page="quotes"><i class="fas fa-file-invoice-dollar"></i> 报价管理</div>
     <div class="nav-item" data-page="orders"><i class="fas fa-box"></i> 订单管理</div>
 <div class="nav-item" data-page="order-stats"><i class="fas fa-chart-bar"></i> 订单统计</div>
+    <div class="nav-item" data-page="lead-analytics"><i class="fas fa-bullseye"></i> 获客分析</div>
+    <div class="nav-item" data-page="ar-dashboard"><i class="fas fa-hand-holding-usd"></i> 应收账款</div>
     <div class="nav-item" data-page="commission"><i class="fas fa-percent"></i> 销售提成</div>
     <div class="nav-item" data-page="production"><i class="fas fa-industry"></i> 生产排期</div>
     <div class="nav-item" data-page="inventory"><i class="fas fa-warehouse"></i> 库存管理</div>
@@ -542,10 +839,15 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <div class="nav-item" data-page="countries"><i class="fas fa-globe-americas"></i> 国际市场</div>
     <div class="nav-item" data-page="cases-admin" style="display:none"><i class="fas fa-building"></i> 案例管理</div>
     <div class="nav-item" data-page="users" style="display:none"><i class="fas fa-user-gear"></i> 用户管理</div>
+    <div class="nav-item" data-page="activity-logs"><i class="fas fa-clock-rotate-left"></i> 操作日志</div>
   </div>
   <div style="padding:12px 20px;font-size:10px;color:var(--muted);border-top:1px solid var(--border)">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <span><span id="sidebarUser" style="color:var(--cyan);font-weight:600">—</span> <span id="sidebarRole" style="color:#555"></span></span>
+      <div class="notif-bell" onclick="toggleNotifPanel()" id="notifBell" title="通知">
+        <i class="fas fa-bell"></i>
+        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+      </div>
       <button onclick="doLogout()" style="background:none;border:none;color:var(--pink);font-size:10px;cursor:pointer;padding:2px 6px" title="退出登录"><i class="fas fa-sign-out-alt"></i></button>
     </div>
     <div style="margin-top:4px;display:flex;align-items:center;gap:4px">
@@ -560,6 +862,17 @@ h2 .fas{color:var(--cyan);margin-right:8px}
       <span id="styleBadge" style="display:none;font-size:9px;color:#555"><i class="fas fa-brain"></i> 学习中</span>
     </div>
   </div>
+
+  <div class="notif-dropdown" id="notifDropdown" style="display:none">
+    <div style="padding:10px 14px;font-weight:600;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+      <span><i class="fas fa-bell" style="margin-right:6px;color:var(--cyan)"></i>通知</span>
+      <button class="btn btn-ghost btn-xs" onclick="markAllNotifRead()" style="font-size:10px">全部已读</button>
+    </div>
+    <div id="notifList" style="max-height:360px;overflow-y:auto"></div>
+    <div style="padding:8px 14px;border-top:1px solid var(--border);text-align:center">
+      <a href="#" onclick="showNotifPage();return false" style="font-size:11px;color:var(--cyan);text-decoration:none">查看全部通知 <i class="fas fa-chevron-right" style="font-size:9px"></i></a>
+    </div>
+  </div>
 </div>
 <!-- 主区 -->
 <div class="main">
@@ -572,6 +885,25 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <div class="page active" id="page-dashboard">
       <div class="stats-grid" id="statCards"></div>
       <div id="orderStatsRow"></div>
+      <!-- Dashboard Charts -->
+      <div id="chartRow" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="fas fa-chart-line" style="color:var(--cyan)"></i> 营收趋势</div>
+          <canvas id="revenueChart" height="200"></canvas>
+        </div>
+        <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="fas fa-chart-pie" style="color:var(--gold)"></i> 订单状态</div>
+          <canvas id="orderStatusChart" height="200"></canvas>
+        </div>
+        <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="fas fa-chart-bar" style="color:#818cf8"></i> 潜客来源</div>
+          <canvas id="leadSourceChart" height="200"></canvas>
+        </div>
+        <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="fas fa-trophy" style="color:var(--pink)"></i> Top客户</div>
+          <canvas id="topCustomersChart" height="200"></canvas>
+        </div>
+      </div>
       <div id="recentOrdersRow"></div>
       <div id="dailyTip" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;font-size:14px"></div>
       <div class="table-wrap">
@@ -596,10 +928,75 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <!-- 客户管理 -->
     <div class="page" id="page-customers">
       <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="flex gap-8"><button class="btn btn-primary" onclick="showCustomerModal()">+ 新增客户</button></div>
+        <div class="flex gap-8">
+          <button class="btn btn-primary" onclick="showCustomerModal()">+ 新增客户</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCustomers()" title="导出客户为Excel"><i class="fas fa-download"></i> 导出</button>
+          <button class="btn btn-ghost btn-sm" onclick="importCustomers()" title="从CSV导入客户"><i class="fas fa-upload"></i> 导入</button>
+          <input type="file" accept=".csv" id="csvFileInput" style="display:none" onchange="handleCsvImport(event)">
+        </div>
         <input id="customerSearch" placeholder="搜索..." style="padding:8px 12px;background:#000;border:1px solid var(--border);border-radius:10px;color:#fff;width:200px" oninput="renderCustomers()">
       </div>
       <div class="table-wrap" id="customerTableWrap"></div>
+    </div>
+    <!-- ===== 客户详情 ===== -->
+    <div class="page" id="page-customer-detail">
+      <div style="margin-bottom:16px">
+        <button class="btn btn-ghost btn-sm" onclick="backToCustomerList()"><i class="fas fa-arrow-left"></i> 返回客户列表</button>
+      </div>
+      <div class="customer-detail">
+        <!-- 左侧：档案卡片 -->
+        <div class="detail-profile-card">
+          <div class="detail-avatar" id="detailAvatar">--</div>
+          <div class="detail-name" id="detailName">--</div>
+          <div class="detail-company" id="detailCompany">--</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px">
+            <span id="detailStatusBadge" class="status status-warm">Warm</span>
+            <span id="detailLeadStatusBadge" style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(99,102,241,0.1);color:#818cf8">New</span>
+          </div>
+          <div id="detailFields">
+            <div class="detail-field"><span class="label"><i class="fas fa-phone"></i> WhatsApp</span><span class="value" id="dfWhatsapp">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-globe"></i> 国家</span><span class="value" id="dfCountry">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-language"></i> 语言</span><span class="value" id="dfLanguage">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-tag"></i> 来源</span><span class="value" id="dfSource">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-bullhorn"></i> 活动</span><span class="value" id="dfCampaign">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-user-check"></i> 负责人</span><span class="value" id="dfAssignedTo">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-star"></i> 评分</span><span class="value" id="dfLeadScore">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-calendar-plus"></i> 创建时间</span><span class="value" id="dfCreatedAt">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-calendar-check"></i> 更新时间</span><span class="value" id="dfUpdatedAt">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-handshake"></i> 首次联系</span><span class="value" id="dfFirstContacted">--</span></div>
+            <div class="detail-field"><span class="label"><i class="fas fa-clock"></i> 最近联系</span><span class="value" id="dfLastContacted">--</span></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-primary btn-sm" onclick="detailSendMessage()"><i class="fas fa-comment"></i> 发消息</button>
+            <button class="btn btn-ghost btn-sm" onclick="detailEditCustomer()"><i class="fas fa-pen"></i> 编辑</button>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-ghost btn-sm" onclick="detailChangeLeadStatus()" id="detailChangeStatusBtn"><i class="fas fa-tag"></i> 改阶段</button>
+            <button class="btn btn-ghost btn-sm" onclick="detailAssign()"><i class="fas fa-user-plus"></i> 分配</button>
+            <button class="btn btn-ghost btn-sm" onclick="detailDelete()" style="border-color:var(--pink);color:var(--pink)"><i class="fas fa-trash"></i> 删除</button>
+          </div>
+          <div class="detail-notes" style="margin-top:16px">
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px"><i class="fas fa-note-sticky"></i> 备注</label>
+            <textarea id="detailNotes" placeholder="客户备注..."></textarea>
+            <button class="btn btn-primary btn-sm" onclick="detailSaveNotes()" style="margin-top:6px"><i class="fas fa-floppy-disk"></i> 保存备注</button>
+          </div>
+        </div>
+        <!-- 右侧：标签页 -->
+        <div class="detail-main">
+          <div class="detail-tabs">
+            <button class="detail-tab active" data-dtab="messages" onclick="switchDetailTab('messages',this)"><i class="fas fa-comment-dots"></i> 消息 <span id="dtBadgeMsgs" class="detail-badge">0</span></button>
+            <button class="detail-tab" data-dtab="quotes" onclick="switchDetailTab('quotes',this)"><i class="fas fa-file-invoice-dollar"></i> 报价 <span id="dtBadgeQuotes" class="detail-badge">0</span></button>
+            <button class="detail-tab" data-dtab="orders" onclick="switchDetailTab('orders',this)"><i class="fas fa-box"></i> 订单 <span id="dtBadgeOrders" class="detail-badge">0</span></button>
+            <button class="detail-tab" data-dtab="email" onclick="switchDetailTab('email',this)"><i class="fas fa-envelope"></i> 邮件</button>
+            <button class="detail-tab" data-dtab="activity" onclick="switchDetailTab('activity',this)"><i class="fas fa-clock-rotate"></i> 动态</button>
+          </div>
+          <div class="detail-tab-content active" id="dtab-messages"><div id="detailRecentMsgs"></div><div style="margin-top:8px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="detailGoToChat()"><i class="fas fa-external-link"></i> 查看全部消息</button></div></div>
+          <div class="detail-tab-content" id="dtab-quotes"><div style="margin-bottom:8px"><button class="btn btn-primary btn-sm" onclick="detailNewQuote()"><i class="fas fa-plus"></i> 新建报价</button></div><div id="detailQuoteList"></div></div>
+          <div class="detail-tab-content" id="dtab-orders"><div id="detailOrderList"></div></div>
+          <div class="detail-tab-content" id="dtab-email"><div id="detailEmailList"></div></div>
+          <div class="detail-tab-content" id="dtab-activity"><div class="detail-timeline" id="detailTimeline"></div></div>
+        </div>
+      </div>
     </div>
     <!-- 消息中心 -->
     <div class="page" id="page-chat">
@@ -634,6 +1031,7 @@ h2 .fas{color:var(--cyan);margin-right:8px}
         <button onclick="switchMediaTab('video',this)"><i class="fas fa-video"></i> 视频</button>
         <button onclick="switchMediaTab('document',this)"><i class="fas fa-file-lines"></i> 文档</button>
       </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;margin-bottom:8px" id="mediaTagFilter"></div>
       <div class="media-grid" id="mediaGrid"></div>
       <!-- 媒体预览模态框（保留原有结构） -->
       <div class="modal-preview" id="mediaPreviewModal" onclick="closeMediaPreview(event)">
@@ -670,6 +1068,10 @@ h2 .fas{color:var(--cyan);margin-right:8px}
               <select id="mediaUploadProduct">
                 <option value="">不关联</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label>标签</label>
+              <div id="mediaUploadTags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
             </div>
             <input type="file" id="mediaUploadInput" multiple accept="image/*,video/*,.pdf" style="display:none" onchange="handleUploadFiles(this.files)">
             <div onclick="document.getElementById('mediaUploadInput').click()" style="border:2px dashed var(--border);border-radius:12px;padding:30px;text-align:center;cursor:pointer;margin-top:8px;transition:0.2s" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -1644,6 +2046,55 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 
   </div>
 <!-- ======== 订单统计 ======== -->
+<!-- ======== 应收账款仪表盘 ======== -->
+<div class="page" id="page-ar-dashboard">
+  <div style="max-width:1200px;margin:0 auto">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" style="margin-bottom:24px">
+      <div class="stat-card"><div class="num" id="arTotalReceivable">$0</div><div class="label"><i class="fas fa-dollar-sign"></i> 总应收</div></div>
+      <div class="stat-card"><div class="num" id="arReceivedMonth">$0</div><div class="label"><i class="fas fa-calendar-check"></i> 本月已收</div></div>
+      <div class="stat-card"><div class="num" id="arOverdueAmount">$0</div><div class="label"><i class="fas fa-exclamation-triangle" style="color:var(--pink)"></i> 逾期金额</div></div>
+      <div class="stat-card"><div class="num" id="arPendingCount">0</div><div class="label"><i class="fas fa-clock"></i> 待收订单</div></div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-chart-bar" style="color:var(--pink)"></i> 账龄分析</h4>
+        <canvas id="chartAging" height="200"></canvas>
+      </div>
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-chart-pie" style="color:var(--gold)"></i> 付款状态</h4>
+        <canvas id="chartArStatus" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Customer AR Table -->
+    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">
+      <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-users" style="color:var(--cyan)"></i> 客户应收明细</h4>
+      <div style="overflow-x:auto">
+        <table class="data-table" style="width:100%;font-size:12px" id="arCustomerTable">
+          <thead><tr><th>客户</th><th>公司</th><th>订单数</th><th>总金额</th><th>已付</th><th>待收</th><th>最后付款</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+      <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-history" style="color:var(--gold)"></i> 最近收款记录</h4>
+      <div style="overflow-x:auto">
+        <table class="data-table" style="width:100%;font-size:12px" id="arPaymentHistoryTable">
+          <thead><tr><th>日期</th><th>订单号</th><th>客户</th><th>类型</th><th>金额</th><th>方式</th><th>操作人</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="page" id="page-order-stats">
   <div style="max-width:1100px;margin:0 auto">
 
@@ -1890,6 +2341,184 @@ h2 .fas{color:var(--cyan);margin-right:8px}
         </tr></thead>
         <tbody></tbody>
       </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======== 潜客管理 ======== -->
+<div class="page" id="page-leads">
+  <div style="max-width:1300px;margin:0 auto">
+
+    <!-- Stats Row -->
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card"><div class="num" id="leadTotalLeads">0</div><div class="label"><i class="fas fa-users"></i> 总潜客</div></div>
+      <div class="stat-card"><div class="num" id="leadNewThisMonth">0</div><div class="label"><i class="fas fa-calendar-plus"></i> 本月新增</div></div>
+      <div class="stat-card"><div class="num" id="leadUnassigned">0</div><div class="label"><i class="fas fa-user-slash"></i> 待分配（公海）</div></div>
+      <div class="stat-card"><div class="num" id="leadQualified">0</div><div class="label"><i class="fas fa-check-circle" style="color:var(--gold)"></i> 合格潜客</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <select id="leadFilterSource" style="padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px" onchange="loadLeads()">
+        <option value="">全部来源</option>
+        <option value="facebook">Facebook</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="referral">推荐</option>
+        <option value="manual">手动录入</option>
+      </select>
+      <select id="leadFilterStatus" style="padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px" onchange="loadLeads()">
+        <option value="">全部状态</option>
+        <option value="new">新潜客</option>
+        <option value="contacted">已联系</option>
+        <option value="qualified">合格</option>
+        <option value="customer">已成交</option>
+        <option value="lost">丢失</option>
+      </select>
+      <select id="leadFilterAssigned" style="padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px" onchange="loadLeads()">
+        <option value="">全部销售</option>
+      </select>
+      <script>
+      // 加载销售用户到过滤下拉
+      (function() {
+        fetch("/api/users").then(function(r){return r.json()}).then(function(users){
+          var sel = document.getElementById("leadFilterAssigned");
+          if (!sel) return;
+          users.forEach(function(u){
+            if (u.role === "sales" || u.role === "admin") {
+              var opt = document.createElement("option");
+              opt.value = u.id;
+              opt.textContent = u.display_name || u.username;
+              sel.appendChild(opt);
+            }
+          });
+        }).catch(function(){});
+      })();
+      </script>
+      <input id="leadFilterCountry" placeholder="国家筛选" style="padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px;width:100px" onchange="loadLeads()">
+      <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px">
+        <input type="checkbox" id="leadShowPoolOnly" onchange="loadLeads()"> 仅公海
+      </label>
+      <button class="btn btn-sm" onclick="loadLeads()" style="margin-left:auto"><i class="fas fa-sync"></i> 刷新</button>
+    </div>
+
+    <!-- Table -->
+    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;overflow-x:auto">
+      <table class="data-table" style="width:100%;font-size:12px" id="leadsTable">
+        <thead><tr>
+          <th>姓名</th><th>公司</th><th>来源</th><th>国家</th><th>状态</th><th>分数</th><th>销售</th><th>公海天数</th><th>最后联系</th><th>操作</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======== 获客分析 ======== -->
+<div class="page" id="page-lead-analytics">
+  <div style="max-width:1200px;margin:0 auto">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" style="margin-bottom:24px">
+      <div class="stat-card"><div class="num" id="laMonthNew">0</div><div class="label"><i class="fas fa-calendar-plus"></i> 本月新增</div></div>
+      <div class="stat-card"><div class="num" id="laSourceCount">0</div>
+
+<!-- ======== 跟进提醒 ======== -->
+<div class="page" id="page-lead-followup">
+  <div style="max-width:1300px;margin:0 auto">
+
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card"><div class="num" id="fuTotal">0</div><div class="label"><i class="fas fa-bell"></i> 待跟进总数</div></div>
+      <div class="stat-card"><div class="num" style="color:#fbbf24" id="fuDay3">0</div><div class="label"><i class="fas fa-clock" style="color:#fbbf24"></i> 3日跟进</div></div>
+      <div class="stat-card"><div class="num" style="color:#60a5fa" id="fuDay7">0</div><div class="label"><i class="fas fa-images" style="color:#60a5fa"></i> 7日跟进</div></div>
+      <div class="stat-card"><div class="num" style="color:#9ca3af" id="fuDay15">0</div><div class="label"><i class="fas fa-door-open" style="color:#9ca3af"></i> 15日跟进</div></div>
+    </div>
+
+    <div style="margin-bottom:12px;display:flex;justify-content:flex-end">
+      <button class="btn btn-sm" onclick="loadFollowupPage()"><i class="fas fa-sync"></i> 刷新</button>
+    </div>
+
+    <div id="fuSection3day" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:16px;margin-bottom:12px;overflow:hidden">
+      <div style="padding:12px 16px;font-weight:600;font-size:13px;background:rgba(251,191,36,0.08);color:#fbbf24;display:flex;justify-content:space-between;align-items:center">
+        <span><i class="fas fa-clock"></i> 3日跟进 — 温和提醒</span>
+        <span style="font-weight:400;font-size:11px;color:var(--muted)">报价后3天未回复，发送温和提醒</span>
+      </div>
+      <div id="fuList3day" style="padding:8px 0"></div>
+    </div>
+
+    <div id="fuSection7day" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:16px;margin-bottom:12px;overflow:hidden">
+      <div style="padding:12px 16px;font-weight:600;font-size:13px;background:rgba(96,165,250,0.08);color:#60a5fa;display:flex;justify-content:space-between;align-items:center">
+        <span><i class="fas fa-images"></i> 7日跟进 — 案例分享</span>
+        <span style="font-weight:400;font-size:11px;color:var(--muted)">7天未回复，发案例图</span>
+      </div>
+      <div id="fuList7day" style="padding:8px 0"></div>
+    </div>
+
+    <div id="fuSection15day" style="background:rgba(156,163,175,0.06);border:1px solid rgba(156,163,175,0.2);border-radius:16px;margin-bottom:12px;overflow:hidden">
+      <div style="padding:12px 16px;font-weight:600;font-size:13px;background:rgba(156,163,175,0.08);color:#9ca3af;display:flex;justify-content:space-between;align-items:center">
+        <span><i class="fas fa-door-open"></i> 15日跟进 — 留门收尾</span>
+        <span style="font-weight:400;font-size:11px;color:var(--muted)">15天未回复，最后尝试</span>
+      </div>
+      <div id="fuList15day" style="padding:8px 0"></div>
+    </div>
+
+    <div id="fuEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--muted)">
+      <i class="fas fa-check-circle" style="font-size:48px;color:#22c55e;margin-bottom:12px"></i>
+      <div style="font-size:14px">所有潜客已跟进，暂无待跟进提醒</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 跟进消息弹窗 -->
+<div class="modal" id="fuMsgModal" style="display:none">
+  <div class="modal-bg" onclick="closeModal('fuMsgModal')"></div>
+  <div class="modal-content" style="max-width:600px">
+    <div class="modal-header">
+      <h3><i class="fas fa-paper-plane" style="color:var(--cyan)"></i> 跟进消息预览</h3>
+      <button class="close" onclick="closeModal('fuMsgModal')">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <div style="margin-bottom:12px;font-size:12px;color:var(--muted)">
+        客户: <strong id="fuModalCustomer" style="color:var(--text-bright)"></strong>
+        <span style="margin:0 8px">|</span>
+        类型: <strong id="fuModalType" style="color:var(--text-bright)"></strong>
+      </div>
+      <textarea id="fuModalMsg" style="width:100%;min-height:160px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-ghost" onclick="closeModal('fuMsgModal')">取消</button>
+        <button class="btn btn-primary" id="fuModalSendBtn" onclick="confirmSendFollowup()"><i class="fas fa-paper-plane"></i> 确认发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="label"><i class="fas fa-rss"></i> 来源渠道数</div></div>
+      <div class="stat-card"><div class="num" id="laConversionRate">0%</div><div class="label"><i class="fas fa-funnel-dollar"></i> 成交转化率</div></div>
+      <div class="stat-card"><div class="num" id="laUnassigned">0</div><div class="label"><i class="fas fa-user-slash"></i> 待分配</div></div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-chart-pie" style="color:var(--gold)"></i> 来源分布</h4>
+        <canvas id="chartLeadSource" height="200"></canvas>
+      </div>
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-funnel" style="color:var(--cyan)"></i> 潜客漏斗</h4>
+        <canvas id="chartLeadFunnel" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Country Distribution -->
+    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+      <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-globe" style="color:var(--pink)"></i> 国家分布</h4>
+      <div style="overflow-x:auto">
+        <table class="data-table" style="width:100%;font-size:12px" id="laCountryTable">
+          <thead><tr><th>国家</th><th>潜客数</th><th>占比</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
@@ -2383,6 +3012,55 @@ h2 .fas{color:var(--cyan);margin-right:8px}
   </div>
 </div>
 
+<div class="page" id="page-notifications">
+  <div style="max-width:800px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0"><i class="fas fa-bell" style="color:var(--cyan)"></i> 通知中心</h3>
+      <button class="btn btn-ghost btn-sm" onclick="markAllNotifRead()">全部已读</button>
+    </div>
+    <div id="notifPageList" style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;min-height:200px">
+      <div class="notif-empty" id="notifPageEmpty">暂无通知</div>
+    </div>
+  </div>
+</div>
+
+<!-- 操作日志 -->
+<div class="page" id="page-activity-logs">
+  <div style="max-width:1000px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="margin:0"><i class="fas fa-clock-rotate-left" style="color:var(--cyan)"></i> 操作日志</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="logEntityFilter" style="padding:6px 10px;background:#090b14;border:1px solid var(--border);border-radius:8px;color:var(--text-bright);font-size:12px" onchange="loadActivityLogs()">
+          <option value="">全部实体</option>
+          <option value="customer">客户</option>
+          <option value="lead">潜客</option>
+          <option value="order">订单</option>
+          <option value="quote">报价</option>
+          <option value="user">用户</option>
+        </select>
+        <select id="logActionFilter" style="padding:6px 10px;background:#090b14;border:1px solid var(--border);border-radius:8px;color:var(--text-bright);font-size:12px" onchange="loadActivityLogs()">
+          <option value="">全部操作</option>
+          <option value="create">创建</option>
+          <option value="update">修改</option>
+          <option value="delete">删除</option>
+          <option value="assign">分配</option>
+          <option value="unassign">退回</option>
+          <option value="claim">认领</option>
+          <option value="status_change">改阶段</option>
+          <option value="payment">收款</option>
+          <option value="convert">转订单</option>
+          <option value="send">发送</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadActivityLogs()" title="刷新"><i class="fas fa-rotate"></i></button>
+      </div>
+    </div>
+    <div id="logTableWrap" style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;min-height:200px">
+      <div style="padding:40px;text-align:center;color:var(--muted)">加载中...</div>
+    </div>
+    <div id="logPagination" style="display:flex;justify-content:center;gap:8px;margin-top:12px"></div>
+  </div>
+</div>
+
 <div class="page" id="page-calc">
   <div style="max-width:1300px;margin:0 auto">
 
@@ -2695,6 +3373,28 @@ let _videoPollStart = 0;
 // ================= 页面切换 =================
 document.querySelectorAll('.nav-item').forEach(item => {
   item.onclick = () => {
+    // Role-based page guard
+    var _rolePages = {
+      admin: ['dashboard','customers','leads','lead-followup','chat','media','products',
+              'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
+              'commission','production','inventory','partners','purchase-orders',
+              'catalog','email','ai','prompts','knowledge','scripts','countries',
+              'cases-admin','users','activity-logs'],
+      sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
+              'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
+              'commission','production','inventory','partners','purchase-orders',
+              'catalog','email','ai','prompts','knowledge','scripts','countries',
+              'activity-logs'],
+      production: ['dashboard','orders','products','production','inventory',
+              'activity-logs']
+    };
+    var _allowedPages = _rolePages[(_currentUser && _currentUser.role) || ''] || [];
+    if (_allowedPages.length && _allowedPages.indexOf(item.dataset.page) === -1) {
+      // Redirect to first allowed page
+      var _firstNav = document.querySelector('[data-page="' + _allowedPages[0] + '"]');
+      if (_firstNav) { _firstNav.click(); }
+      return;
+    }
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     item.classList.add('active');
@@ -2716,13 +3416,17 @@ document.querySelectorAll('.nav-item').forEach(item => {
     document.getElementById('pageTitle').innerHTML = item.innerHTML.trim();
     if (page === 'dashboard') loadDashboard();
     if (page === 'customers') loadCustomers();
+    if (page === 'leads') loadLeads();
+    if (page === 'lead-followup') loadFollowupPage();
+    if (page === 'lead-analytics') loadLeadAnalytics();
     if (page === 'chat') loadChat();
-    if (page === 'media') loadMedia('all');
+    if (page === 'media') { loadMedia('all'); loadMediaTags(); }
     if (page === 'products') loadProducts();
     if (page === 'calc') loadCalcPage();
     if (page === 'quotes') loadQuotes();
     if (page === 'orders') loadOrders();
     if (page === 'order-stats') loadOrderStats();
+    if (page === 'ar-dashboard') loadArDashboard();
     if (page === 'commission') loadCommissionStats();
     if (page === 'production') loadProductionSchedule();
     if (page === 'inventory') loadInventory();
@@ -2733,6 +3437,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'scripts') loadScripts();
     if (page === 'countries') loadCountryProfiles();
     if (page === 'users') loadUsers();
+    if (page === 'activity-logs') loadActivityLogs();
   };
 });
 
@@ -2742,6 +3447,9 @@ async function api(url, opts = {}) {
   if (r.status === 401) {
     showLogin();
     throw new Error('未登录');
+  }
+  if (r.status === 403) {
+    throw new Error('权限不足');
   }
   return r.json();
 }
@@ -2773,26 +3481,23 @@ async function checkAuth() {
     document.getElementById('sidebarUser').textContent = user.display_name || user.username;
     document.getElementById('sidebarRole').textContent = ({admin:'管理员',sales:'销售',production:'生产'}[user.role] || user.role);
     hideLogin();
-    // Role-based nav visibility
-    document.querySelectorAll('.nav-item').forEach(el => {
-      const page = el.dataset.page;
-      if (user.role === 'production') {
-        el.style.display = (page === 'orders' || page === 'products' || page === 'dashboard') ? '' : 'none';
-      } else if (page === 'users' || page === 'cases-admin') {
-        el.style.display = user.role === 'admin' ? '' : 'none';
-      } else {
-        el.style.display = '';
-      }
+    // Role-based nav visibility (whitelist)
+    var rolePages = {
+      admin: ['dashboard','customers','leads','lead-followup','chat','media','products',
+              'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
+              'commission','production','inventory','partners','purchase-orders',
+              'catalog','email','ai','prompts','knowledge','scripts','countries',
+              'cases-admin','users'],
+      sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
+              'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
+              'commission','production','inventory','partners','purchase-orders',
+              'catalog','email','ai','prompts','knowledge','scripts','countries'],
+      production: ['dashboard','orders','products','production','inventory']
+    };
+    var allowed = rolePages[user.role] || [];
+    document.querySelectorAll('.nav-item').forEach(function(el) {
+      el.style.display = allowed.indexOf(el.dataset.page) !== -1 ? '' : 'none';
     });
-    // Show admin-only nav for admin (override inline display:none)
-    if (user.role === 'admin') {
-      var _uNav = document.querySelector('[data-page="users"]');
-      if (_uNav) _uNav.style.display = '';
-      var _cNav = document.querySelector('[data-page="cases-admin"]');
-      var _pNav = document.querySelector('[data-page="partners"]');
-      var _poNav = document.querySelector('[data-page="purchase-orders"]');
-      if (_cNav) _cNav.style.display = '';
-    }
     // Load orders if on orders page
     if (document.getElementById('page-orders').classList.contains('active')) {
       loadOrders();
@@ -2800,8 +3505,34 @@ async function checkAuth() {
     if (document.getElementById('page-purchase-orders').classList.contains('active')) {
       loadPurchaseOrders();
     }
-    if (document.getElementById('page-order-stats').classList.contains('active')) {
+    if (document.getElementById('page-leads').classList.contains('active')) {
+        loadLeads();
+      }
+      if (document.getElementById('page-lead-analytics').classList.contains('active')) {
+        loadLeadAnalytics();
+      }
+      if (document.getElementById('page-lead-followup').classList.contains('active')) {
+        loadFollowupPage();
+      }
+      if (document.getElementById('page-ar-dashboard').classList.contains('active')) {
+        loadArDashboard();
+      }
+      if (document.getElementById('page-order-stats').classList.contains('active')) {
       loadOrderStats();
+    }
+    // Notification polling
+    checkNotifications();
+    if (_notifTimer) clearInterval(_notifTimer);
+    _notifTimer = setInterval(checkNotifications, 30000);
+    // Current-page guard: if active page not in allowed list, redirect
+    var _curAllowed = rolePages[user.role] || [];
+    var _curPageEl = document.querySelector('.page.active');
+    if (_curPageEl && _curAllowed.length) {
+      var _curPageName = _curPageEl.id.replace('page-', '');
+      if (_curAllowed.indexOf(_curPageName) === -1) {
+        var _firstNav = document.querySelector('[data-page="' + _curAllowed[0] + '"]');
+        if (_firstNav) { _firstNav.click(); }
+      }
     }
     return user;
   } catch(e) {
@@ -2925,6 +3656,9 @@ async function loadDashboard() {
   else tip = '<i class="fas fa-thumbs-up"></i> 今天状态不错！可以准备一些报价或案例，主动发给潜在客户';
   document.getElementById('dailyTip').innerHTML = tip;
 
+  // === 图表 ===
+  if (typeof Chart !== 'undefined') loadDashboardCharts();
+
   // === 跟进列表 ===
   document.getElementById('followUpCount').innerHTML = needCount > 0 ? '(' + needCount + '个待跟进)' : '(全部已跟进 <i class="fas fa-check" style="color:#22c55e"></i>)';
   const list = document.getElementById('followUpList');
@@ -3016,13 +3750,14 @@ function renderCustomers() {
   }
   wrap.innerHTML = '<table><tr><th>客户</th><th>公司</th><th>国家</th><th>语言</th><th>WhatsApp</th><th>状态</th><th>操作</th></tr>' +
     filtered.map(c => `<tr>
-      <td style="font-weight:600;cursor:pointer" onclick="switchToChat(${c.id})">${esc(c.name)}</td>
+      <td style="font-weight:600;cursor:pointer;color:var(--cyan)" onclick="showCustomerDetail(${c.id})">${esc(c.name)}</td>
       <td>${esc(c.company)}</td>
       <td>${esc(c.country)}</td>
       <td style="font-size:11px">${esc(c.language || 'English')}</td>
       <td style="font-size:12px">${esc(c.whatsapp)}</td>
       <td><span class="status status-${c.status}">${c.status === 'hot' ? '<i class="fas fa-fire" style="color:var(--pink)"></i> Hot' : c.status === 'warm' ? '<i class="fas fa-sun" style="color:var(--gold)"></i> Warm' : '<i class="fas fa-snowflake" style="color:#6b7cff"></i> Cold'}</span></td>
       <td>
+        <button class="btn btn-ghost btn-sm" onclick="showCustomerDetail(${c.id})" title="查看详情"><i class="fas fa-eye"></i></button>
         <button class="btn btn-ghost btn-sm" onclick="editCustomer(${c.id})"><i class="fas fa-pen-to-square"></i></button>
         <button class="btn btn-ghost btn-sm" onclick="switchToChat(${c.id})"><i class="fas fa-comment"></i></button>
         <button class="btn btn-ghost btn-sm" onclick="showImportChatModal(${c.id})" title="导入聊天记录"><i class="fas fa-file-import"></i></button>
@@ -3074,7 +3809,12 @@ async function saveCustomer() {
     }
     closeModal('customerModal');
   }
-  loadCustomers();
+  // 如果从详情页编辑，保存后刷新详情页
+  if (_detailCustomerId && document.getElementById('page-customer-detail').classList.contains('active')) {
+    showCustomerDetail(_detailCustomerId);
+  } else {
+    loadCustomers();
+  }
 }
 
 async function deleteCustomer(id) {
@@ -3380,6 +4120,10 @@ async function confirmUpload() {
   const cat = document.getElementById('mediaUploadCat').value;
   const desc = document.getElementById('mediaUploadDesc').value.trim();
   const prodId = document.getElementById('mediaUploadProduct').value;
+  // Get selected tags
+  var tagCbs = document.querySelectorAll('.media-tag-cb:checked');
+  var selectedTagIds = [];
+  tagCbs.forEach(function(cb) { selectedTagIds.push(parseInt(cb.value)); });
   const btn = document.getElementById('uploadConfirmBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 上传中...';
@@ -3388,7 +4132,11 @@ async function confirmUpload() {
     const fd = new FormData();
     fd.append('file', f);
     fd.append('description', fullDesc);
-    await fetch('/api/media/upload', {method:'POST', body:fd});
+    var result = await fetch('/api/media/upload', {method:'POST', body:fd}).then(function(r) { return r.json(); });
+    // Apply tags to uploaded file
+    if (selectedTagIds.length > 0 && result.id) {
+      await api('/api/media/' + result.id + '/tags', {method:'PUT', body:JSON.stringify({tag_ids: selectedTagIds})});
+    }
   }
   _pendingUploadFiles = [];
   closeModal('mediaUploadModal');
@@ -6534,6 +7282,389 @@ if (!document._prodProgressListener) {
 }
 
 // ================= 销售提成 =================
+
+// ================= 应收账款仪表盘 (AR) =================
+var _arCharts = {};
+
+function destroyArCharts() {
+  Object.values(_arCharts).forEach(function(ch) { if (ch) ch.destroy(); });
+  _arCharts = {};
+}
+
+async function loadArDashboard() {
+  try {
+    var [summary, customers, history, aging] = await Promise.all([
+      api('/api/ar/summary'),
+      api('/api/ar/by-customer'),
+      api('/api/ar/payment-history?limit=30'),
+      api('/api/ar/aging'),
+    ]);
+
+    // Stats cards
+    document.getElementById('arTotalReceivable').textContent = '$' + Number(summary.total_receivable).toLocaleString(undefined, {minimumFractionDigits:2});
+    document.getElementById('arReceivedMonth').textContent = '$' + Number(summary.received_this_month).toLocaleString(undefined, {minimumFractionDigits:2});
+    document.getElementById('arOverdueAmount').textContent = '$' + Number(summary.overdue_amount).toLocaleString(undefined, {minimumFractionDigits:2});
+    document.getElementById('arPendingCount').textContent = summary.pending_count;
+
+    destroyArCharts();
+
+    // Aging bar chart
+    _arCharts.aging = new Chart(document.getElementById('chartAging'), {
+      type: 'bar',
+      data: {
+        labels: aging.map(function(a){ return a.label; }),
+        datasets: [{
+          label: '应收金额 ($)',
+          data: aging.map(function(a){ return a.amount; }),
+          backgroundColor: ['rgba(0,242,255,0.6)', 'rgba(212,175,55,0.6)', 'rgba(255,0,80,0.6)', 'rgba(239,68,68,0.7)'],
+          borderColor: ['#00f2ff', '#D4AF37', '#ff0050', '#ef4444'],
+          borderWidth: 1, borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#667', font: { size: 10 } }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: '#667', font: { size: 10 } }, grid: { color: 'rgba(30,36,72,0.5)' } },
+        }
+      }
+    });
+
+    // Status doughnut chart
+    var paidAmt = summary.total_received;
+    var dueAmt = Math.max(0, summary.total_receivable - summary.total_received);
+    _arCharts.status = new Chart(document.getElementById('chartArStatus'), {
+      type: 'doughnut',
+      data: {
+        labels: ['已收款', '待收款'],
+        datasets: [{
+          data: [paidAmt, dueAmt],
+          backgroundColor: ['#22c55e', 'rgba(255,0,80,0.6)'],
+          borderColor: '#0a0c14', borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#e0e0e0', font: { size: 10 }, padding: 12 } }
+        }
+      }
+    });
+
+    // Customer AR table
+    var tbody = document.querySelector('#arCustomerTable tbody');
+    if (!customers || customers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px 0">暂无应收数据</td></tr>';
+    } else {
+      tbody.innerHTML = customers.map(function(c) {
+        return '<tr>' +
+          '<td style="font-weight:600">' + esc(c.customer_name) + '</td>' +
+          '<td style="color:var(--muted)">' + esc(c.company || '') + '</td>' +
+          '<td>' + c.order_count + '</td>' +
+          '<td>$' + Number(c.total_amount).toLocaleString(undefined, {minimumFractionDigits:2}) + '</td>' +
+          '<td style="color:#22c55e">$' + Number(c.total_paid || 0).toLocaleString(undefined, {minimumFractionDigits:2}) + '</td>' +
+          '<td style="color:var(--pink);font-weight:600">$' + Number(c.balance_due || 0).toLocaleString(undefined, {minimumFractionDigits:2}) + '</td>' +
+          '<td style="color:var(--muted);font-size:11px">' + (c.last_payment_date || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    // Payment history table
+    var htbody = document.querySelector('#arPaymentHistoryTable tbody');
+    if (!history || history.length === 0) {
+      htbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px 0">暂无收款记录</td></tr>';
+    } else {
+      htbody.innerHTML = history.map(function(p) {
+        var typeLabel = p.type === 'deposit' ? '定金' : '尾款';
+        return '<tr>' +
+          '<td style="font-size:11px;color:var(--muted)">' + (p.payment_date || p.created_at || '').substring(0,10) + '</td>' +
+          '<td style="font-weight:600">' + esc(p.order_no) + '</td>' +
+          '<td>' + esc(p.customer_name || '') + '</td>' +
+          '<td><span class="payment-badge ' + (p.type === 'deposit' ? 'done' : 'pending') + '">' + typeLabel + '</span></td>' +
+          '<td style="font-weight:600;color:var(--gold)">' + (p.currency || 'USD') + ' ' + Number(p.amount).toFixed(2) + '</td>' +
+          '<td style="color:var(--muted)">' + esc(p.method || '') + '</td>' +
+          '<td style="font-size:11px;color:var(--muted)">' + esc(p.recorded_name || '') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+  } catch(e) {
+    if (e.message !== '未登录') console.error(e);
+  }
+}
+
+
+// ================= 潜客管理 (Leads) =================
+var _leadCharts = {};
+
+function destroyLeadCharts() {
+  Object.values(_leadCharts).forEach(function(ch) { if (ch) ch.destroy(); });
+  _leadCharts = {};
+}
+
+async function loadLeads() {
+  try {
+    var source = document.getElementById("leadFilterSource").value;
+    var status = document.getElementById("leadFilterStatus").value;
+    var country = document.getElementById("leadFilterCountry").value;
+    var assigned = document.getElementById("leadFilterAssigned").value;
+    var poolOnly = document.getElementById("leadShowPoolOnly").checked;
+    var params = new URLSearchParams();
+    if (source) params.set("source", source);
+    if (status) params.set("status", status);
+    if (assigned) params.set("assigned_to", assigned);
+    if (country) params.set("country", country);
+    if (poolOnly) params.set("assigned_to", "-1");
+    params.set("pool", "1");
+
+    var [leads, summary] = await Promise.all([
+      api("/api/leads?" + params.toString()),
+      api("/api/leads/summary"),
+    ]);
+
+    // Update stats
+    var totalLeads = leads.length;
+    document.getElementById("leadTotalLeads").textContent = totalLeads;
+    document.getElementById("leadNewThisMonth").textContent = summary.month_new || 0;
+    document.getElementById("leadUnassigned").textContent = summary.unassigned || 0;
+    var qualifiedCount = 0;
+    leads.forEach(function(l) { if (l.lead_status === "qualified") qualifiedCount++; });
+    document.getElementById("leadQualified").textContent = qualifiedCount;
+
+    // Render table
+    var tbody = document.querySelector("#leadsTable tbody");
+    if (!leads.length) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:40px 0">暂无潜客数据</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      var statusColor = {new:"#00f2ff", contacted:"#D4AF37", qualified:"#22c55e", customer:"#22c55e", lost:"#ef4444"};
+      var statusLabel = {new:"新潜客", contacted:"已联系", qualified:"合格", customer:"已成交", lost:"丢失"};
+      var sourceIcons = {facebook:"fa-facebook", whatsapp:"fa-whatsapp", referral:"fa-share", manual:"fa-pen"};
+      var sourceIcon = sourceIcons[l.source] || "fa-link";
+      // Pool info
+      var isUnassigned = !l.assigned_to || l.assigned_to === "";
+      var poolDays = l.pool_days != null ? l.pool_days : "-";
+      var poolStatusClass = l.pool_status || "unassigned";
+      var poolRowClass = (poolStatusClass === "expired" || poolStatusClass === "unassigned") ? "" : "pool-" + poolStatusClass;
+      var poolInfoHtml = isUnassigned
+        ? '<span class="pool-badge unassigned">公海</span>'
+        : '<span class="' + poolRowClass + '"><span class="pool-status-dot"></span>' + poolDays + '</span>';
+      var claimBtn = "";
+      if (isUnassigned) {
+        claimBtn = '<button class="btn btn-xs" onclick="claimLead(' + l.id + ')" style="margin-right:4px;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)"><i class="fas fa-hand-paper"></i> 认领</button>';
+      } else {
+        claimBtn = '<button class="btn btn-xs btn-ghost" onclick="unassignLead(' + l.id + ')" style="margin-right:4px;color:var(--muted)" title="退回公海"><i class="fas fa-undo-alt"></i></button>';
+      }
+      return "<tr>" +
+        "<td style=\"font-weight:600\">" + esc(l.name || "") + "</td>" +
+        "<td style=\"color:var(--muted);font-size:11px\">" + esc(l.company || "") + "</td>" +
+        "<td><i class=\"fab " + sourceIcon + "\" style=\"margin-right:4px\"></i>" + (l.source || "-") + "</td>" +
+        "<td>" + esc(l.country || "-") + "</td>" +
+        "<td><span class=\"lead-status-badge\" style=\"background:" + (statusColor[l.lead_status] || "#555") + "20;color:" + (statusColor[l.lead_status] || "#fff") + ";padding:2px 8px;border-radius:10px;font-size:11px\">" + (statusLabel[l.lead_status] || l.lead_status || "new") + "</span></td>" +
+        "<td>" + (l.lead_score != null ? l.lead_score : "-") + "</td>" +
+        "<td style=\"font-size:11px\">" + esc(l.assigned_name || '<span style="color:var(--pink)">未分配</span>') + "</td>" +
+        "<td style=\"font-size:11px;white-space:nowrap\">" + poolInfoHtml + "</td>" +
+        "<td style=\"font-size:11px;color:var(--muted)\">" + (l.last_contacted_at ? l.last_contacted_at.substring(0,10) : "-") + "</td>" +
+        "<td style=\"white-space:nowrap\">" +
+          claimBtn +
+          "<button class=\"btn btn-xs\" onclick=\"assignLead(" + l.id + ")\" style=\"margin-right:4px\"><i class=\"fas fa-user-plus\"></i></button>" +
+          "<select class=\"lead-status-select\" onchange=\"updateLeadStatus(" + l.id + ",this.value)\" style=\"padding:2px 4px;border-radius:6px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:10px\">" +
+            "<option value=\"\">状态…</option>" +
+            "<option value=\"new\">新潜客</option>" +
+            "<option value=\"contacted\">已联系</option>" +
+            "<option value=\"qualified\">合格</option>" +
+            "<option value=\"customer\">已成交</option>" +
+            "<option value=\"lost\">丢失</option>" +
+          "</select>" +
+        "</td>" +
+        "</tr>";
+    }).join("");
+  } catch(e) { if (e.message !== "未登录") console.error(e); }
+}
+
+function assignLead(customerId) {
+  // Load users list into a quick modal
+  fetch("/api/users").then(function(r) { return r.json(); }).then(function(users) {
+    var html = '<div class="modal" id="assignLeadModal"><div class="modal-bg" onclick="closeModal(\'assignLeadModal\')"></div><div class="modal-content" style="max-width:400px"><div class="modal-header"><h3>分配销售</h3><button class="close" onclick="closeModal(\'assignLeadModal\')">×</button></div><div class="modal-body" style="padding:20px"><div style="display:flex;flex-direction:column;gap:8px">';
+    users.forEach(function(u) {
+      if (u.role === "sales" || u.role === "admin") {
+        html += '<button class="btn" onclick="doAssignLead(' + customerId + ',' + u.id + ')' + '" style="text-align:left">' + esc(u.display_name || u.username) + " (" + (u.role || "") + ")</button>";
+      }
+    });
+    html += '</div></div></div></div>';
+    var div = document.createElement("div");
+    div.innerHTML = html;
+    document.body.appendChild(div);
+    openModal("assignLeadModal");
+  }).catch(function() {});
+}
+
+function doAssignLead(customerId, userId) {
+  api("/api/leads/" + customerId + "/assign", {method:"PUT", body:JSON.stringify({user_id:userId})}).then(function() {
+    closeModal("assignLeadModal");
+    loadLeads();
+  }).catch(function() {});
+}
+
+// 公海：认领潜客
+async function claimLead(customerId) {
+  try {
+    await api("/api/leads/" + customerId + "/claim", {method:"PUT"});
+    loadLeads();
+  } catch(e) { alert("认领失败: " + e.message); }
+}
+
+// 公海：退回公海
+async function unassignLead(customerId) {
+  if (!confirm("确定退回公海？")) return;
+  try {
+    await api("/api/leads/" + customerId + "/unassign", {method:"PUT"});
+    loadLeads();
+  } catch(e) { alert("操作失败: " + e.message); }
+}
+
+function updateLeadStatus(customerId, status) {
+  if (!status) return;
+  api("/api/leads/" + customerId + "/status", {method:"PUT", body:JSON.stringify({lead_status:status})}).then(function() {
+    loadLeads();
+  }).catch(function() {});
+}
+
+// ================= 获客分析 (Lead Analytics) =================
+
+async function loadLeadAnalytics() {
+  try {
+    var [summary, funnel] = await Promise.all([
+      api("/api/leads/summary"),
+      api("/api/leads/funnel"),
+    ]);
+
+    // Stats cards
+    document.getElementById("laMonthNew").textContent = summary.month_new || 0;
+    var sourceCount = (summary.by_source || []).length;
+    document.getElementById("laSourceCount").textContent = sourceCount;
+    var totalLeads = 0;
+    (summary.by_status || []).forEach(function(s) { totalLeads += s.count; });
+    var customerCount = 0;
+    (summary.by_status || []).forEach(function(s) { if (s.lead_status === "customer") customerCount = s.count; });
+    var convRate = totalLeads > 0 ? (customerCount / totalLeads * 100).toFixed(1) : 0;
+    document.getElementById("laConversionRate").textContent = convRate + "%";
+    document.getElementById("laUnassigned").textContent = summary.unassigned || 0;
+
+    destroyLeadCharts();
+
+    // Source pie chart
+    var sourceLabels = [];
+    var sourceData = [];
+    var sourceColors = [];
+    var colorPalette = ["#D4AF37","#00f2ff","#22c55e","#ff0050","#a855f7","#f97316"];
+    (summary.by_source || []).forEach(function(s, i) {
+      sourceLabels.push(s.source || "未知");
+      sourceData.push(s.count);
+      sourceColors.push(colorPalette[i % colorPalette.length]);
+    });
+    if (sourceLabels.length === 0) { sourceLabels = ["暂无数据"]; sourceData = [1]; sourceColors = ["#333"]; }
+    _leadCharts.source = new Chart(document.getElementById("chartLeadSource"), {
+      type: "pie",
+      data: { labels: sourceLabels, datasets: [{ data: sourceData, backgroundColor: sourceColors, borderColor: "#0a0c14", borderWidth: 2 }] },
+      options: { responsive: true, plugins: { legend: { position: "bottom", labels: { color: "#e0e0e0", font: { size: 10 }, padding: 12 } } } }
+    });
+
+    // Funnel bar chart
+    var stageOrder = ["new","contacted","qualified","customer"];
+    var stageLabels = {"new":"新潜客","contacted":"已联系","qualified":"合格","customer":"已成交"};
+    var funnelLabels = [];
+    var funnelData = [];
+    var funnelColors = ["rgba(0,242,255,0.6)","rgba(212,175,55,0.6)","rgba(34,197,94,0.6)","rgba(34,197,94,0.8)"];
+    stageOrder.forEach(function(st, i) {
+      var found = null;
+      (funnel || []).forEach(function(f) { if (f.stage === st) found = f; });
+      funnelLabels.push(stageLabels[st] || st);
+      funnelData.push(found ? found.count : 0);
+    });
+    _leadCharts.funnel = new Chart(document.getElementById("chartLeadFunnel"), {
+      type: "bar",
+      data: {
+        labels: funnelLabels,
+        datasets: [{ label: "潜客数", data: funnelData, backgroundColor: funnelColors, borderColor: funnelColors.map(function(c) { return c.replace("0.6","1").replace("0.8","1"); }), borderWidth: 1, borderRadius: 4 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#667", font: { size: 10 } }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: "#667", font: { size: 10 } }, grid: { color: "rgba(30,36,72,0.5)" } }
+        }
+      }
+    });
+
+    // Country table
+    var ctbody = document.querySelector("#laCountryTable tbody");
+    var byCountry = summary.by_country || [];
+    var totalCountry = 0;
+    byCountry.forEach(function(c) { totalCountry += c.count; });
+    if (!byCountry.length) {
+      ctbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px 0">暂无数据</td></tr>';
+    } else {
+      ctbody.innerHTML = byCountry.map(function(c) {
+        var pct = totalCountry > 0 ? (c.count / totalCountry * 100).toFixed(1) : 0;
+        return "<tr><td>" + esc(c.country || "未知") + "</td><td>" + c.count + "</td><td>" + pct + "%</td></tr>";
+      }).join("");
+    }
+  } catch(e) { if (e.message !== "未登录") console.error(e); }
+}
+
+// ================= 媒体标签 =================
+
+async function loadMediaTags() {
+  try {
+    var tags = await api("/api/media/tags");
+    // Tag filter bar
+    var filterBar = document.getElementById("mediaTagFilter");
+    if (filterBar) {
+      filterBar.innerHTML = '<button class="btn btn-xs" style="border-color:var(--cyan);color:var(--cyan)" onclick="filterMediaByTag(\'\',this)" data-tag="">全部</button>' +
+        tags.map(function(t) {
+          return '<button class="btn btn-xs" style="border-color:' + (t.color || "#00f2ff") + ";color:" + (t.color || "#00f2ff") + "" onclick=\"filterMediaByTag(" + t.id + ",this)\" data-tag=\"" + t.id + "\">" + esc(t.name) + "</button>";
+        }).join("");
+    }
+    // Upload tag selection
+    var tagSel = document.getElementById("mediaUploadTags");
+    if (tagSel) {
+      tagSel.innerHTML = tags.map(function(t) {
+        return '<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" class="media-tag-cb" value="' + t.id + '"> <span style="color:' + (t.color || "#00f2ff") + '">' + esc(t.name) + "</span></label>";
+      }).join("");
+    }
+    return tags;
+  } catch(e) { return []; }
+}
+
+var _mediaTagFilter = "";
+function filterMediaByTag(tagId, btn) {
+  _mediaTagFilter = tagId;
+  document.querySelectorAll("#mediaTagFilter button").forEach(function(b) { b.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+  loadMediaWithTag();
+}
+
+async function loadMediaWithTag() {
+  var type = _mediaTabType || "all";
+  var url = _mediaTagFilter ? "/api/media?tag=" + _mediaTagFilter + (type !== "all" ? "&type=" + type : "")
+    : (type === "all" ? "/api/media" : "/api/media?type=" + type);
+  try {
+    mediaFiles = await api(url);
+    renderMediaGrid(mediaFiles);
+  } catch(e) {}
+}
+
+// Patch switchMediaTab to respect tag filter
+var _origSwitchTab = switchMediaTab;
+switchMediaTab = function(type, btn) {
+  _mediaTabType = type;
+  document.querySelectorAll(".media-tab-bar button").forEach(function(b) { b.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+  loadMediaWithTag();
+};
 async function loadCommissionStats() {
   try {
     var data = await api('/api/commission-stats');
@@ -8605,5 +9736,594 @@ calcInit();
 
 <!-- WhatsApp活动通知容器 -->
 <div class="wa-toast-container" id="waToastContainer"></div>
+
+// ================= 跟进提醒 (Follow-up Reminder) =================
+var _fuModalCid = null;
+var _fuModalType = null;
+
+function escAttr(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+async function loadFollowupPage() {
+  try {
+    var [leads, summary] = await Promise.all([
+      api("/api/leads/followup"),
+      api("/api/leads/followup/summary"),
+    ]);
+    document.getElementById("fuTotal").textContent = summary.total || 0;
+    document.getElementById("fuDay3").textContent = summary.day3 || 0;
+    document.getElementById("fuDay7").textContent = summary.day7 || 0;
+    document.getElementById("fuDay15").textContent = summary.day15 || 0;
+    var day3 = [], day7 = [], day15 = [];
+    (leads || []).forEach(function(l) {
+      if (l.followup_type === "3day") day3.push(l);
+      else if (l.followup_type === "7day") day7.push(l);
+      else if (l.followup_type === "15day") day15.push(l);
+    });
+    renderFuSection("fuList3day", day3, "3day");
+    renderFuSection("fuList7day", day7, "7day");
+    renderFuSection("fuList15day", day15, "15day");
+    document.getElementById("fuSection3day").style.display = day3.length ? "" : "none";
+    document.getElementById("fuSection7day").style.display = day7.length ? "" : "none";
+    document.getElementById("fuSection15day").style.display = day15.length ? "" : "none";
+    var empty = document.getElementById("fuEmpty");
+    empty.style.display = (day3.length + day7.length + day15.length === 0) ? "" : "none";
+  } catch(e) { if (e.message !== "未登录") console.error(e); }
+}
+
+function renderFuSection(containerId, leads, type) {
+  var el = document.getElementById(containerId);
+  if (!leads || !leads.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">暂无待跟进</div>';
+    return;
+  }
+  el.innerHTML = leads.map(function(l) {
+    var ds = l.days_since || 0;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)">' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:13px">' + esc(l.name) +
+          (l.company ? ' <span style="font-size:11px;color:var(--muted);font-weight:400">' + esc(l.company) + '</span>' : '') +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px">' +
+          (l.country ? '<i class="fas fa-globe" style="margin-right:2px"></i>' + esc(l.country) + ' · ' : '') +
+          '<i class="far fa-clock"></i> ' + ds + '天未联系' +
+          (l.assigned_name ? ' · ' + esc(l.assigned_name) : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        '<button class="btn btn-ghost btn-xs" onclick="skipFollowup(' + l.id + ',this)" style="color:var(--muted)">跳过</button>' +
+        '<button class="btn btn-primary btn-xs" onclick="previewFollowup(' + l.id + ',\'' + escAttr(l.name) + '\',\'' + type + '\')">' +
+          '<i class="fas fa-paper-plane"></i> 一键跟进</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function previewFollowup(cid, name, followupType) {
+  _fuModalCid = cid;
+  _fuModalType = followupType;
+  document.getElementById("fuModalCustomer").textContent = name;
+  var typeLabels = {"3day":"3日温和提醒","7day":"7日案例分享","15day":"15日留门收尾"};
+  document.getElementById("fuModalType").textContent = typeLabels[followupType] || followupType;
+  document.getElementById("fuModalMsg").value = "⏳ AI生成中...";
+  document.getElementById("fuModalSendBtn").disabled = true;
+  openModal("fuMsgModal");
+  try {
+    var r = await api("/api/leads/" + cid + "/followup-msg", {
+      method: "POST",
+      body: JSON.stringify({followup_type: followupType})
+    });
+    document.getElementById("fuModalMsg").value = (r.ok && r.message) ? r.message : "⚠️ AI生成失败，请重试";
+  } catch(e) {
+    document.getElementById("fuModalMsg").value = "⚠️ 网络错误: " + e.message;
+  }
+  document.getElementById("fuModalSendBtn").disabled = false;
+}
+
+async function confirmSendFollowup() {
+  var cid = _fuModalCid;
+  var msg = document.getElementById("fuModalMsg").value.trim();
+  var typeLabel = {"3day":"3日跟进","7day":"7日案例分享","15day":"15日留门收尾"}[_fuModalType] || "跟进";
+  if (!cid || !msg) return;
+  var btn = document.getElementById("fuModalSendBtn");
+  btn.disabled = true;
+  btn.innerHTML = "⏳ 发送中...";
+  try {
+    var parts = msg.split("---");
+    var contentEn = parts[0].trim();
+    var contentCn = parts.length > 1 ? parts.slice(1).join("---").trim() : contentEn;
+    await fetch("/api/send", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({customer_id: cid, content_cn: contentCn, content_en: contentEn, direction: "sent"})
+    });
+    await api("/api/leads/" + cid + "/contacted", {method: "POST"});
+    closeModal("fuMsgModal");
+    loadFollowupPage();
+    var t = document.createElement("div");
+    t.style.cssText = "position:fixed;bottom:20px;right:20px;z-index:9999;background:#1a3a2a;border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px 16px;color:#22c55e;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,0.4)";
+    t.innerHTML = '<i class="fas fa-check-circle"></i> ' + typeLabel + '消息已发送';
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+  } catch(e) { alert("发送失败: " + e.message); }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> 确认发送';
+}
+
+async function skipFollowup(cid, btn) {
+  btn.disabled = true;
+  btn.innerHTML = "⏳";
+  try {
+    await api("/api/leads/" + cid + "/contacted", {method: "POST"});
+    loadFollowupPage();
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = "跳过";
+  }
+}
+
+
+// ================= 通知系统 =================
+var _notifTimer = null;
+
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+var NOTIF_ICONS = {
+  assign: '<i class="fas fa-user-plus"></i>',
+  order: '<i class="fas fa-box"></i>',
+  info: '<i class="fas fa-info"></i>',
+  success: '<i class="fas fa-check-circle"></i>',
+  warning: '<i class="fas fa-exclamation-triangle"></i>',
+  followup: '<i class="fas fa-bell"></i>'
+};
+
+function notifIcon(type) { return NOTIF_ICONS[type] || NOTIF_ICONS.info; }
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  var d = new Date(ts.replace(' ','T') + 'Z');
+  if (isNaN(d.getTime())) d = new Date(ts);
+  var diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return Math.floor(diff/60) + '分钟前';
+  if (diff < 86400) return Math.floor(diff/3600) + '小时前';
+  if (diff < 2592000) return Math.floor(diff/86400) + '天前';
+  return d.toLocaleDateString('zh-CN');
+}
+
+async function checkNotifications() {
+  try {
+    var r = await fetch('/api/notifications/unread-count');
+    var d = await r.json();
+    var badge = document.getElementById('notifBadge');
+    var c = d.count || 0;
+    if (c > 0) {
+      badge.textContent = c > 99 ? '99+' : c;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) { /* ignore */ }
+}
+
+async function loadNotifications() {
+  try {
+    var r = await api('/api/notifications');
+    if (!Array.isArray(r)) return;
+    var el = document.getElementById('notifList');
+    if (!r.length) {
+      el.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle" style="color:#22c55e;font-size:24px;margin-bottom:8px;display:block"></i>暂无通知</div>';
+      return;
+    }
+    el.innerHTML = r.map(function(n) {
+      var uc = n.is_read ? '' : ' unread';
+      var dot = n.is_read ? '' : '<div class="notif-dot"></div>';
+      return '<div class="notif-item' + uc + '" onclick="notifClick(' + n.id + ',\'' + esc(n.link || '') + '\')">' +
+        '<div class="notif-icon ' + esc(n.type) + '">' + notifIcon(n.type) + '</div>' +
+        '<div class="notif-body">' +
+          '<div class="notif-title">' + esc(n.title) + '</div>' +
+          (n.message ? '<div class="notif-msg">' + esc(n.message) + '</div>' : '') +
+          '<div class="notif-time">' + timeAgo(n.created_at) + '</div>' +
+        '</div>' + dot + '</div>';
+    }).join('');
+  } catch(e) { /* ignore */ }
+}
+
+async function loadNotifPage() {
+  try {
+    var r = await api('/api/notifications');
+    if (!Array.isArray(r)) return;
+    var el = document.getElementById('notifPageList');
+    var empty = document.getElementById('notifPageEmpty');
+    if (!r.length) {
+      if (empty) empty.style.display = '';
+      el.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle" style="color:#22c55e;font-size:32px;margin-bottom:8px;display:block"></i>暂无通知</div>';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    el.innerHTML = r.map(function(n) {
+      var uc = n.is_read ? '' : ' unread';
+      var dot = n.is_read ? '' : '<div class="notif-dot"></div>';
+      return '<div class="notif-page-item' + uc + '" onclick="notifClick(' + n.id + ',\'' + esc(n.link || '') + '\')">' +
+        '<div class="notif-icon ' + esc(n.type) + '">' + notifIcon(n.type) + '</div>' +
+        '<div class="notif-body">' +
+          '<div class="notif-title">' + esc(n.title) + '</div>' +
+          (n.message ? '<div class="notif-msg">' + esc(n.message) + '</div>' : '') +
+          '<div class="notif-time">' + timeAgo(n.created_at) + '</div>' +
+        '</div>' + dot + '</div>';
+    }).join('');
+  } catch(e) { /* ignore */ }
+}
+
+function toggleNotifPanel() {
+  var panel = document.getElementById('notifDropdown');
+  if (panel.style.display === 'block') {
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'block';
+    loadNotifications();
+    checkNotifications();
+  }
+}
+
+async function notifClick(nid, link) {
+  try {
+    await fetch('/api/notifications/' + nid + '/read', {method:'POST'});
+  } catch(e) { /* ignore */ }
+  document.getElementById('notifDropdown').style.display = 'none';
+  checkNotifications();
+  if (link) {
+    // Extract page name from link like '/leads/5' -> 'leads'
+    var parts = link.split('/');
+    if (parts.length >= 2) {
+      var page = parts[1];
+      var navItem = document.querySelector('[data-page="' + page + '"]');
+      if (navItem) { navItem.click(); return; }
+    }
+  }
+  // Fallback: close dropdown and refresh
+  loadNotifPage();
+}
+
+async function markAllNotifRead() {
+  try {
+    await fetch('/api/notifications/read-all', {method:'POST'});
+    document.getElementById('notifDropdown').style.display = 'none';
+    checkNotifications();
+  } catch(e) { /* ignore */ }
+}
+
+function showNotifPage() {
+  document.getElementById('notifDropdown').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-notifications').classList.add('active');
+  document.getElementById('page-notifications').style.display = '';
+  document.getElementById('pageTitle').innerHTML = '<i class="fas fa-bell" style="color:var(--cyan)"></i> 通知中心';
+  loadNotifPage();
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('notifDropdown');
+  var bell = document.getElementById('notifBell');
+  if (panel && panel.style.display === 'block' && bell && !bell.contains(e.target) && !panel.contains(e.target)) {
+    panel.style.display = 'none';
+  }
+});
+
+
+
+// ================= 客户导出/导入 =================
+function exportCustomers() {
+  window.location.href = '/api/export/customers';
+}
+
+function importCustomers() {
+  document.getElementById('csvFileInput').click();
+}
+
+async function handleCsvImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  // Reset input so same file can be re-imported
+  event.target.value = '';
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const r = await fetch('/api/import/customers', {method:'POST', body:formData});
+    const d = await r.json();
+    if (d.ok) {
+      showToast('<i class="fas fa-check-circle" style="color:#22c55e"></i> 导入完成: 成功 ' + d.imported + ' 条' +
+        (d.skipped ? ', 跳过 ' + d.skipped + ' 条(已存在)' : '') +
+        (d.errors && d.errors.length ? ', ' + d.errors.length + ' 个错误' : ''));
+      if (d.errors && d.errors.length) {
+        console.warn('导入错误:', d.errors);
+      }
+      // Refresh customer list
+      if (typeof loadCustomers === 'function') loadCustomers();
+    } else {
+      showToast('<i class="fas fa-exclamation-triangle" style="color:var(--gold)"></i> 导入失败: ' + (d.error || '未知错误'));
+    }
+  } catch(e) {
+    showToast('<i class="fas fa-exclamation-triangle" style="color:var(--gold)"></i> 导入请求失败: ' + e.message);
+  }
+}
+
+
+// ================= Dashboard图表 =================
+var _charts = {};
+
+function destroyCharts() {
+  Object.keys(_charts).forEach(function(k) { if (_charts[k]) { _charts[k].destroy(); delete _charts[k]; } });
+}
+
+function chartColors() {
+  return {
+    cyan: '#00f2ff',
+    gold: '#fbbf24',
+    pink: '#ef4444',
+    purple: '#818cf8',
+    green: '#22c55e',
+    muted: '#6b7280',
+    grid: 'rgba(255,255,255,0.06)',
+    transparent: 'transparent',
+  };
+}
+
+async function loadDashboardCharts() {
+  destroyCharts();
+  var c = chartColors();
+  try {
+    var [trend, chartData] = await Promise.all([
+      api('/api/stats/revenue-trend'),
+      api('/api/stats/chart-data')
+    ]);
+    if (!trend || !chartData) return;
+
+    // 1. 营收趋势 (折线图)
+    if (trend.length) {
+      var ctx1 = document.getElementById('revenueChart').getContext('2d');
+      _charts.revenue = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: trend.map(function(d) { return d.month; }),
+          datasets: [{
+            label: '营收',
+            data: trend.map(function(d) { return d.revenue; }),
+            borderColor: c.cyan,
+            backgroundColor: c.cyan + '20',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: c.cyan,
+          }, {
+            label: '成本',
+            data: trend.map(function(d) { return d.cost; }),
+            borderColor: c.pink,
+            backgroundColor: 'transparent',
+            borderDash: [4, 4],
+            tension: 0.3,
+            pointRadius: 2,
+            pointBackgroundColor: c.pink,
+          }]
+        },
+        options: chartOpts({ legend: true })
+      });
+    } else {
+      showNoData('revenueChart', '暂无营收数据');
+    }
+
+    // 2. 订单状态 (环形图)
+    if (chartData.order_status_counts && chartData.order_status_counts.length) {
+      var statusLabels = { 'pending_approval': '待审核', 'confirmed': '已确认', 'in_production': '生产中', 'shipped': '已发货', 'delivered': '已交付', 'cancelled': '已取消' };
+      var statusColors = { 'pending_approval': c.gold, 'confirmed': c.purple, 'in_production': c.cyan, 'shipped': c.green, 'delivered': '#059669', 'cancelled': c.muted };
+      var ctx2 = document.getElementById('orderStatusChart').getContext('2d');
+      _charts.orderStatus = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: chartData.order_status_counts.map(function(d) { return statusLabels[d.status] || d.status; }),
+          datasets: [{
+            data: chartData.order_status_counts.map(function(d) { return d.count; }),
+            backgroundColor: chartData.order_status_counts.map(function(d) { return statusColors[d.status] || c.muted; }),
+            borderWidth: 0,
+          }]
+        },
+        options: chartOpts({ type: 'doughnut' })
+      });
+    } else {
+      showNoData('orderStatusChart', '暂无订单');
+    }
+
+    // 3. 潜客来源 (柱状图)
+    if (chartData.lead_source_distribution && chartData.lead_source_distribution.length) {
+      var ctx3 = document.getElementById('leadSourceChart').getContext('2d');
+      _charts.leadSource = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: chartData.lead_source_distribution.map(function(d) { return d.source || '(未知)'; }),
+          datasets: [{
+            label: '客户数',
+            data: chartData.lead_source_distribution.map(function(d) { return d.count; }),
+            backgroundColor: c.purple + '60',
+            borderColor: c.purple,
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: chartOpts({ indexAxis: 'y', legend: false })
+      });
+    } else {
+      showNoData('leadSourceChart', '暂无来源数据');
+    }
+
+    // 4. Top客户 (横向柱状图)
+    if (chartData.top_customers && chartData.top_customers.length) {
+      var ctx4 = document.getElementById('topCustomersChart').getContext('2d');
+      _charts.topCustomers = new Chart(ctx4, {
+        type: 'bar',
+        data: {
+          labels: chartData.top_customers.map(function(d) { return esc(d.name); }),
+          datasets: [{
+            label: '消费金额',
+            data: chartData.top_customers.map(function(d) { return d.total; }),
+            backgroundColor: c.gold + '60',
+            borderColor: c.gold,
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: chartOpts({ indexAxis: 'y', legend: false })
+      });
+    } else {
+      showNoData('topCustomersChart', '暂无客户数据');
+    }
+  } catch(e) {
+    console.warn('Chart load error:', e);
+  }
+}
+
+function chartOpts(opts) {
+  opts = opts || {};
+  var c = chartColors();
+  var isDoughnut = opts.type === 'doughnut';
+  var isHoriz = opts.indexAxis === 'y';
+  var base = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: opts.legend !== false && !isDoughnut,
+        position: 'bottom',
+        labels: { color: c.muted, boxWidth: 12, padding: 8, font: { size: 10 } }
+      },
+    },
+    scales: isDoughnut ? {} : {
+      x: {
+        grid: { color: c.grid },
+        ticks: { color: c.muted, font: { size: 10 } },
+      },
+      y: {
+        grid: { color: c.grid },
+        ticks: { color: c.muted, font: { size: 10 } },
+      }
+    },
+  };
+  if (isHoriz) {
+    base.indexAxis = 'y';
+    base.scales = {
+      x: { grid: { color: c.grid }, ticks: { color: c.muted, font: { size: 10 } } },
+      y: { grid: { display: false }, ticks: { color: c.muted, font: { size: 10 } } },
+    };
+  }
+  return base;
+}
+
+function showNoData(canvasId, msg) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var parent = canvas.parentElement;
+  canvas.style.display = 'none';
+  var el = parent.querySelector('.chart-empty-msg');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'chart-empty-msg';
+    el.style.cssText = 'display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-size:12px';
+    parent.appendChild(el);
+  }
+  el.textContent = msg;
+}
+
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+
+// ================= 操作日志 =================
+var _logOffset = 0;
+var _logLimit = 50;
+
+function getActionLabel(a) {
+  var m = {create:'创建', update:'修改', delete:'删除', assign:'分配', unassign:'退回',
+           claim:'认领', status_change:'改阶段', payment:'收款', convert:'转订单', send:'发送'};
+  return m[a] || a;
+}
+
+function getActionColor(a) {
+  var m = {create:'#22c55e', update:'#fbbf24', delete:'#ef4444', assign:'#60a5fa',
+           unassign:'#f59e0b', claim:'#22c55e', status_change:'#818cf8',
+           payment:'#22c55e', convert:'#818cf8', send:'#60a5fa'};
+  return m[a] || 'var(--muted)';
+}
+
+function getEntityIcon(t) {
+  var m = {customer:'fa-users', lead:'fa-user-plus', order:'fa-box', quote:'fa-file-invoice-dollar',
+           user:'fa-user-gear', product:'fa-cube', inventory:'fa-warehouse',
+           partner:'fa-handshake', po:'fa-file', case:'fa-building'};
+  return m[t] || 'fa-circle';
+}
+
+function getEntityLabel(t) {
+  var m = {customer:'客户', lead:'潜客', order:'订单', quote:'报价', user:'用户',
+           product:'产品', inventory:'库存', partner:'合作方', po:'采购订单', case:'案例'};
+  return m[t] || t;
+}
+
+async function loadActivityLogs() {
+  var entityFilter = document.getElementById('logEntityFilter').value;
+  var actionFilter = document.getElementById('logActionFilter').value;
+  var url = '/api/activity-logs?limit=' + _logLimit + '&offset=' + _logOffset;
+  try {
+    var r = await api(url);
+    if (!r || !r.logs) return;
+    var el = document.getElementById('logTableWrap');
+    if (!r.logs.length) {
+      el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:8px;color:#555"></i>暂无操作记录</div>';
+      document.getElementById('logPagination').innerHTML = '';
+      return;
+    }
+    var filtered = r.logs;
+    if (entityFilter) filtered = filtered.filter(function(l) { return l.entity_type === entityFilter; });
+    if (actionFilter) filtered = filtered.filter(function(l) { return l.action === actionFilter; });
+    if (!filtered.length) {
+      el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">无匹配记录</div>';
+      document.getElementById('logPagination').innerHTML = '';
+      return;
+    }
+    el.innerHTML = filtered.map(function(l) {
+      var ac = getActionColor(l.action);
+      var al = getActionLabel(l.action);
+      var ei = getEntityIcon(l.entity_type);
+      var el_ = getEntityLabel(l.entity_type);
+      var time = l.created_at ? timeAgo(l.created_at) : '';
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">' +
+        '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);color:' + ac + ';font-size:13px"><i class="fas ' + ei + '"></i></div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+            '<span style="font-weight:600;font-size:12px;color:var(--text-bright)">' + esc(l.user_name || '系统') + '</span>' +
+            '<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:' + ac + '20;color:' + ac + ';font-weight:600">' + al + '</span>' +
+            '<span style="font-size:11px;color:var(--muted)">' + el_ + '</span>' +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">' + esc(l.summary) + '</div>' +
+          '<div style="font-size:10px;color:var(--muted);margin-top:2px;opacity:0.5">' + time + '</div>' +
+        '</div></div>';
+    }).join('');
+    // Pagination
+    var total = r.total || 0;
+    var totalPages = Math.ceil(total / _logLimit);
+    var curPage = Math.floor(_logOffset / _logLimit) + 1;
+    var pg = document.getElementById('logPagination');
+    if (totalPages <= 1) { pg.innerHTML = ''; return; }
+    var html = '';
+    if (curPage > 1) html += '<button class="btn btn-ghost btn-sm" onclick="_logOffset=' + (_logOffset - _logLimit) + ';loadActivityLogs()"><i class="fas fa-chevron-left"></i></button>';
+    html += '<span style="font-size:12px;color:var(--muted);padding:4px 8px">' + curPage + '/' + totalPages + '</span>';
+    if (curPage < totalPages) html += '<button class="btn btn-ghost btn-sm" onclick="_logOffset=' + (_logOffset + _logLimit) + ';loadActivityLogs()"><i class="fas fa-chevron-right"></i></button>';
+    pg.innerHTML = html;
+  } catch(e) {
+    document.getElementById('logTableWrap').innerHTML = '<div style="padding:40px;text-align:center;color:var(--pink)">加载失败</div>';
+  }
+}
+
+// (activity-logs nav handled by the generic nav click handler above)
+});
+
 </body>
 </html>

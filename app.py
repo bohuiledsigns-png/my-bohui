@@ -21,7 +21,7 @@ from datetime import datetime
 import io
 import openpyxl
 
-from database import init_db, get_stats, get_workbench, get_customers, get_customer, add_customer, update_customer, delete_customer
+from database import init_db, get_stats, get_revenue_trend, get_chart_data, get_workbench, get_customers, get_customer, get_customer_detail, add_customer, update_customer, delete_customer, bulk_add_customers, add_activity_log, get_activity_logs, get_activity_logs_count
 from database import get_messages, add_message, get_media, add_media, delete_media
 from database import get_ai_generations, delete_ai_generation, add_ai_generation, get_ai_generation_stats
 from database import get_email_settings, save_email_settings, add_email_log, get_email_log, get_all_email_log
@@ -31,13 +31,19 @@ from database import get_quotes, get_quote, add_quote, update_quote, delete_quot
 from database import get_users, get_user_by_username, add_user, update_user
 from database import get_orders, get_order, add_order, update_order, delete_order
 from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule
+from database import add_payment, get_ar_summary, get_ar_by_customer, get_payment_history, get_aging_analysis, migrate_payments_from_orders
+from database import get_leads, get_lead_summary, get_lead_funnel, assign_lead, update_lead_status, update_lead_source
+from database import get_leads_due_followup, get_today_followup_summary, update_last_contacted
+from database import get_users, unassign_lead, claim_lead, reclaim_expired_leads, get_leads_with_pool_info
+from database import add_notification, get_notifications, get_unread_count, mark_notification_read, mark_all_notifications_read, get_user_by_id, get_active_user_ids
+from database import get_media_tags, add_media_tag, delete_media_tag, get_media_tags_for, update_media_tags, get_media_by_tag
 from database import get_inventory_items, get_inventory_item, add_inventory_item, update_inventory_item, delete_inventory_item
 from database import add_stock_movement, get_stock_movements, get_inventory_summary
 from database import get_partners, get_partner, add_partner, update_partner, delete_partner
 from database import get_purchase_orders, get_purchase_order, add_purchase_order, update_purchase_order, delete_purchase_order, add_po_timeline_entry
 from ai_engine import translate, generate_image, generate_video, VIDEO_PRESETS, analyze_customer_message, summarize_chat, analyze_viral, rewrite_copy
 from ai_engine import get_country_context, generate_customized_script, search_industry_knowledge, analyze_chat_history, parse_whatsapp_export, analyze_product_image
-from ai_engine import generate_video_from_image, generate_image_volc, ask_ali
+from ai_engine import generate_video_from_image, generate_image_volc, ask_ali, get_ai_greeting, get_ai_followup_message, clear_knowledge_base_cache
 from catalog_generator import generate_catalog
 from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server
 
@@ -374,7 +380,7 @@ def api_stale_customers():
     conn = get_db()
     rows = conn.execute("""
         SELECT c.id, c.name, c.company, c.status,
-               CAST(julianday('now') - julianday(c.updated_at) AS INTEGER) as days_since,
+               CAST(julianday('now') - julianday(COALESCE(c.last_contacted_at, c.updated_at)) AS INTEGER) as days_since,
                (SELECT content_en FROM messages m WHERE m.customer_id=c.id ORDER BY m.created_at DESC LIMIT 1) as last_sent,
                (SELECT created_at FROM messages m WHERE m.customer_id=c.id ORDER BY m.created_at DESC LIMIT 1) as last_time
         FROM customers c
@@ -448,6 +454,27 @@ def api_workbench():
     return jsonify(get_workbench())
 
 
+@app.route("/api/stats/revenue-trend")
+def api_revenue_trend():
+    months = request.args.get("months", 12, type=int)
+    return jsonify(get_revenue_trend(months))
+
+
+@app.route("/api/stats/chart-data")
+def api_chart_data():
+    return jsonify(get_chart_data())
+
+
+# ========= API: 操作日志 =========
+@app.route("/api/activity-logs")
+def api_activity_logs():
+    limit = request.args.get("limit", 50, type=int)
+    offset = request.args.get("offset", 0, type=int)
+    logs = get_activity_logs(limit, offset)
+    total = get_activity_logs_count()
+    return jsonify({"logs": logs, "total": total})
+
+
 # ========= API: 客户 =========
 @app.route("/api/customers")
 def api_customers():
@@ -457,6 +484,16 @@ def api_customers():
 def api_customer(cid):
     c = get_customer(cid)
     return jsonify(c) if c else (jsonify({"error": "not found"}), 404)
+
+
+@app.route("/api/customers/<int:cid>/detail")
+def api_customer_detail(cid):
+    """聚合客户详情"""
+    detail = get_customer_detail(cid)
+    if not detail:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(detail)
+
 
 @app.route("/api/customers", methods=["POST"])
 def api_add_customer():
@@ -470,16 +507,30 @@ def api_add_customer():
         status=data.get("status", "warm"),
         notes=data.get("notes", "")
     )
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        add_activity_log(uid, "create", "customer", result["id"],
+            f"创建了客户 {data.get('name','')} (ID:{result['id']})")
     return jsonify(result)
 
 @app.route("/api/customers/<int:cid>", methods=["PUT"])
 def api_update_customer(cid):
+    old = get_customer(cid)
     update_customer(cid, **request.json)
+    uid = session.get("user_id")
+    if uid and old:
+        add_activity_log(uid, "update", "customer", cid,
+            f"修改了客户 {old.get('name','')} (ID:{cid})")
     return jsonify({"ok": True})
 
 @app.route("/api/customers/<int:cid>", methods=["DELETE"])
 def api_delete_customer(cid):
+    old = get_customer(cid)
     delete_customer(cid)
+    uid = session.get("user_id")
+    if uid and old:
+        add_activity_log(uid, "delete", "customer", cid,
+            f"删除了客户 {old.get('name','')} (ID:{cid})")
     return jsonify({"ok": True})
 
 
@@ -994,11 +1045,15 @@ def _whatsapp_message_handler(chat_name, messages):
 
         # 查找CRM中对应的客户，找不到就自动添加
         customers = get_customers()
+        profile = _get_profile()
         c = next((c for c in customers if c["name"] == chat_name), None)
         is_new = False
         if not c:
             print(f"[Auto] 新客户「{chat_name}」，自动添加到CRM")
-            result = add_customer(name=chat_name, status="new", notes="WhatsApp自动添加")
+            # 先用AI greeting分析客户（基于知识库做背调+分级）
+            greeting = get_ai_greeting(customer_name=chat_name, country="", sales_name=profile.get("name", "Philip"))
+            wa_country = greeting.get("country_detected", "") if greeting and not greeting.get("error") else ""
+            result = add_customer(name=chat_name, status="new", source="whatsapp", lead_status="new", country=wa_country, notes="WhatsApp自动添加")
             if result.get("duplicate"):
                 c = get_customer(result["id"])
             elif result.get("id"):
@@ -1008,9 +1063,16 @@ def _whatsapp_message_handler(chat_name, messages):
                 return
             is_new = True
 
-        # AI分析客户消息（注入国家上下文 + 聊天历史）
+            # 更新AI评分和评级
+            if greeting and not greeting.get("error"):
+                grade = greeting.get("customer_grade", "")
+                estimated_status = "qualified" if grade in ("A", "B") else "new"
+                update_lead_status(c["id"], estimated_status)
+                update_lead_source(c["id"], "whatsapp")
+                print(f"[Auto] AI评级={grade}, lead_status={estimated_status}, 国家={wa_country}")
+
+        # AI分析客户消息（注入国家上下文 + 聊天历史 + 知识库）
         customer_country = c.get("country", "") if c else ""
-        # 获取最近聊天历史供AI参考上下文
         chat_history = get_messages(c["id"], limit=10)
         history_for_ai = []
         for m in chat_history:
@@ -1019,9 +1081,7 @@ def _whatsapp_message_handler(chat_name, messages):
                 "content_cn": m.get("content_cn", ""),
                 "content_en": m.get("content_en", "")
             })
-        # 注入风格样本 + 你的名字
         style_samples = _get_style_samples(5)
-        profile = _get_profile()
         analysis = analyze_customer_message(text, country=customer_country, history=history_for_ai,
                                            style_samples=style_samples, sales_name=profile.get("name", "Philip"))
         if not analysis or "error" in analysis:
@@ -1246,6 +1306,9 @@ def api_read_and_analyze():
 @app.route("/api/media")
 def api_media():
     ft = request.args.get("type")
+    tag = request.args.get("tag")
+    if tag:
+        return jsonify(get_media_by_tag(tag_id=int(tag), filetype=ft))
     return jsonify(get_media(ft))
 
 @app.route("/api/media/upload", methods=["POST"])
@@ -1258,12 +1321,49 @@ def api_upload_media():
     f.save(filepath)
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     ft = "image" if ext in ("jpg","jpeg","png","gif","bmp","webp") else "video" if ext in ("mp4","mov","avi","wmv") else "document"
-    add_media(filename, filepath, ft, os.path.getsize(filepath), request.form.get("description", ""))
-    return jsonify({"filename": filename, "filepath": filepath, "filetype": ft})
+    mid = add_media(filename, filepath, ft, os.path.getsize(filepath), request.form.get("description", ""))
+    return jsonify({"id": mid, "filename": filename, "filepath": filepath, "filetype": ft})
 
 @app.route("/api/media/<int:mid>", methods=["DELETE"])
 def api_delete_media(mid):
     delete_media(mid)
+    return jsonify({"ok": True})
+
+@app.route("/api/media/<int:mid>/tags")
+def api_media_tags_for(mid):
+    return jsonify(get_media_tags_for(mid))
+
+
+@app.route("/api/media/<int:mid>/tags", methods=["PUT"])
+def api_update_media_tags(mid):
+    data = request.json or {}
+    tag_ids = data.get("tag_ids", [])
+    update_media_tags(mid, tag_ids)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/media/tags")
+def api_media_tags_list():
+    return jsonify(get_media_tags())
+
+
+@app.route("/api/media/tags", methods=["POST"])
+def api_add_media_tag():
+    data = request.json or {}
+    name = data.get("name", "").strip()
+    if not name:
+        return jsonify({"error": "缺少标签名"}), 400
+    tag_type = data.get("type", "general")
+    color = data.get("color", "#00f2ff")
+    result = add_media_tag(name, tag_type, color)
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+@app.route("/api/media/tags/<int:tid>", methods=["DELETE"])
+def api_delete_media_tag(tid):
+    delete_media_tag(tid)
     return jsonify({"ok": True})
 
 
@@ -1894,17 +1994,31 @@ def api_quote(qid):
 def api_add_quote():
     data = request.json
     result = add_quote(data)
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        add_activity_log(uid, "create", "quote", result["id"],
+            f"创建了报价 {result.get('quote_no','')} (ID:{result['id']})")
     return jsonify(result)
 
 @app.route("/api/quotes/<int:qid>", methods=["PUT"])
 def api_update_quote(qid):
     data = request.json
+    q = get_quote(qid)
     update_quote(qid, data)
+    uid = session.get("user_id")
+    if uid and q:
+        add_activity_log(uid, "update", "quote", qid,
+            f"修改了报价 {q.get('quote_no','')} (ID:{qid})")
     return jsonify({"ok": True})
 
 @app.route("/api/quotes/<int:qid>", methods=["DELETE"])
 def api_delete_quote(qid):
+    q = get_quote(qid)
     delete_quote(qid)
+    uid = session.get("user_id")
+    if uid and q:
+        add_activity_log(uid, "delete", "quote", qid,
+            f"删除了报价 {q.get('quote_no','')} (ID:{qid})")
     return jsonify({"ok": True})
 
 @app.route("/api/quotes/<int:qid>/send", methods=["POST"])
@@ -1915,6 +2029,10 @@ def api_send_quote(qid):
     data = request.json or {}
     contact_name = data.get("contact_name", "")
     text = data.get("text", f"Quote {q['quote_no']} — Please check the attached quotation.")
+    uid = session.get("user_id")
+    if uid and q:
+        add_activity_log(uid, "send", "quote", qid,
+            f"发送了报价 {q.get('quote_no','')} 给客户 {q.get('customer_id','')}")
     def job():
         try:
             from whatsapp_engine import send_text, send_media_file
@@ -2940,6 +3058,20 @@ def login_required(f):
     return decorated
 
 
+def role_required(*roles):
+    """Decorator: require the logged-in user to have one of the given roles."""
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if 'user_id' not in session:
+                return jsonify({"error": "请先登录"}), 401
+            if session.get("role") not in roles:
+                return jsonify({"error": "权限不足"}), 403
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+
 @app.route("/api/auth/login", methods=["POST"])
 def api_auth_login():
     data = request.json or {}
@@ -2991,6 +3123,33 @@ def api_auth_me():
     })
 
 
+# ==================== 通知 API ====================
+@app.route("/api/notifications")
+@login_required
+def api_notifications():
+    return jsonify(get_notifications(session["user_id"]))
+
+
+@app.route("/api/notifications/unread-count")
+@login_required
+def api_unread_count():
+    return jsonify({"count": get_unread_count(session["user_id"])})
+
+
+@app.route("/api/notifications/<int:nid>/read", methods=["POST"])
+@login_required
+def api_mark_read(nid):
+    mark_notification_read(nid, session["user_id"])
+    return jsonify({"ok": True})
+
+
+@app.route("/api/notifications/read-all", methods=["POST"])
+@login_required
+def api_mark_all_read():
+    mark_all_notifications_read(session["user_id"])
+    return jsonify({"ok": True})
+
+
 @app.route("/api/auth/users")
 @login_required
 def api_auth_users():
@@ -3008,6 +3167,10 @@ def api_auth_add_user():
     result = add_user(data)
     if "error" in result:
         return jsonify(result), 400
+    logged_uid = session.get("user_id")
+    if logged_uid and result.get("id"):
+        add_activity_log(logged_uid, "create", "user", result["id"],
+            f"创建了用户 {data.get('username','')} ({data.get('display_name','')})")
     return jsonify(result)
 
 
@@ -3018,6 +3181,11 @@ def api_auth_update_user(uid):
         return jsonify({"error": "仅管理员可修改用户"}), 403
     data = request.json or {}
     update_user(uid, data)
+    logged_uid = session.get("user_id")
+    if logged_uid:
+        changed = [f"{k}={v}" for k, v in data.items()]
+        add_activity_log(logged_uid, "update", "user", uid,
+            f"修改了用户 ID:{uid}: {', '.join(changed)}")
     return jsonify({"ok": True})
 
 
@@ -3049,6 +3217,10 @@ def api_create_order():
     result = add_order(data)
     if "error" in result:
         return jsonify(result), 400
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        add_activity_log(uid, "create", "order", result["id"],
+            f"创建了订单 {result.get('order_no','')} (ID:{result['id']})")
     return jsonify({"ok": True, "id": result["id"], "order_no": result["order_no"]})
 
 
@@ -3056,10 +3228,11 @@ def api_create_order():
 @login_required
 def api_update_order(oid):
     data = request.json or {}
+    existing = get_order(oid)
+    uid = session.get("user_id")
     # Track status change
-    if "status" in data:
-        existing = get_order(oid)
-        if existing and existing.get("status") != data["status"]:
+    if "status" in data and existing:
+        if existing.get("status") != data["status"]:
             old_status = existing.get("status", "")
             new_status = data["status"]
             add_timeline_entry(oid, new_status, session.get("user_id", 0),
@@ -3071,6 +3244,17 @@ def api_update_order(oid):
                     def _notify_job():
                         _notify_order_status_change(existing, customer, old_status, new_status)
                     threading.Thread(target=_notify_job, daemon=True).start()
+            # 通知所有活跃用户订单状态变更
+            for auid in get_active_user_ids():
+                add_notification(auid, 'order',
+                    f'订单 {existing["order_no"]} 状态变更',
+                    f'{old_status} → {new_status}',
+                    link=f'/orders/{oid}',
+                    related_type='order', related_id=oid)
+            # Log the status change
+            if uid:
+                add_activity_log(uid, "update", "order", oid,
+                    f"修改了订单 {existing.get('order_no','')}: 状态 {old_status}→{new_status}")
     update_order(oid, data)
     return jsonify({"ok": True})
 
@@ -3078,7 +3262,12 @@ def api_update_order(oid):
 @app.route("/api/orders/<int:oid>", methods=["DELETE"])
 @login_required
 def api_delete_order(oid):
+    existing = get_order(oid)
     delete_order(oid)
+    uid = session.get("user_id")
+    if uid and existing:
+        add_activity_log(uid, "delete", "order", oid,
+            f"删除了订单 {existing.get('order_no','')} (ID:{oid})")
     return jsonify({"ok": True})
 
 
@@ -3099,6 +3288,20 @@ def api_order_payment(oid):
         update_data["balance_method"] = data.get("method", "")
         update_data["balance_received"] = 1
     update_order(oid, update_data)
+    # 同步写入付款流水表
+    order_currency = "USD"
+    o_check = get_order(oid)
+    if o_check:
+        order_currency = o_check.get("currency", "USD")
+    add_payment(
+        order_id=oid,
+        ptype=ptype,
+        amount=data.get("amount", 0),
+        currency=order_currency,
+        payment_date=data.get("date", datetime.now().strftime("%Y-%m-%d")),
+        method=data.get("method", ""),
+        recorded_by=session.get("user_id"),
+    )
     add_timeline_entry(oid, "payment", session.get("user_id", 0),
                        f"收到{data.get('method','')}付款 {data.get('amount',0)} ({'定金' if ptype=='deposit' else '尾款'})")
     # Send WhatsApp notification for payment
@@ -3109,6 +3312,10 @@ def api_order_payment(oid):
             def _pay_notify_job():
                 _notify_payment_received(order, customer, ptype, data.get("amount", 0))
             threading.Thread(target=_pay_notify_job, daemon=True).start()
+    uid = session.get("user_id")
+    if uid and order:
+        add_activity_log(uid, "payment", "order", oid,
+            f"订单 {order.get('order_no','')} 收款 {data.get('amount',0)} ({'定金' if ptype=='deposit' else '尾款'})")
     return jsonify({"ok": True})
 
 
@@ -3134,6 +3341,10 @@ def api_convert_quote_to_order(qid):
     result = add_order(data)
     if "error" in result:
         return jsonify(result), 400
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        add_activity_log(uid, "convert", "order", result["id"],
+            f"报价 {quote.get('quote_no','')} 转为订单 {result.get('order_no','')}")
     return jsonify({"ok": True, "id": result["id"], "order_no": result["order_no"]})
 
 
@@ -3141,6 +3352,252 @@ def api_convert_quote_to_order(qid):
 @login_required
 def api_payment_dashboard():
     return jsonify(get_payment_dashboard())
+
+
+# ==================== 应收账款 API ====================
+@app.route("/api/ar/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_ar_summary():
+    return jsonify(get_ar_summary())
+
+
+@app.route("/api/ar/by-customer")
+@login_required
+@role_required('admin', 'sales')
+def api_ar_by_customer():
+    return jsonify(get_ar_by_customer())
+
+
+@app.route("/api/ar/payment-history")
+@login_required
+@role_required('admin', 'sales')
+def api_ar_payment_history():
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify(get_payment_history(limit))
+
+
+@app.route("/api/ar/aging")
+@login_required
+@role_required('admin', 'sales')
+def api_ar_aging():
+    return jsonify(get_aging_analysis())
+
+
+@app.route("/api/ar/migrate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_ar_migrate():
+    count = migrate_payments_from_orders()
+    return jsonify({"ok": True, "migrated": count})
+
+# ==================== 潜客管理 API (Leads) ====================
+@app.route("/api/leads")
+@login_required
+@role_required('admin', 'sales')
+def api_leads():
+    source = request.args.get("source")
+    status = request.args.get("status")
+    assigned_to = request.args.get("assigned_to", type=int)
+    country = request.args.get("country")
+    pool = request.args.get("pool", type=int)
+    if pool:
+        return jsonify(get_leads_with_pool_info(source=source, status=status, assigned_to=assigned_to, country=country))
+    return jsonify(get_leads(source=source, status=status, assigned_to=assigned_to, country=country))
+
+
+@app.route("/api/leads/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_leads_summary():
+    return jsonify(get_lead_summary())
+
+
+@app.route("/api/leads/funnel")
+@login_required
+@role_required('admin', 'sales')
+def api_leads_funnel():
+    return jsonify(get_lead_funnel())
+
+
+@app.route("/api/leads/<int:cid>/assign", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_assign(cid):
+    data = request.json or {}
+    uid = data.get("user_id")
+    if uid is None:
+        return jsonify({"error": "缺少 user_id"}), 400
+    assign_lead(cid, uid)
+    logged_uid = session.get("user_id")
+    customer = get_customer(cid)
+    cname = customer["name"] if customer else f"ID:{cid}"
+    if logged_uid:
+        target_user = get_user_by_id(uid)
+        tname = target_user["display_name"] if target_user else str(uid)
+        add_activity_log(logged_uid, "assign", "lead", cid,
+            f"分配潜客 {cname} 给 {tname}")
+    # 通知被分配者
+    if uid:
+        if customer:
+            add_notification(int(uid), 'assign',
+                f'新潜客分配: {customer["name"]}',
+                f'来源: {customer.get("source","")} | {customer.get("country","")}',
+                link=f'/leads/{cid}',
+                related_type='lead', related_id=cid)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/leads/<int:cid>/status", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_status(cid):
+    data = request.json or {}
+    status = data.get("lead_status")
+    if not status:
+        return jsonify({"error": "缺少 lead_status"}), 400
+    customer = get_customer(cid)
+    update_lead_status(cid, status)
+    uid = session.get("user_id")
+    if uid and customer:
+        add_activity_log(uid, "status_change", "lead", cid,
+            f"修改潜客 {customer.get('name','')} 阶段为 {status}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/leads/<int:cid>/source", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_source(cid):
+    data = request.json or {}
+    source = data.get("source", "")
+    campaign = data.get("campaign", "")
+    update_lead_source(cid, source, campaign)
+    uid = session.get("user_id")
+    customer = get_customer(cid)
+    if uid and customer:
+        add_activity_log(uid, "update", "lead", cid,
+            f"修改潜客 {customer.get('name','')} 来源为 {source}")
+    return jsonify({"ok": True})
+
+
+# ==================== 公海自动流转 API ====================
+
+@app.route("/api/users")
+@login_required
+@role_required('admin', 'sales')
+def api_users():
+    """获取所有销售用户（供分配弹窗和过滤下拉使用）"""
+    return jsonify(get_users())
+
+
+@app.route("/api/leads/<int:cid>/unassign", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_unassign(cid):
+    """退回公海"""
+    customer = get_customer(cid)
+    unassign_lead(cid)
+    uid = session.get("user_id")
+    if uid and customer:
+        add_activity_log(uid, "unassign", "lead", cid,
+            f"将潜客 {customer.get('name','')} 退回公海")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/leads/<int:cid>/claim", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_claim(cid):
+    """认领潜客"""
+    uid = session.get("user_id")
+    if not uid:
+        return jsonify({"error": "未登录"}), 401
+    ok = claim_lead(cid, uid)
+    if not ok:
+        return jsonify({"error": "该潜客已被他人认领"}), 409
+    customer = get_customer(cid)
+    if uid and customer:
+        add_activity_log(uid, "claim", "lead", cid,
+            f"认领了潜客 {customer.get('name','')}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/leads/reclaim", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_reclaim():
+    """手动触发回收检查"""
+    reclaimed = reclaim_expired_leads(days=14)
+    return jsonify({"ok": True, "count": len(reclaimed), "items": reclaimed})
+
+
+# ==================== 跟进提醒 API ====================
+
+@app.route("/api/leads/followup")
+@login_required
+@role_required('admin', 'sales')
+def api_leads_followup():
+    """获取需要跟进的潜客列表"""
+    return jsonify(get_leads_due_followup())
+
+
+@app.route("/api/leads/followup/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_leads_followup_summary():
+    """获取跟进汇总数据"""
+    return jsonify(get_today_followup_summary())
+
+
+@app.route("/api/leads/<int:cid>/contacted", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_contacted(cid):
+    """标记潜客为已联系（更新 last_contacted_at）"""
+    update_last_contacted(cid)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/leads/<int:cid>/followup-msg", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_leads_followup_msg(cid):
+    """AI生成跟进消息"""
+    from database import get_customer
+    customer = get_customer(cid)
+    if not customer:
+        return jsonify({"error": "客户不存在"}), 404
+    data = request.json or {}
+    followup_type = data.get("followup_type", "3day")
+    result = get_ai_followup_message(
+        customer_name=customer["name"],
+        language=customer.get("language", "English"),
+        followup_type=followup_type,
+        sales_name="Philip"
+    )
+    return jsonify({"ok": True, "followup_type": followup_type, "message": result})
+
+
+@app.route("/api/knowledge-base/reload", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_reload_knowledge_base():
+    """重新加载销售知识库"""
+    clear_knowledge_base_cache()
+    return jsonify({"ok": True, "message": "知识库已重新加载"})
+
+
+@app.route("/api/ai/greeting", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_ai_greeting():
+    """测试AI招呼（用于调试）"""
+    data = request.json or {}
+    name = data.get("name", "Test Customer")
+    country = data.get("country", "")
+    result = get_ai_greeting(customer_name=name, country=country)
+    return jsonify(result)
 
 
 @app.route("/api/orders/profit-stats")
@@ -3158,12 +3615,14 @@ def api_order_stats():
 
 @app.route("/api/commission-stats")
 @login_required
+@role_required('admin', 'sales')
 def api_commission_stats():
     return jsonify(get_commission_stats())
 
 
 @app.route("/api/users/<int:uid>/commission", methods=["PUT"])
 @login_required
+@role_required('admin', 'sales')
 def api_update_commission_rate(uid):
     data = request.json or {}
     rate = data.get("commission_rate")
@@ -3260,6 +3719,48 @@ def api_add_stock_movement(iid):
 
 
 # ==================== 数据导出 ====================
+@app.route("/api/export/customers")
+@login_required
+def api_export_customers():
+    customers = get_customers()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "客户列表"
+    ws.append(["ID", "姓名", "公司", "WhatsApp", "国家", "语言", "状态",
+               "来源", "活动", "潜客阶段", "潜客评分", "负责人",
+               "首次联系", "最近联系", "创建人", "备注", "创建时间", "更新时间"])
+    for c in customers:
+        # 查找负责人姓名
+        assigned_name = ""
+        if c.get("assigned_to"):
+            u = get_user_by_id(c["assigned_to"])
+            if u: assigned_name = u.get("display_name", "")
+        ws.append([
+            c.get("id", ""),
+            c.get("name", ""),
+            c.get("company", ""),
+            c.get("whatsapp", ""),
+            c.get("country", ""),
+            c.get("language", "English"),
+            c.get("status", ""),
+            c.get("source", ""),
+            c.get("campaign", ""),
+            c.get("lead_status", ""),
+            c.get("lead_score", 0),
+            assigned_name,
+            c.get("first_contacted_at", ""),
+            c.get("last_contacted_at", ""),
+            c.get("created_by", ""),
+            c.get("notes", ""),
+            c.get("created_at", ""),
+            c.get("updated_at", ""),
+        ])
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return _send_excel(output, "客户导出.xlsx")
+
+
 @app.route("/api/export/orders")
 @login_required
 def api_export_orders():
@@ -3313,6 +3814,7 @@ def api_export_inventory():
 
 @app.route("/api/export/commission")
 @login_required
+@role_required('admin', 'sales')
 def api_export_commission():
     data = get_commission_stats()
     wb = openpyxl.Workbook()
@@ -3360,6 +3862,84 @@ def _send_excel(output, filename):
         as_attachment=True,
         download_name=filename,
     )
+
+
+# ==================== 客户导入 ====================
+import csv
+
+COLUMN_ALIASES = {
+    "name": ["name", "姓名", "名字", "客户名", "客户名称"],
+    "company": ["company", "公司", "企业", "单位"],
+    "whatsapp": ["whatsapp", "whatsapp号", "手机", "phone", "电话"],
+    "country": ["country", "国家", "地区", "region"],
+    "language": ["language", "语言", "语种"],
+    "status": ["status", "状态", "客户状态"],
+    "source": ["source", "来源", "渠道"],
+    "campaign": ["campaign", "活动", "营销活动"],
+    "lead_status": ["lead_status", "潜客阶段", "阶段", "lead status"],
+    "lead_score": ["lead_score", "潜客评分", "评分", "分数", "score"],
+    "notes": ["notes", "备注", "备注说明"],
+}
+
+def _resolve_csv_col(header):
+    h = header.strip().lower()
+    for field, aliases in COLUMN_ALIASES.items():
+        if h in [a.lower() for a in aliases]:
+            return field
+    return None
+
+@app.route("/api/import/customers", methods=["POST"])
+@login_required
+def api_import_customers():
+    if "file" not in request.files:
+        return jsonify({"ok": False, "error": "请上传CSV文件"}), 400
+    f = request.files["file"]
+    if not f.filename.endswith(".csv"):
+        return jsonify({"ok": False, "error": "仅支持CSV格式"}), 400
+    try:
+        stream = io.StringIO(f.stream.read().decode("utf-8-sig"))
+    except Exception:
+        stream = io.StringIO(f.stream.read().decode("gbk"))
+    reader = csv.reader(stream)
+    try:
+        headers = next(reader)
+    except StopIteration:
+        return jsonify({"ok": False, "error": "CSV文件为空"}), 400
+    # 映射列头到字段名
+    col_map = {}
+    for h in headers:
+        fld = _resolve_csv_col(h)
+        if fld:
+            col_map[fld] = len(col_map)  # use index
+    if "name" not in col_map:
+        return jsonify({"ok": False, "error": "CSV缺少必要列: name/姓名"}), 400
+    # 重新构建 col_map: 字段名 → 列索引
+    col_map = {}
+    for idx, h in enumerate(headers):
+        fld = _resolve_csv_col(h)
+        if fld:
+            col_map[fld] = idx
+    if "name" not in col_map:
+        return jsonify({"ok": False, "error": "CSV缺少必要列: name/姓名"}), 400
+    rows = []
+    for row in reader:
+        if not any(cell.strip() for cell in row):
+            continue  # 跳过空行
+        d = {}
+        for fld, idx in col_map.items():
+            if idx < len(row):
+                d[fld] = row[idx].strip()
+        rows.append(d)
+    if not rows:
+        return jsonify({"ok": False, "error": "CSV无有效数据"}), 400
+    imported, skipped, errors = bulk_add_customers(rows)
+    return jsonify({
+        "ok": True,
+        "imported": imported,
+        "skipped": skipped,
+        "total": len(rows),
+        "errors": errors[:10],  # 最多返回10个错误
+    })
 
 
 # ==================== 系统备份 ====================
@@ -3412,12 +3992,14 @@ def api_list_backups():
 # ==================== 合作方管理 ====================
 @app.route("/api/partners")
 @login_required
+@role_required('admin', 'sales')
 def api_partners():
     return jsonify(get_partners())
 
 
 @app.route("/api/partners/<int:pid>")
 @login_required
+@role_required('admin', 'sales')
 def api_partner(pid):
     partner = get_partner(pid)
     if not partner:
@@ -3427,6 +4009,7 @@ def api_partner(pid):
 
 @app.route("/api/partners", methods=["POST"])
 @login_required
+@role_required('admin', 'sales')
 def api_add_partner():
     data = request.json or {}
     result = add_partner(data)
@@ -3437,6 +4020,7 @@ def api_add_partner():
 
 @app.route("/api/partners/<int:pid>", methods=["PUT"])
 @login_required
+@role_required('admin', 'sales')
 def api_update_partner(pid):
     data = request.json or {}
     update_partner(pid, data)
@@ -3445,6 +4029,7 @@ def api_update_partner(pid):
 
 @app.route("/api/partners/<int:pid>", methods=["DELETE"])
 @login_required
+@role_required('admin', 'sales')
 def api_delete_partner(pid):
     delete_partner(pid)
     return jsonify({"ok": True})
@@ -3453,6 +4038,7 @@ def api_delete_partner(pid):
 # ==================== 采购订单管理 ====================
 @app.route("/api/purchase-orders")
 @login_required
+@role_required('admin', 'sales')
 def api_purchase_orders():
     status = request.args.get("status")
     partner_id = request.args.get("partner_id")
@@ -3464,6 +4050,7 @@ def api_purchase_orders():
 
 @app.route("/api/purchase-orders/<int:oid>")
 @login_required
+@role_required('admin', 'sales')
 def api_purchase_order(oid):
     po = get_purchase_order(oid)
     if not po:
@@ -3473,6 +4060,7 @@ def api_purchase_order(oid):
 
 @app.route("/api/purchase-orders", methods=["POST"])
 @login_required
+@role_required('admin', 'sales')
 def api_create_purchase_order():
     data = request.json or {}
     data["created_by"] = session.get("user_id")
@@ -3484,6 +4072,7 @@ def api_create_purchase_order():
 
 @app.route("/api/purchase-orders/<int:oid>", methods=["PUT"])
 @login_required
+@role_required('admin', 'sales')
 def api_update_purchase_order(oid):
     data = request.json or {}
     if "status" in data:
@@ -3497,6 +4086,7 @@ def api_update_purchase_order(oid):
 
 @app.route("/api/purchase-orders/<int:oid>", methods=["DELETE"])
 @login_required
+@role_required('admin', 'sales')
 def api_delete_purchase_order(oid):
     delete_purchase_order(oid)
     return jsonify({"ok": True})
@@ -3630,6 +4220,19 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"[启动] WhatsApp引擎启动失败: {e}")
     threading.Thread(target=_start_bg, daemon=True).start()
+
+    # 后台线程：每30分钟回收过期未跟进的潜客
+    def _reclaim_pool_loop():
+        while True:
+            try:
+                reclaimed = reclaim_expired_leads(days=14)
+                if reclaimed:
+                    print(f"[Pool] 自动回收 {len(reclaimed)} 个过期潜客: {[r['name'] for r in reclaimed]}")
+            except Exception as e:
+                print(f"[Pool] 回收检查异常: {e}")
+            threading.Event().wait(1800)
+
+    threading.Thread(target=_reclaim_pool_loop, daemon=True).start()
 
     try:
         app.run(host="127.0.0.1", port=port, debug=False)

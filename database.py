@@ -173,6 +173,19 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            type TEXT NOT NULL DEFAULT 'deposit',
+            amount REAL NOT NULL DEFAULT 0,
+            currency TEXT DEFAULT 'USD',
+            payment_date TEXT DEFAULT '',
+            method TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            recorded_by INTEGER DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (order_id) REFERENCES orders(id)
+        );
     """)
     # 迁移：已有表加用户追踪字段
     for col in [("customers","created_by"), ("quotes","created_by"), ("quotes","assigned_to")]:
@@ -206,6 +219,58 @@ def init_db():
         conn.execute("ALTER TABLE orders ADD COLUMN production_progress INTEGER DEFAULT 0")
     except:
         pass
+
+    # 获客模块：客户表加字段
+    for col_lead in [("customers","source"), ("customers","campaign"), ("customers","assigned_to"),
+                     ("customers","lead_status"), ("customers","lead_score"),
+                     ("customers","first_contacted_at"), ("customers","last_contacted_at")]:
+        try:
+            if col_lead[1] in ("lead_score",):
+                conn.execute(f"ALTER TABLE {col_lead[0]} ADD COLUMN {col_lead[1]} INTEGER DEFAULT 0")
+            elif col_lead[1] in ("last_contacted_at",):
+                # SQLite不允许ALTER TABLE加非固定DEFAULT，先加列再UPDATE
+                conn.execute(f"ALTER TABLE {col_lead[0]} ADD COLUMN {col_lead[1]} TIMESTAMP")
+                conn.execute(f"UPDATE {col_lead[0]} SET {col_lead[1]} = updated_at")
+            else:
+                conn.execute(f"ALTER TABLE {col_lead[0]} ADD COLUMN {col_lead[1]} TEXT DEFAULT ''")
+        except:
+            pass
+
+    # 跟进提醒：对已有数据的 NULL 值回填为 updated_at（兼容旧数据库）
+    try:
+        conn.execute("UPDATE customers SET last_contacted_at = updated_at WHERE last_contacted_at IS NULL AND updated_at IS NOT NULL")
+    except:
+        pass
+
+    # 公海自动流转：索引
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_customers_assigned_to ON customers(assigned_to)")
+    except:
+        pass
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_customers_last_contacted ON customers(last_contacted_at)")
+    except:
+        pass
+
+    # 媒体标签表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS media_tags ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "name TEXT NOT NULL UNIQUE,"
+        "type TEXT DEFAULT 'general',"
+        "color TEXT DEFAULT '#00f2ff',"
+        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        ")"
+    )
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS media_tag_relations ("
+        "media_id INTEGER NOT NULL,"
+        "tag_id INTEGER NOT NULL,"
+        "PRIMARY KEY (media_id, tag_id),"
+        "FOREIGN KEY (media_id) REFERENCES media_files(id),"
+        "FOREIGN KEY (tag_id) REFERENCES media_tags(id)"
+        ")"
+    )
 
     # 库存管理表
     conn.execute("""
@@ -278,6 +343,43 @@ def init_db():
             "INSERT INTO users (username,password_hash,display_name,role) VALUES (?,?,?,?)",
             ("admin", generate_password_hash("admin123"), "管理员", "admin")
         )
+    # 通知表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            type TEXT NOT NULL DEFAULT 'info',
+            title TEXT NOT NULL,
+            message TEXT DEFAULT '',
+            link TEXT DEFAULT '',
+            related_type TEXT DEFAULT '',
+            related_id INTEGER DEFAULT NULL,
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, is_read)")
+    except:
+        pass
+    # 操作日志表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS activity_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            performed_by INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            entity_id INTEGER DEFAULT NULL,
+            summary TEXT NOT NULL,
+            details TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_activity_log_entity ON activity_log(entity_type, entity_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_activity_log_time ON activity_log(created_at)")
+    except:
+        pass
     conn.commit()
     conn.close()
 
@@ -293,6 +395,35 @@ def get_customer(cid):
     row = conn.execute("SELECT * FROM customers WHERE id=?", (cid,)).fetchone()
     conn.close()
     return dict(row) if row else None
+
+
+def get_customer_detail(cid):
+    """聚合客户详情：客户信息 + 消息 + 报价 + 订单 + 邮件 + AI生成 + 媒体文件"""
+    conn = get_db()
+    customer = conn.execute(
+        "SELECT c.*, u.display_name as assigned_name FROM customers c LEFT JOIN users u ON c.assigned_to=u.id WHERE c.id=?",
+        (cid,)
+    ).fetchone()
+    if not customer:
+        conn.close()
+        return None
+    messages = conn.execute("SELECT * FROM messages WHERE customer_id=? ORDER BY created_at DESC LIMIT 10", (cid,)).fetchall()
+    quotes = conn.execute("SELECT * FROM quotes WHERE customer_id=? ORDER BY created_at DESC", (cid,)).fetchall()
+    orders = conn.execute("SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", (cid,)).fetchall()
+    emails = conn.execute("SELECT * FROM email_log WHERE customer_id=? ORDER BY created_at DESC LIMIT 10", (cid,)).fetchall()
+    generations = conn.execute("SELECT * FROM ai_generations WHERE customer_id=? ORDER BY created_at DESC LIMIT 10", (cid,)).fetchall()
+    media = conn.execute("SELECT * FROM media_files WHERE customer_id=? ORDER BY created_at DESC LIMIT 10", (cid,)).fetchall()
+    conn.close()
+    return {
+        "customer": dict(customer),
+        "messages": [dict(r) for r in messages],
+        "quotes": [dict(r) for r in quotes],
+        "orders": [dict(r) for r in orders],
+        "email_log": [dict(r) for r in emails],
+        "ai_generations": [dict(r) for r in generations],
+        "media_files": [dict(r) for r in media],
+    }
+
 
 def add_customer(name, company="", whatsapp="", country="", language="English", status="warm", notes=""):
     conn = get_db()
@@ -317,6 +448,67 @@ def add_customer(name, company="", whatsapp="", country="", language="English", 
     cid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.close()
     return {"id": cid}
+
+def bulk_add_customers(rows):
+    """批量导入客户，rows为dict列表，key为字段名。
+    去重逻辑同 add_customer (whatsapp → name+company)。
+    返回 (imported, skipped, errors)"""
+    imported = 0
+    skipped = 0
+    errors = []
+    allowed_fields = ['name','company','whatsapp','country','language','status','source',
+                      'campaign','lead_status','lead_score','notes']
+    conn = get_db()
+    for i, row in enumerate(rows):
+        try:
+            name = (row.get("name") or "").strip()
+            if not name:
+                skipped += 1
+                continue
+            whatsapp = (row.get("whatsapp") or "").strip()
+            # 去重：WhatsApp
+            if whatsapp:
+                existing = conn.execute(
+                    "SELECT id FROM customers WHERE whatsapp=? AND whatsapp!=''", (whatsapp,)
+                ).fetchone()
+                if existing:
+                    skipped += 1
+                    continue
+            # 去重：姓名+公司
+            company = (row.get("company") or "").strip()
+            existing = conn.execute(
+                "SELECT id FROM customers WHERE name=? AND company=? AND name!=''",
+                (name, company)
+            ).fetchone()
+            if existing:
+                skipped += 1
+                continue
+            # 构建 INSERT
+            cols = ['name','company','whatsapp','country','language','status','notes',
+                    'source','campaign','lead_status','lead_score']
+            vals = [name, company, whatsapp,
+                    (row.get("country") or "").strip(),
+                    (row.get("language") or "English").strip(),
+                    (row.get("status") or "warm").strip(),
+                    (row.get("notes") or "").strip(),
+                    (row.get("source") or "").strip(),
+                    (row.get("campaign") or "").strip(),
+                    (row.get("lead_status") or "").strip(),
+                    0]
+            # lead_score 为整数
+            try:
+                vals[-1] = int(row.get("lead_score", 0))
+            except (ValueError, TypeError):
+                vals[-1] = 0
+            placeholders = ",".join("?" for _ in cols)
+            conn.execute(f"INSERT INTO customers ({','.join(cols)}) VALUES ({placeholders})", vals)
+            imported += 1
+        except Exception as e:
+            errors.append(f"第{i+2}行错误: {e}")
+    if imported:
+        conn.commit()
+    conn.close()
+    return imported, skipped, errors
 
 def update_customer(cid, **kwargs):
     allowed = ['name','company','whatsapp','country','language','status','notes']
@@ -577,7 +769,7 @@ def add_message(customer_id, direction, content_cn="", content_en="", media_path
         "INSERT INTO messages (customer_id,direction,content_cn,content_en,media_path) VALUES (?,?,?,?,?)",
         (customer_id, direction, content_cn, content_en, media_path)
     )
-    conn.execute("UPDATE customers SET updated_at=CURRENT_TIMESTAMP WHERE id=?", (customer_id,))
+    conn.execute("UPDATE customers SET updated_at=CURRENT_TIMESTAMP, last_contacted_at=CURRENT_TIMESTAMP WHERE id=?", (customer_id,))
     conn.commit()
     conn.close()
 
@@ -598,7 +790,9 @@ def add_media(filename, filepath, filetype, filesize=0, description="", customer
         (filename, filepath, filetype, filesize, description, customer_id)
     )
     conn.commit()
+    mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.close()
+    return mid
 
 def delete_media(mid):
     conn = get_db()
@@ -1023,6 +1217,64 @@ def get_stats():
     }
 
 
+def get_revenue_trend(months=12):
+    """按月统计营收趋势，返回 [{month, revenue, cost}]"""
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT strftime('%Y-%m', created_at) as month,
+                  SUM(total_amount) as revenue,
+                  COALESCE(SUM(partner_cost), 0) as cost
+           FROM orders
+           WHERE status IN ('shipped', 'delivered')
+             AND created_at >= date('now', ?)
+           GROUP BY month ORDER BY month""",
+        (f"-{months} months",)
+    ).fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        result.append({
+            "month": r["month"],
+            "revenue": round(float(r["revenue"] or 0), 2),
+            "cost": round(float(r["cost"] or 0), 2),
+        })
+    return result
+
+
+def get_chart_data():
+    """聚合图表数据"""
+    conn = get_db()
+    # 订单状态分布
+    order_statuses = conn.execute(
+        "SELECT status, COUNT(*) as count FROM orders GROUP BY status ORDER BY count DESC"
+    ).fetchall()
+    # 潜客来源分布
+    lead_sources = conn.execute(
+        "SELECT source, COUNT(*) as count FROM customers WHERE source!='' AND source IS NOT NULL GROUP BY source ORDER BY count DESC"
+    ).fetchall()
+    # Top 10 客户
+    top_customers = conn.execute(
+        """SELECT c.name, COALESCE(SUM(o.total_amount), 0) as total
+           FROM orders o JOIN customers c ON o.customer_id = c.id
+           WHERE o.status IN ('shipped', 'delivered')
+           GROUP BY c.id ORDER BY total DESC LIMIT 10"""
+    ).fetchall()
+    # 近12月订单数
+    monthly_orders = conn.execute(
+        """SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count
+           FROM orders
+           WHERE created_at >= date('now', '-12 months')
+           GROUP BY month ORDER BY month"""
+    ).fetchall()
+    conn.close()
+    return {
+        "order_status_counts": [dict(r) for r in order_statuses],
+        "lead_source_distribution": [dict(r) for r in lead_sources],
+        "top_customers": [dict(r) for r in top_customers],
+        "monthly_orders": [dict(r) for r in monthly_orders],
+    }
+
+
 def get_workbench():
     """今日工作台：所有客户按优先级排序，附带最近联系时间和天数"""
     conn = get_db()
@@ -1104,6 +1356,94 @@ def update_user(uid, data):
     conn.execute(f"UPDATE users SET {', '.join(sets)} WHERE id=?", (*vals, uid))
     conn.commit()
     conn.close()
+
+
+# ========= 通知 CRUD =========
+def add_notification(user_id, type, title, message='', link='', related_type='', related_id=None):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO notifications (user_id, type, title, message, link, related_type, related_id) VALUES (?,?,?,?,?,?,?)",
+        (user_id, type, title, message, link, related_type, related_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_notifications(user_id, limit=50):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
+        (user_id, limit)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_unread_count(user_id):
+    conn = get_db()
+    count = conn.execute(
+        "SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0", (user_id,)
+    ).fetchone()[0]
+    conn.close()
+    return count
+
+
+def mark_notification_read(nid, user_id):
+    conn = get_db()
+    conn.execute("UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?", (nid, user_id))
+    conn.commit()
+    conn.close()
+
+
+def mark_all_notifications_read(user_id):
+    conn = get_db()
+    conn.execute("UPDATE notifications SET is_read=1 WHERE user_id=? AND is_read=0", (user_id,))
+    conn.commit()
+    conn.close()
+
+
+def get_user_by_id(uid):
+    conn = get_db()
+    u = conn.execute("SELECT id, username, display_name, role FROM users WHERE id=?", (uid,)).fetchone()
+    conn.close()
+    return dict(u) if u else None
+
+
+def get_active_user_ids():
+    conn = get_db()
+    rows = conn.execute("SELECT id FROM users WHERE active=1").fetchall()
+    conn.close()
+    return [r["id"] for r in rows]
+
+
+# ========= 操作日志 =========
+def add_activity_log(performed_by, action, entity_type, entity_id, summary, details=""):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO activity_log (performed_by,action,entity_type,entity_id,summary,details) VALUES (?,?,?,?,?,?)",
+        (performed_by, action, entity_type, entity_id, summary, details)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_activity_logs(limit=100, offset=0):
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT a.*, u.display_name as user_name
+           FROM activity_log a LEFT JOIN users u ON a.performed_by=u.id
+           ORDER BY a.created_at DESC LIMIT ? OFFSET ?""",
+        (limit, offset)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_activity_logs_count():
+    conn = get_db()
+    count = conn.execute("SELECT COUNT(*) FROM activity_log").fetchone()[0]
+    conn.close()
+    return count
 
 
 # ========= 订单 CRUD =========
@@ -1332,6 +1672,450 @@ def get_payment_dashboard():
     }
 
 
+# ==================== 应收账款 (AR) ====================
+
+def add_payment(order_id, ptype, amount, currency="USD", payment_date="", method="", notes="", recorded_by=None):
+    """记录一笔付款流水"""
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO payments (order_id,type,amount,currency,payment_date,method,notes,recorded_by) VALUES (?,?,?,?,?,?,?,?)",
+        (order_id, ptype, amount, currency, payment_date, method, notes, recorded_by)
+    )
+    conn.commit()
+    conn.close()
+
+
+def migrate_payments_from_orders():
+    """回填：将订单已有的 deposit/balance 写入 payments 表"""
+    conn = get_db()
+    orders = conn.execute(
+        "SELECT id, currency, deposit_amount, deposit_date, deposit_method, deposit_received, "
+        "balance_amount, balance_date, balance_method, balance_received FROM orders"
+    ).fetchall()
+    count = 0
+    for o in orders:
+        if o["deposit_received"] and o["deposit_amount"] > 0:
+            existing = conn.execute("SELECT id FROM payments WHERE order_id=? AND type='deposit'", (o["id"],)).fetchone()
+            if not existing:
+                conn.execute(
+                    "INSERT INTO payments (order_id,type,amount,currency,payment_date,method) VALUES (?,?,?,?,?,?)",
+                    (o["id"], "deposit", o["deposit_amount"], o["currency"] or "USD", o["deposit_date"], o["deposit_method"])
+                )
+                count += 1
+        if o["balance_received"] and o["balance_amount"] > 0:
+            existing = conn.execute("SELECT id FROM payments WHERE order_id=? AND type='balance'", (o["id"],)).fetchone()
+            if not existing:
+                conn.execute(
+                    "INSERT INTO payments (order_id,type,amount,currency,payment_date,method) VALUES (?,?,?,?,?,?)",
+                    (o["id"], "balance", o["balance_amount"], o["currency"] or "USD", o["balance_date"], o["balance_method"])
+                )
+                count += 1
+    conn.commit()
+    conn.close()
+    return count
+
+
+def get_ar_summary():
+    """AR 总览：总应收、本月已收、逾期金额、待收订单数"""
+    conn = get_db()
+    total_receivable = conn.execute(
+        "SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE status NOT IN ('cancelled','archived')"
+    ).fetchone()[0]
+    total_received = conn.execute(
+        "SELECT COALESCE(SUM(amount),0) FROM payments"
+    ).fetchone()[0]
+    received_this_month = conn.execute(
+        "SELECT COALESCE(SUM(amount),0) FROM payments "
+        "WHERE strftime('%Y-%m', payment_date)=strftime('%Y-%m', 'now')"
+    ).fetchone()[0]
+    pending_count = conn.execute(
+        "SELECT COUNT(*) FROM orders WHERE "
+        "(deposit_received=0 OR balance_received=0) "
+        "AND status NOT IN ('cancelled','archived','pending_approval')"
+    ).fetchone()[0]
+    overdue_amount = conn.execute(
+        "SELECT COALESCE(SUM(total_amount),0) FROM orders "
+        "WHERE status IN ('confirmed','in_production','shipped','delivered') "
+        "AND julianday('now') - julianday(created_at) > 30"
+    ).fetchone()[0]
+    conn.close()
+    return {
+        "total_receivable": round(total_receivable, 2),
+        "total_received": round(total_received, 2),
+        "received_this_month": round(received_this_month, 2),
+        "pending_count": pending_count,
+        "overdue_amount": round(overdue_amount, 2),
+    }
+
+
+def get_ar_by_customer():
+    """按客户汇总应收"""
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT c.id as customer_id, c.name as customer_name, c.company, "
+        "COUNT(o.id) as order_count, "
+        "COALESCE(SUM(o.total_amount),0) as total_amount, "
+        "COALESCE(SUM(p.paid),0) as total_paid, "
+        "COALESCE(SUM(o.total_amount),0) - COALESCE(SUM(p.paid),0) as balance_due, "
+        "MAX(p.last_date) as last_payment_date "
+        "FROM customers c "
+        "JOIN orders o ON o.customer_id=c.id "
+        "LEFT JOIN (SELECT order_id, SUM(amount) as paid, MAX(payment_date) as last_date "
+        "FROM payments GROUP BY order_id) p ON p.order_id=o.id "
+        "WHERE o.status NOT IN ('cancelled','archived') "
+        "GROUP BY c.id HAVING balance_due > 0 "
+        "ORDER BY balance_due DESC"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_payment_history(limit=50):
+    """最近付款流水"""
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT p.*, o.order_no, "
+        "c.name as customer_name, c.company as customer_company, "
+        "u.display_name as recorded_name "
+        "FROM payments p "
+        "JOIN orders o ON p.order_id=o.id "
+        "LEFT JOIN customers c ON o.customer_id=c.id "
+        "LEFT JOIN users u ON p.recorded_by=u.id "
+        "ORDER BY p.created_at DESC LIMIT ?",
+        (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_aging_analysis():
+    """账龄分析四段"""
+    conn = get_db()
+    buckets = [
+        ("0-30天", 0, 30),
+        ("31-60天", 31, 60),
+        ("61-90天", 61, 90),
+        ("90天以上", 91, 9999),
+    ]
+    result = []
+    for label, lo, hi in buckets:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(total_amount),0) as amount, "
+            "COUNT(*) as order_count "
+            "FROM orders "
+            "WHERE status NOT IN ('cancelled','archived','pending_approval') "
+            "AND julianday('now') - julianday(created_at) BETWEEN ? AND ?",
+            (lo, hi)
+        ).fetchone()
+        result.append({
+            "label": label,
+            "amount": round(row["amount"], 2),
+            "order_count": row["order_count"],
+        })
+    conn.close()
+    return result
+
+# ==================== 获客模块 (Leads) ====================
+
+def get_leads(source=None, status=None, assigned_to=None, country=None, limit=100):
+    """查询潜客列表"""
+    conn = get_db()
+    sql = "SELECT c.*, u.display_name as assigned_name FROM customers c LEFT JOIN users u ON c.assigned_to=u.id WHERE 1=1"
+    params = []
+    if source:
+        sql += " AND c.source=?"
+        params.append(source)
+    if status:
+        sql += " AND c.lead_status=?"
+        params.append(status)
+    if assigned_to is not None:
+        if assigned_to == -1:
+            sql += " AND (c.assigned_to = '' OR c.assigned_to IS NULL)"
+        else:
+            sql += " AND c.assigned_to=?"
+            params.append(str(assigned_to))
+    if country:
+        sql += " AND c.country=?"
+        params.append(country)
+    sql += " ORDER BY c.created_at DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_lead_summary():
+    """获客统计：按来源/状态/国家的汇总"""
+    conn = get_db()
+    by_source = conn.execute(
+        "SELECT source, COUNT(*) as count FROM customers WHERE source!='' GROUP BY source ORDER BY count DESC"
+    ).fetchall()
+    by_status = conn.execute(
+        "SELECT lead_status, COUNT(*) as count FROM customers GROUP BY lead_status ORDER BY count DESC"
+    ).fetchall()
+    by_country = conn.execute(
+        "SELECT country, COUNT(*) as count FROM customers WHERE country!='' GROUP BY country ORDER BY count DESC"
+    ).fetchall()
+    month_new = conn.execute(
+        "SELECT COUNT(*) FROM customers WHERE strftime('%Y-%m', created_at)=strftime('%Y-%m', 'now')"
+    ).fetchone()[0]
+    unassigned = conn.execute(
+        "SELECT COUNT(*) FROM customers WHERE (assigned_to IS NULL OR assigned_to = '') AND lead_status NOT IN ('customer','lost')"
+    ).fetchone()[0]
+    conn.close()
+    return {
+        "by_source": [dict(r) for r in by_source],
+        "by_status": [dict(r) for r in by_status],
+        "by_country": [dict(r) for r in by_country],
+        "month_new": month_new,
+        "unassigned": unassigned,
+    }
+
+def get_lead_funnel():
+    """潜客漏斗数据"""
+    conn = get_db()
+    stages = ["new", "contacted", "qualified", "customer"]
+    result = []
+    for s in stages:
+        count = conn.execute("SELECT COUNT(*) FROM customers WHERE lead_status=?", (s,)).fetchone()[0]
+        result.append({"stage": s, "count": count})
+    conn.close()
+    return result
+
+def assign_lead(customer_id, user_id):
+    """分配潜客给销售"""
+    conn = get_db()
+    conn.execute("UPDATE customers SET assigned_to=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (user_id, customer_id))
+    conn.commit()
+    conn.close()
+
+def update_lead_status(customer_id, status):
+    """更新潜客状态"""
+    conn = get_db()
+    conn.execute("UPDATE customers SET lead_status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (status, customer_id))
+    conn.commit()
+    conn.close()
+
+def update_lead_source(customer_id, source, campaign=""):
+    """更新潜客来源"""
+    conn = get_db()
+    if campaign:
+        conn.execute("UPDATE customers SET source=?, campaign=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (source, campaign, customer_id))
+    else:
+        conn.execute("UPDATE customers SET source=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (source, customer_id))
+    conn.commit()
+    conn.close()
+
+
+# ==================== 跟进提醒 (Follow-up Reminder) ====================
+
+def update_last_contacted(customer_id):
+    """更新客户最后联系时间为当前时间"""
+    conn = get_db()
+    conn.execute("UPDATE customers SET last_contacted_at=CURRENT_TIMESTAMP WHERE id=?", (customer_id,))
+    conn.commit()
+    conn.close()
+
+def get_leads_due_followup():
+    """获取需要跟进的潜客列表，按逾期天数分组"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT c.id, c.name, c.company, c.country, c.language, c.lead_status,
+               c.assigned_to, c.whatsapp, c.last_contacted_at,
+               u.display_name as assigned_name,
+               CAST(julianday('now') - julianday(c.last_contacted_at) AS INTEGER) as days_since,
+               CASE
+                   WHEN CAST(julianday('now') - julianday(c.last_contacted_at) AS INTEGER) >= 15 THEN '15day'
+                   WHEN CAST(julianday('now') - julianday(c.last_contacted_at) AS INTEGER) >= 7 THEN '7day'
+                   WHEN CAST(julianday('now') - julianday(c.last_contacted_at) AS INTEGER) >= 3 THEN '3day'
+               END as followup_type
+        FROM customers c
+        LEFT JOIN users u ON c.assigned_to = u.id
+        WHERE c.lead_status NOT IN ('lost', 'customer')
+          AND c.last_contacted_at IS NOT NULL
+          AND CAST(julianday('now') - julianday(c.last_contacted_at) AS INTEGER) >= 3
+        ORDER BY days_since DESC
+    """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_today_followup_summary():
+    """获取今日跟进汇总：总数 + 各类型数量"""
+    conn = get_db()
+    sql_base = """
+        FROM customers
+        WHERE lead_status NOT IN ('lost', 'customer')
+          AND last_contacted_at IS NOT NULL
+          AND CAST(julianday('now') - julianday(last_contacted_at) AS INTEGER)
+    """
+    total = conn.execute("SELECT COUNT(*)" + sql_base + " >= 3").fetchone()[0]
+    day3 = conn.execute("SELECT COUNT(*)" + sql_base + " BETWEEN 3 AND 6").fetchone()[0]
+    day7 = conn.execute("SELECT COUNT(*)" + sql_base + " BETWEEN 7 AND 14").fetchone()[0]
+    day15 = conn.execute("SELECT COUNT(*)" + sql_base + " >= 15").fetchone()[0]
+    conn.close()
+    return {"total": total, "day3": day3, "day7": day7, "day15": day15}
+
+
+# ==================== 公海自动流转 (Lead Pool Auto-Rotation) ====================
+
+def get_users():
+    """获取所有销售用户"""
+    conn = get_db()
+    rows = conn.execute("SELECT id, username, display_name, role, title FROM users WHERE active=1 ORDER BY display_name").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def unassign_lead(customer_id):
+    """将潜客退回公海（清除分配人）"""
+    conn = get_db()
+    conn.execute("UPDATE customers SET assigned_to = '' WHERE id = ?", (customer_id,))
+    conn.commit()
+    conn.close()
+
+
+def claim_lead(customer_id, user_id):
+    """销售认领潜客（只有未分配的可认领），认领时重置 last_contacted_at"""
+    conn = get_db()
+    conn.execute(
+        "UPDATE customers SET assigned_to = ?, last_contacted_at = CURRENT_TIMESTAMP WHERE id = ? AND (assigned_to = '' OR assigned_to IS NULL)",
+        (str(user_id), customer_id)
+    )
+    conn.commit()
+    changed = conn.total_changes > 0
+    conn.close()
+    return changed
+
+
+def reclaim_expired_leads(days=14):
+    """回收超过指定天数未联系的已分配潜客，退回公海"""
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT id, name, assigned_to FROM customers
+           WHERE assigned_to != '' AND assigned_to IS NOT NULL
+             AND lead_status NOT IN ('lost', 'customer')
+             AND CAST(julianday('now') - julianday(COALESCE(last_contacted_at, updated_at)) AS INTEGER) >= ?""",
+        (days,)
+    ).fetchall()
+    reclaimed = []
+    for r in rows:
+        conn.execute("UPDATE customers SET assigned_to = '' WHERE id = ?", (r["id"],))
+        reclaimed.append(dict(r))
+    conn.commit()
+    conn.close()
+    return reclaimed
+
+
+def get_leads_with_pool_info(source=None, status=None, assigned_to=None, country=None, limit=100):
+    """增强版潜客列表：额外返回公海天数、剩余天数、状态"""
+    conn = get_db()
+    sql = """SELECT c.*, u.display_name as assigned_name,
+               CAST(julianday('now') - julianday(COALESCE(c.last_contacted_at, c.updated_at)) AS INTEGER) as pool_days,
+               14 - CAST(julianday('now') - julianday(COALESCE(c.last_contacted_at, c.updated_at)) AS INTEGER) as pool_remaining
+        FROM customers c LEFT JOIN users u ON c.assigned_to = u.id WHERE 1=1"""
+    params = []
+    if source:
+        sql += " AND c.source=?"
+        params.append(source)
+    if status:
+        sql += " AND c.lead_status=?"
+        params.append(status)
+    if assigned_to is not None:
+        if assigned_to == -1:
+            sql += " AND (c.assigned_to = '' OR c.assigned_to IS NULL)"
+        else:
+            sql += " AND c.assigned_to=?"
+            params.append(str(assigned_to))
+    if country:
+        sql += " AND c.country=?"
+        params.append(country)
+    sql += " ORDER BY c.created_at DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        d = dict(r)
+        pd = d.get("pool_days", 0) or 0
+        if d.get("assigned_to") and d["assigned_to"] != "":
+            if pd >= 14:
+                d["pool_status"] = "expired"
+            elif pd >= 8:
+                d["pool_status"] = "warning"
+            else:
+                d["pool_status"] = "safe"
+        else:
+            d["pool_status"] = "unassigned"
+        result.append(d)
+    return result
+
+
+# ==================== 媒体标签 ====================
+
+def get_media_tags():
+    """所有标签"""
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM media_tags ORDER BY name").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def add_media_tag(name, tag_type="general", color="#00f2ff"):
+    """创建标签"""
+    conn = get_db()
+    try:
+        conn.execute("INSERT INTO media_tags (name,type,color) VALUES (?,?,?)", (name, tag_type, color))
+        conn.commit()
+        tid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        conn.close()
+        return {"id": tid, "name": name}
+    except Exception as e:
+        conn.close()
+        return {"error": str(e)}
+
+def delete_media_tag(tag_id):
+    """删除标签"""
+    conn = get_db()
+    conn.execute("DELETE FROM media_tag_relations WHERE tag_id=?", (tag_id,))
+    conn.execute("DELETE FROM media_tags WHERE id=?", (tag_id,))
+    conn.commit()
+    conn.close()
+
+def get_media_tags_for(media_id):
+    """获取媒体文件的标签"""
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT t.* FROM media_tags t JOIN media_tag_relations r ON t.id=r.tag_id WHERE r.media_id=?",
+        (media_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def update_media_tags(media_id, tag_ids):
+    """更新媒体文件的标签"""
+    conn = get_db()
+    conn.execute("DELETE FROM media_tag_relations WHERE media_id=?", (media_id,))
+    for tid in tag_ids:
+        conn.execute("INSERT OR IGNORE INTO media_tag_relations (media_id,tag_id) VALUES (?,?)", (media_id, tid))
+    conn.commit()
+    conn.close()
+
+def get_media_by_tag(tag_id=None, filetype=None, limit=100):
+    """按标签+类型筛选媒体"""
+    conn = get_db()
+    sql = "SELECT DISTINCT f.* FROM media_files f"
+    params = []
+    if tag_id:
+        sql += " JOIN media_tag_relations r ON f.id=r.media_id WHERE r.tag_id=?"
+        params.append(tag_id)
+    else:
+        sql += " WHERE 1=1"
+    if filetype and filetype != "all":
+        sql += " AND f.filetype=?"
+        params.append(filetype)
+    sql += " ORDER BY f.created_at DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 def get_order_profit_stats(group=None):
     conn = get_db()
     # 总体统计
