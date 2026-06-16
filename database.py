@@ -420,6 +420,33 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_shipments_order ON shipments(order_id)")
     except:
         pass
+    # 质检模板表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS qc_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            items TEXT DEFAULT '[]',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # 质检记录表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS qc_inspections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            template_id INTEGER DEFAULT NULL,
+            inspector_id INTEGER DEFAULT NULL,
+            result TEXT DEFAULT 'pending',
+            items TEXT DEFAULT '[]',
+            notes TEXT DEFAULT '',
+            inspected_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_qc_inspections_order ON qc_inspections(order_id)")
+    except:
+        pass
     conn.commit()
     conn.close()
 
@@ -2587,6 +2614,155 @@ def delete_shipment(sid):
     """删除发货记录"""
     conn = get_db()
     conn.execute("DELETE FROM shipments WHERE id=?", (sid,))
+    conn.commit()
+    conn.close()
+
+
+# ========= 质检管理 (QC) =========
+def get_qc_templates():
+    """获取所有质检模板"""
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM qc_templates ORDER BY name").fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["items"] = json.loads(d.get("items", "[]"))
+        except:
+            d["items"] = []
+        result.append(d)
+    return result
+
+
+def get_qc_template(tid):
+    """获取单个质检模板"""
+    conn = get_db()
+    row = conn.execute("SELECT * FROM qc_templates WHERE id=?", (tid,)).fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    try:
+        d["items"] = json.loads(d.get("items", "[]"))
+    except:
+        d["items"] = []
+    return d
+
+
+def save_qc_template(tid, name, items):
+    """创建或更新质检模板"""
+    items_json = json.dumps(items)
+    conn = get_db()
+    if tid:
+        conn.execute("UPDATE qc_templates SET name=?, items=? WHERE id=?", (name, items_json, tid))
+    else:
+        conn.execute("INSERT INTO qc_templates (name, items) VALUES (?,?)", (name, items_json))
+    conn.commit()
+    conn.close()
+    return True
+
+
+def delete_qc_template(tid):
+    """删除质检模板"""
+    conn = get_db()
+    conn.execute("DELETE FROM qc_templates WHERE id=?", (tid,))
+    conn.commit()
+    conn.close()
+
+
+def get_order_qc_inspections(order_id):
+    """获取订单的所有质检记录"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT qi.*, u.display_name AS inspector_name, qt.name AS template_name
+        FROM qc_inspections qi
+        LEFT JOIN users u ON qi.inspector_id = u.id
+        LEFT JOIN qc_templates qt ON qi.template_id = qt.id
+        WHERE qi.order_id = ?
+        ORDER BY qi.created_at DESC
+    """, (order_id,)).fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["items"] = json.loads(d.get("items", "[]"))
+        except:
+            d["items"] = []
+        result.append(d)
+    return result
+
+
+def get_qc_inspection(iid):
+    """获取单条质检记录"""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT qi.*, u.display_name AS inspector_name, qt.name AS template_name
+        FROM qc_inspections qi
+        LEFT JOIN users u ON qi.inspector_id = u.id
+        LEFT JOIN qc_templates qt ON qi.template_id = qt.id
+        WHERE qi.id = ?
+    """, (iid,)).fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    try:
+        d["items"] = json.loads(d.get("items", "[]"))
+    except:
+        d["items"] = []
+    return d
+
+
+def add_qc_inspection(data):
+    """创建质检记录"""
+    conn = get_db()
+    conn.execute(
+        """INSERT INTO qc_inspections (order_id, template_id, inspector_id, result, items, notes, inspected_at)
+           VALUES (?,?,?,?,?,?,?)""",
+        (
+            data.get("order_id"),
+            data.get("template_id"),
+            data.get("inspector_id"),
+            data.get("result", "pending"),
+            json.dumps(data.get("items", [])),
+            data.get("notes", ""),
+            data.get("inspected_at"),
+        )
+    )
+    conn.commit()
+    iid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    conn.close()
+    return {"id": iid}
+
+
+def update_qc_inspection(iid, data):
+    """更新质检记录"""
+    allowed = ["result", "notes"]
+    sets = []
+    vals = []
+    for k, v in data.items():
+        if k in allowed:
+            sets.append(f"{k}=?")
+            vals.append(v)
+    if "items" in data:
+        sets.append("items=?")
+        vals.append(json.dumps(data["items"]))
+    if "inspected_at" in data:
+        sets.append("inspected_at=?")
+        vals.append(data["inspected_at"])
+    if sets:
+        conn = get_db()
+        conn.execute(f"UPDATE qc_inspections SET {', '.join(sets)} WHERE id=?", (*vals, iid))
+        conn.commit()
+        conn.close()
+
+
+def delete_qc_inspection(iid):
+    """删除质检记录"""
+    conn = get_db()
+    conn.execute("DELETE FROM qc_inspections WHERE id=?", (iid,))
     conn.commit()
     conn.close()
 

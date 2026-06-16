@@ -31,6 +31,7 @@ from database import get_quotes, get_quote, add_quote, update_quote, delete_quot
 from database import get_users, get_user_by_username, add_user, update_user
 from database import get_orders, get_order, add_order, update_order, delete_order
 from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule, get_production_tasks, save_production_tasks, update_production_task_status, get_production_task_defaults, get_shipments, get_shipment, add_shipment, update_shipment, delete_shipment
+from database import get_qc_templates, get_qc_template, save_qc_template, delete_qc_template, get_order_qc_inspections, get_qc_inspection, add_qc_inspection, update_qc_inspection, delete_qc_inspection
 from database import add_payment, get_ar_summary, get_ar_by_customer, get_payment_history, get_aging_analysis, migrate_payments_from_orders
 from database import get_leads, get_lead_summary, get_lead_funnel, assign_lead, update_lead_status, update_lead_source
 from database import get_leads_due_followup, get_today_followup_summary, update_last_contacted
@@ -3428,6 +3429,120 @@ def api_delete_shipment(sid):
     if uid and s:
         add_activity_log(uid, "delete", "shipment", sid,
             f"删除了发货记录 - 订单 #{s.get('order_id','')}")
+    return jsonify({"ok": True})
+
+
+# ==================== 质检管理 API ====================
+# ---- 质检模板 (admin only) ----
+@app.route("/api/qc/templates")
+@login_required
+def api_qc_templates():
+    """获取质检模板列表"""
+    return jsonify(get_qc_templates())
+
+
+@app.route("/api/qc/templates", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_create_qc_template():
+    """创建质检模板"""
+    data = request.json or {}
+    save_qc_template(None, data.get("name", ""), data.get("items", []))
+    uid = session.get("user_id")
+    if uid:
+        add_activity_log(uid, "create", "qc_template", 0,
+            f"创建质检模板: {data.get('name','')}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/qc/templates/<int:tid>", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_update_qc_template(tid):
+    """更新质检模板"""
+    data = request.json or {}
+    save_qc_template(tid, data.get("name", ""), data.get("items", []))
+    uid = session.get("user_id")
+    if uid:
+        add_activity_log(uid, "update", "qc_template", tid,
+            f"更新质检模板: {data.get('name','')}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/qc/templates/<int:tid>", methods=["DELETE"])
+@login_required
+@role_required('admin')
+def api_delete_qc_template(tid):
+    """删除质检模板"""
+    delete_qc_template(tid)
+    uid = session.get("user_id")
+    if uid:
+        add_activity_log(uid, "delete", "qc_template", tid, "删除了质检模板")
+    return jsonify({"ok": True})
+
+
+# ---- 质检记录 ----
+@app.route("/api/orders/<int:oid>/qc")
+@login_required
+def api_order_qc(oid):
+    """获取订单的质检记录列表"""
+    return jsonify(get_order_qc_inspections(oid))
+
+
+@app.route("/api/orders/<int:oid>/qc", methods=["POST"])
+@login_required
+def api_create_qc(oid):
+    """创建质检记录"""
+    data = request.json or {}
+    data["order_id"] = oid
+    data["inspector_id"] = session.get("user_id")
+    data["inspected_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result = add_qc_inspection(data)
+    uid = session.get("user_id")
+    if uid and result.get("id"):
+        order = get_order(oid)
+        add_activity_log(uid, "create", "qc_inspection", result["id"],
+            f"创建了质检记录 - 订单 {order.get('order_no','')} ({data.get('result','pending')})")
+    return jsonify({"ok": True, "id": result["id"]})
+
+
+@app.route("/api/qc/<int:iid>")
+@login_required
+def api_get_qc(iid):
+    """获取单条质检记录"""
+    ins = get_qc_inspection(iid)
+    if not ins:
+        return jsonify({"error": "质检记录不存在"}), 404
+    return jsonify(ins)
+
+
+@app.route("/api/qc/<int:iid>", methods=["PUT"])
+@login_required
+def api_update_qc(iid):
+    """更新质检记录"""
+    data = request.json or {}
+    if "inspected_at" not in data:
+        data["inspected_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    update_qc_inspection(iid, data)
+    uid = session.get("user_id")
+    if uid:
+        ins = get_qc_inspection(iid)
+        order_id = ins.get("order_id", "") if ins else ""
+        add_activity_log(uid, "update", "qc_inspection", iid,
+            f"更新了质检记录 (ID:{iid}) - 订单 #{order_id}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/qc/<int:iid>", methods=["DELETE"])
+@login_required
+def api_delete_qc(iid):
+    """删除质检记录"""
+    ins = get_qc_inspection(iid)
+    delete_qc_inspection(iid)
+    uid = session.get("user_id")
+    if uid and ins:
+        add_activity_log(uid, "delete", "qc_inspection", iid,
+            f"删除了质检记录 - 订单 #{ins.get('order_id','')}")
     return jsonify({"ok": True})
 
 

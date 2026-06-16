@@ -520,6 +520,21 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 .ship-badge.pending{background:#78350f;color:#fbbf24}
 .ship-badge.shipped{background:#1e3a5f;color:#93c5fd}
 .ship-badge.delivered{background:#065f46;color:#6ee7b7}
+.qc-section{margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border)}
+.qc-section h4{font-size:12px;color:var(--gold);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.qc-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
+.qc-table th{text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border);white-space:nowrap}
+.qc-table td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.qc-table tr:last-child td{border-bottom:none}
+.qc-badge{display:inline-block;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:600}
+.qc-badge.pass{background:#065f46;color:#6ee7b7}
+.qc-badge.fail{background:#7f1d1d;color:#fca5a5}
+.qc-badge.pending{background:#78350f;color:#fbbf24}
+.qc-item-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.qc-item-row:last-child{border-bottom:none}
+.qc-item-row .qc-item-name{flex:1;font-size:12px;color:var(--text-bright)}
+.qc-item-row select{padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:#090b14;color:var(--text-bright);font-size:11px;cursor:pointer}
+.qc-tpl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 
 .pool-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
 .pool-badge.unassigned{background:rgba(236,72,153,0.15);color:var(--pink)}
@@ -858,6 +873,7 @@ function detailNewQuote() {
     <div class="nav-item" data-page="scripts"><i class="fas fa-comments"></i> 话术库</div>
     <div class="nav-item" data-page="countries"><i class="fas fa-globe-americas"></i> 国际市场</div>
     <div class="nav-item" data-page="cases-admin" style="display:none"><i class="fas fa-building"></i> 案例管理</div>
+    <div class="nav-item" data-page="qc-templates" style="display:none"><i class="fas fa-clipboard-check"></i> 质检模板</div>
     <div class="nav-item" data-page="users" style="display:none"><i class="fas fa-user-gear"></i> 用户管理</div>
     <div class="nav-item" data-page="activity-logs"><i class="fas fa-clock-rotate-left"></i> 操作日志</div>
   </div>
@@ -1556,6 +1572,46 @@ function detailNewQuote() {
   <div id="adminCasesEmpty" style="display:none;text-align:center;padding:60px;color:var(--muted)">
     <div style="font-size:40px;margin-bottom:8px"><i class="fas fa-building"></i></div>
     <div>暂无案例</div>
+  </div>
+</div>
+
+<!-- ======== 质检模板管理 ======== -->
+<div class="page" id="page-qc-templates">
+  <div style="max-width:800px;margin:0 auto">
+    <div class="qc-tpl-header">
+      <h3><i class="fas fa-clipboard-check" style="color:var(--cyan)"></i> 质检模板</h3>
+      <button class="btn btn-primary btn-sm" onclick="openQcTemplateModal()"><i class="fas fa-plus"></i> 新建模板</button>
+    </div>
+    <div id="qcTplList" style="display:grid;gap:12px">
+      <div style="text-align:center;padding:60px;color:var(--muted)">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- 质检模板编辑弹窗 -->
+<div class="modal" id="qcTemplateModal" style="display:none">
+  <div class="modal-bg" onclick="closeQcTemplateModal()"></div>
+  <div class="modal-content" style="max-width:500px">
+    <div class="modal-header">
+      <h3 id="qcTemplateModalTitle">新建质检模板</h3>
+      <button class="close" onclick="closeQcTemplateModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <input type="hidden" id="qcTemplateId">
+      <div class="form-group">
+        <label>模板名称</label>
+        <input class="field" id="qcTemplateName" placeholder="如：标准发光字质检">
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:11px;color:var(--muted)">检查项列表</label>
+        <div id="qcTemplateItems" style="margin-top:6px"></div>
+        <button class="btn btn-xs" onclick="addQcTemplateItem()" style="margin-top:6px;border-color:var(--gold);color:var(--gold)"><i class="fas fa-plus"></i> 添加检查项</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeQcTemplateModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveQcTemplate()">保存</button>
+    </div>
   </div>
 </div>
 
@@ -2832,6 +2888,24 @@ function detailNewQuote() {
         </div>
       </div>
 
+      <!-- ======== 质检记录 ======== -->
+      <div class="qc-section" id="odQcSection" style="display:none">
+        <h4><i class="fas fa-clipboard-check"></i> 质检记录</h4>
+        <table class="qc-table">
+          <thead><tr>
+            <th style="width:80px">日期</th>
+            <th>模板</th>
+            <th>质检员</th>
+            <th style="width:60px">结果</th>
+            <th style="width:60px">操作</th>
+          </tr></thead>
+          <tbody id="odQcTbody"></tbody>
+        </table>
+        <div style="margin-top:8px">
+          <button class="btn btn-sm" onclick="openQcModal()" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-plus"></i> 开始质检</button>
+        </div>
+      </div>
+
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap" id="odActions">
         <button class="btn btn-sm" onclick="recordPayment('deposit')" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-hand-holding-dollar"></i> 记录定金</button>
         <button class="btn btn-sm" onclick="recordPayment('balance')" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-hand-holding-dollar"></i> 记录尾款</button>
@@ -2946,6 +3020,38 @@ function detailNewQuote() {
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeShipModal()">取消</button>
       <button class="btn btn-primary" onclick="submitShipment()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 质检弹窗 -->
+<div class="modal" id="qcModal" style="display:none">
+  <div class="modal-bg" onclick="closeQcModal()"></div>
+  <div class="modal-content" style="max-width:550px">
+    <div class="modal-header">
+      <h3 id="qcModalTitle">质检记录</h3>
+      <button class="close" onclick="closeQcModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <input type="hidden" id="qcInspectionId">
+      <div class="form-group">
+        <label style="font-size:11px;color:var(--muted)">质检模板</label>
+        <select id="qcSelectTemplate" class="field" style="background:#000" onchange="loadQcTemplateItems()">
+          <option value="">请选择模板</option>
+        </select>
+      </div>
+      <div id="qcItemsContainer" style="margin-top:12px;display:none">
+        <label style="font-size:11px;color:var(--muted);margin-bottom:6px;display:block">检查项</label>
+        <div id="qcItemList"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:11px;color:var(--muted)">备注</label>
+        <textarea class="field" id="qcNotes" rows="2" style="resize:vertical;font-size:12px" placeholder="质检备注..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeQcModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitQcInspection()">保存</button>
     </div>
   </div>
 </div>
@@ -3509,7 +3615,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'cases-admin','users','activity-logs'],
+              'cases-admin','qc-templates','users','activity-logs'],
       sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
@@ -3562,6 +3668,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'inventory') loadInventory();
     if (page === 'catalog') loadShowroom();
     if (page === 'cases-admin') loadCasesAdmin();
+    if (page === 'qc-templates') loadQcTemplatesAdmin();
     if (page === 'email') loadEmailPage();
     if (page === 'knowledge') loadKnowledge();
     if (page === 'scripts') loadScripts();
@@ -3617,7 +3724,7 @@ async function checkAuth() {
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'cases-admin','users'],
+              'cases-admin','qc-templates','users'],
       sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
@@ -8633,6 +8740,8 @@ async function openOrderDetail(id) {
     }
     // 发货记录
     loadShipments(id);
+    // 质检记录
+    loadQcRecords(id);
   } catch(e) { console.error(e); }
 }
 
@@ -8763,6 +8872,276 @@ async function deleteShipment(sid) {
     if (r && r.ok) {
       showToast('发货记录已删除');
       openOrderDetail(_detailOrderId);
+    }
+  } catch(e) { showToast('删除失败: ' + e.message); }
+}
+
+// ================= 质检管理 (QC) =================
+let _qcEditId = null;
+
+async function loadQcRecords(orderId) {
+  var section = document.getElementById('odQcSection');
+  var tbody = document.getElementById('odQcTbody');
+  try {
+    var records = await api('/api/orders/' + orderId + '/qc');
+    if (records && records.length) {
+      section.style.display = 'block';
+      tbody.innerHTML = records.map(function(r) {
+        var resultMap = {pass:'通过', fail:'不通过', pending:'待定'};
+        var label = resultMap[r.result] || r.result;
+        var badgeClass = r.result === 'pass' ? 'pass' : r.result === 'fail' ? 'fail' : 'pending';
+        var dateStr = (r.inspected_at || r.created_at || '').substring(0,10);
+        var tplName = r.template_name || ('(ID:' + (r.template_id || '') + ')');
+        return '<tr>'
+          + '<td>' + dateStr + '</td>'
+          + '<td>' + esc(tplName) + '</td>'
+          + '<td>' + esc(r.inspector_name || '--') + '</td>'
+          + '<td><span class="qc-badge ' + badgeClass + '">' + esc(label) + '</span></td>'
+          + '<td style="white-space:nowrap">'
+          + '<button class="btn btn-xs" onclick="openQcModal(' + r.id + ')" style="padding:2px 6px;font-size:10px"><i class="fas fa-pen"></i></button>'
+          + '<button class="btn btn-xs" onclick="deleteQcInspection(' + r.id + ')" style="padding:2px 6px;font-size:10px;border-color:#ef4444;color:#ef4444;margin-left:4px"><i class="fas fa-trash"></i></button>'
+          + '</td>'
+          + '</tr>';
+      }).join('');
+    } else {
+      section.style.display = 'none';
+    }
+  } catch(e) { console.error('加载质检记录失败:', e); }
+}
+
+async function loadQcTemplatesForSelect() {
+  try {
+    var templates = await api('/api/qc/templates');
+    var sel = document.getElementById('qcSelectTemplate');
+    sel.innerHTML = '<option value="">请选择模板</option>';
+    (templates || []).forEach(function(t) {
+      sel.innerHTML += '<option value="' + t.id + '">' + esc(t.name) + '</option>';
+    });
+    return templates || [];
+  } catch(e) { return []; }
+}
+
+async function loadQcTemplateItems() {
+  var sel = document.getElementById('qcSelectTemplate');
+  var tid = parseInt(sel.value);
+  var container = document.getElementById('qcItemsContainer');
+  var list = document.getElementById('qcItemList');
+  if (!tid) { container.style.display = 'none'; return; }
+  try {
+    var tpl = await api('/api/qc/templates');
+    var found = null;
+    (tpl || []).forEach(function(t) { if (t.id === tid) found = t; });
+    if (!found || !found.items || !found.items.length) {
+      list.innerHTML = '<div style="padding:12px;text-align:center;color:var(--muted);font-size:11px">该模板没有检查项</div>';
+      container.style.display = 'block';
+      return;
+    }
+    container.style.display = 'block';
+    list.innerHTML = found.items.map(function(item, idx) {
+      var val = '';
+      // Preserve existing values if editing
+      var existingItems = window._qcEditItems || [];
+      if (existingItems.length) {
+        var foundItem = null;
+        existingItems.forEach(function(ei) { if (ei.item_name === item.name) foundItem = ei; });
+        if (foundItem) val = foundItem.result || '';
+      }
+      return '<div class="qc-item-row">'
+        + '<span class="qc-item-name">' + esc(item.name) + '</span>'
+        + '<select class="qc-item-result" data-idx="' + idx + '">'
+        + '<option value="">--</option>'
+        + '<option value="pass"' + (val === 'pass' ? ' selected' : '') + '>通过</option>'
+        + '<option value="fail"' + (val === 'fail' ? ' selected' : '') + '>不通过</option>'
+        + '<option value="na"' + (val === 'na' ? ' selected' : '') + '>N/A</option>'
+        + '</select>'
+        + '</div>';
+    }).join('');
+  } catch(e) { console.error('加载模板项失败:', e); }
+}
+
+function openQcModal(iid) {
+  _qcEditId = iid || null;
+  document.getElementById('qcModalTitle').textContent = iid ? '编辑质检' : '开始质检';
+  document.getElementById('qcInspectionId').value = iid || '';
+  document.getElementById('qcNotes').value = '';
+  document.getElementById('qcItemsContainer').style.display = 'none';
+  window._qcEditItems = [];
+
+  loadQcTemplatesForSelect().then(function() {
+    if (iid) {
+      api('/api/qc/' + iid).then(function(r) {
+        if (r) {
+          document.getElementById('qcSelectTemplate').value = r.template_id || '';
+          document.getElementById('qcNotes').value = r.notes || '';
+          window._qcEditItems = r.items || [];
+          loadQcTemplateItems();
+        }
+      });
+    }
+  });
+
+  document.getElementById('qcModal').style.display = 'flex';
+}
+
+function closeQcModal() {
+  document.getElementById('qcModal').style.display = 'none';
+  _qcEditId = null;
+  window._qcEditItems = null;
+}
+
+async function submitQcInspection() {
+  var tid = parseInt(document.getElementById('qcSelectTemplate').value);
+  if (!tid) { showToast('请选择质检模板'); return; }
+
+  var items = [];
+  document.querySelectorAll('#qcItemList .qc-item-row').forEach(function(row) {
+    var name = row.querySelector('.qc-item-name').textContent;
+    var result = row.querySelector('.qc-item-result').value;
+    items.push({ item_name: name, result: result || 'pending' });
+  });
+
+  var passCount = 0, failCount = 0;
+  items.forEach(function(it) {
+    if (it.result === 'pass') passCount++;
+    else if (it.result === 'fail') failCount++;
+  });
+  var overall = 'pending';
+  if (items.length) {
+    if (failCount > 0) overall = 'fail';
+    else if (passCount === items.length) overall = 'pass';
+  }
+
+  var data = {
+    template_id: tid,
+    items: items,
+    result: overall,
+    notes: document.getElementById('qcNotes').value,
+  };
+
+  try {
+    var url, method;
+    if (_qcEditId) {
+      url = '/api/qc/' + _qcEditId;
+      method = 'PUT';
+    } else {
+      url = '/api/orders/' + _detailOrderId + '/qc';
+      method = 'POST';
+    }
+    var r = await api(url, { method: method, body: JSON.stringify(data) });
+    if (r && r.ok) {
+      showToast(_qcEditId ? '质检已更新' : '质检已保存');
+      closeQcModal();
+      openOrderDetail(_detailOrderId);
+    }
+  } catch(e) { showToast('操作失败: ' + e.message); }
+}
+
+async function deleteQcInspection(iid) {
+  if (!confirm('确定要删除这条质检记录吗？')) return;
+  try {
+    var r = await api('/api/qc/' + iid, { method: 'DELETE' });
+    if (r && r.ok) {
+      showToast('质检记录已删除');
+      openOrderDetail(_detailOrderId);
+    }
+  } catch(e) { showToast('删除失败: ' + e.message); }
+}
+
+// ================= 质检模板管理页 =================
+async function loadQcTemplatesAdmin() {
+  var container = document.getElementById('qcTplList');
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">加载中...</div>';
+  try {
+    var templates = await api('/api/qc/templates');
+    if (!templates || !templates.length) {
+      container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-size:40px;margin-bottom:8px"><i class="fas fa-clipboard-list"></i></div><div>暂无质检模板</div></div>';
+      return;
+    }
+    container.innerHTML = templates.map(function(t) {
+      var items = t.items || [];
+      var itemNames = items.map(function(i) { return i.name; }).join(' → ');
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center">'
+        + '<div><strong style="color:var(--text-bright);font-size:14px">' + esc(t.name) + '</strong>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:4px">' + esc(itemNames) + '</div></div>'
+        + '<div style="display:flex;gap:6px">'
+        + '<button class="btn btn-xs" onclick="openQcTemplateModal(' + t.id + ')" style="border-color:var(--cyan);color:var(--cyan)"><i class="fas fa-pen"></i> 编辑</button>'
+        + '<button class="btn btn-xs" onclick="deleteQcTemplate(' + t.id + ')" style="border-color:#ef4444;color:#ef4444"><i class="fas fa-trash"></i> 删除</button>'
+        + '</div></div></div>';
+    }).join('');
+  } catch(e) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--pink)">加载失败</div>'; }
+}
+
+function openQcTemplateModal(tid) {
+  document.getElementById('qcTemplateModalTitle').textContent = tid ? '编辑质检模板' : '新建质检模板';
+  document.getElementById('qcTemplateId').value = tid || '';
+  document.getElementById('qcTemplateName').value = '';
+  document.getElementById('qcTemplateItems').innerHTML = '';
+
+  if (tid) {
+    api('/api/qc/templates').then(function(templates) {
+      var found = null;
+      (templates || []).forEach(function(t) { if (t.id === tid) found = t; });
+      if (found) {
+        document.getElementById('qcTemplateName').value = found.name || '';
+        (found.items || []).forEach(function(item) {
+          addQcTemplateItem(item.name);
+        });
+      }
+    });
+  }
+  document.getElementById('qcTemplateModal').style.display = 'flex';
+}
+
+function closeQcTemplateModal() {
+  document.getElementById('qcTemplateModal').style.display = 'none';
+}
+
+function addQcTemplateItem(name) {
+  var container = document.getElementById('qcTemplateItems');
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:4px';
+  div.innerHTML = '<input type="text" class="qc-tpl-item-name field" value="' + esc(name || '') + '" placeholder="检查项名称" style="flex:1;padding:5px 8px;font-size:12px;border-radius:6px">'
+    + '<button class="btn btn-xs" onclick="this.parentElement.remove()" style="border-color:#ef444480;color:#ef4444;flex-shrink:0"><i class="fas fa-times"></i></button>';
+  container.appendChild(div);
+}
+
+async function saveQcTemplate() {
+  var name = document.getElementById('qcTemplateName').value.trim();
+  if (!name) { showToast('请输入模板名称'); return; }
+  var items = [];
+  document.querySelectorAll('#qcTemplateItems .qc-tpl-item-name').forEach(function(input) {
+    var val = input.value.trim();
+    if (val) items.push({ name: val });
+  });
+  if (!items.length) { showToast('请至少添加一个检查项'); return; }
+
+  var tid = document.getElementById('qcTemplateId').value;
+  try {
+    var url, method;
+    if (tid) {
+      url = '/api/qc/templates/' + tid;
+      method = 'PUT';
+    } else {
+      url = '/api/qc/templates';
+      method = 'POST';
+    }
+    var r = await api(url, { method: method, body: JSON.stringify({ name: name, items: items }) });
+    if (r && r.ok) {
+      showToast(tid ? '模板已更新' : '模板已创建');
+      closeQcTemplateModal();
+      loadQcTemplatesAdmin();
+    }
+  } catch(e) { showToast('操作失败: ' + e.message); }
+}
+
+async function deleteQcTemplate(tid) {
+  if (!confirm('确定要删除此质检模板吗？')) return;
+  try {
+    var r = await api('/api/qc/templates/' + tid, { method: 'DELETE' });
+    if (r && r.ok) {
+      showToast('模板已删除');
+      loadQcTemplatesAdmin();
     }
   } catch(e) { showToast('删除失败: ' + e.message); }
 }
