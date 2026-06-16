@@ -571,6 +571,8 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <!-- 今日工作台 -->
     <div class="page active" id="page-dashboard">
       <div class="stats-grid" id="statCards"></div>
+      <div id="orderStatsRow"></div>
+      <div id="recentOrdersRow"></div>
       <div id="dailyTip" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;font-size:14px"></div>
       <div class="table-wrap">
         <div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)"><i class="fas fa-fire"></i> 今日必跟 <span id="followUpCount" style="font-weight:400;color:var(--muted);font-size:12px"></span></div>
@@ -584,6 +586,7 @@ h2 .fas{color:var(--cyan);margin-right:8px}
         </div>
         <div id="staleCustomerList" style="padding:8px 0"></div>
       </div>
+      <div id="backupSection" style="margin-bottom:12px;font-size:13px"></div>
       <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
         <button class="btn btn-primary" onclick="document.querySelector('[data-page=chat]').click()"><i class="fas fa-book-open"></i> 阅读消息</button>
         <button class="btn btn-ghost" onclick="document.querySelector('[data-page=ai]').click()"><i class="fas fa-palette"></i> AI生图</button>
@@ -1587,6 +1590,7 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
           <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-box"></i> <span id="orderPageTitle">订单管理</span></h3>
+        <button class="btn btn-xs" onclick="exportOrders()" style="border-color:var(--gold);color:var(--gold);margin-left:8px"><i class="fas fa-file-excel"></i> 导出</button>
           <div style="display:flex;gap:6px;align-items:center">
             <button class="kanban-toggle" id="kanbanToggle" onclick="toggleKanbanView()" style="font-size:11px"><i class="fas fa-columns"></i> <span id="kanbanToggleLabel">看板</span></button>
             <button class="btn btn-primary" onclick="openOrderModal()">+ <span id="orderBtnNew">新建订单</span></button>
@@ -1685,6 +1689,7 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <!-- Toolbar -->
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
       <button class="btn btn-primary" onclick="openInvItemModal()"><i class="fas fa-plus"></i> 新增物料</button>
+      <button class="btn btn-xs" onclick="exportInventory()" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-file-excel"></i> 导出</button>
       <select id="invCategoryFilter" class="field" style="width:auto;padding:6px 12px" onchange="loadInventory()">
         <option value="">全部分类</option>
       </select>
@@ -1867,6 +1872,7 @@ h2 .fas{color:var(--cyan);margin-right:8px}
     <!-- 销售员提成汇总表 -->
     <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">
       <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-users" style="color:var(--cyan)"></i> 销售员提成汇总</h4>
+      <button class="btn btn-xs" onclick="exportCommission()" style="border-color:var(--gold);color:var(--gold);float:right;margin-top:-32px"><i class="fas fa-file-excel"></i> 导出</button>
       <table class="data-table" style="width:100%;font-size:13px" id="cmSalesTable">
         <thead><tr>
           <th>销售员</th><th>订单数</th><th>营收</th><th>成本</th><th>利润</th><th>提成率</th><th>提成金额</th><th>操作</th>
@@ -2849,62 +2855,96 @@ async function loadDashboard() {
     api('/api/stats'),
     api('/api/workbench')
   ]);
+  if (!s) return;
 
   document.getElementById('todayMsgBadge').innerHTML = s.today_msgs || 0;
 
-  // 待跟进数: hot客户超过1天没联系 / warm客户超过3天 / 所有客户超过7天
   const needCount = wb.filter(c =>
     (c.status === 'hot' && c.days_since >= 1) ||
     (c.status === 'warm' && c.days_since >= 3) ||
     c.days_since >= 7
   ).length;
 
-  // 加载沉睡客户数据
   loadStaleCustomers();
 
-  document.getElementById('statCards').innerHTML = `
-    <div class="stat-card"><div class="num">${s.customers}</div><div class="label"><i class="fas fa-users"></i> 客户总数</div></div>
-    <div class="stat-card"><div class="num">${s.today_msgs}</div><div class="label"><i class="fas fa-comment-dots"></i> 今日消息</div></div>
-    <div class="stat-card"><div class="num">${s.total_files}</div><div class="label"><i class="fas fa-folder"></i> 文件总数</div></div>
-    <div class="stat-card"><div class="num" style="color:${needCount > 0 ? 'var(--gold)' : 'var(--cyan)'}">${needCount}</div><div class="label"><i class="fas fa-bell"></i> 待跟进</div></div>
-    ${s.dormant > 0 ? `<div class="stat-card"><div class="num" style="color:var(--pink)">${s.dormant}</div><div class="label"><i class="fas fa-bed"></i> 沉睡客户</div></div>` : ''}
-  `;
+  // === 运营概况 ===
+  document.getElementById('statCards').innerHTML = ''
+    + '<div class="stat-card"><div class="num" style="color:var(--cyan)">' + s.customers + '</div><div class="label"><i class="fas fa-users"></i> 客户总数</div></div>'
+    + '<div class="stat-card"><div class="num" style="color:var(--gold)">' + (s.total_orders || 0) + '</div><div class="label"><i class="fas fa-box"></i> 订单总数</div></div>'
+    + '<div class="stat-card"><div class="num" style="color:var(--cyan)">$' + Number(s.month_revenue || 0).toLocaleString(undefined, {minimumFractionDigits:0}) + '</div><div class="label"><i class="fas fa-chart-line"></i> 本月营收</div></div>'
+    + '<div class="stat-card"><div class="num" style="color:' + (needCount > 0 ? 'var(--gold)' : 'var(--cyan)') + '">' + needCount + '</div><div class="label"><i class="fas fa-bell"></i> 待跟进客户</div></div>';
 
-  // 每日建议
+  // === 订单与生产概况 ===
+  var cards = [
+    {label:'待审核订单', value:s.pending_orders || 0, icon:'fa-clock', color:'#f59e0b'},
+    {label:'待生产', value:s.prod_confirmed || 0, icon:'fa-pause', color:'#f59e0b'},
+    {label:'生产中', value:s.in_production || 0, icon:'fa-cogs', color:'#00f2ff'},
+    {label:'待发货', value:s.prod_shipped || 0, icon:'fa-truck', color:'#22c55e'},
+    {label:'今日消息', value:s.today_msgs || 0, icon:'fa-comment-dots', color:'#6366f1'},
+    {label:'低库存预警', value:s.low_stock || 0, icon:'fa-exclamation-triangle', color:s.low_stock > 0 ? 'var(--pink)' : '#22c55e'},
+  ];
+  var orderHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">';
+  cards.forEach(function(item) {
+    orderHtml += '<div class="stat-card" style="padding:14px"><div class="num" style="font-size:22px;color:' + item.color + '">' + item.value + '</div><div class="label"><i class="fas ' + item.icon + '"></i> ' + item.label + '</div></div>';
+  });
+  orderHtml += '</div>';
+  document.getElementById('orderStatsRow').innerHTML = orderHtml;
+
+  // === 最近订单 ===
+  var recentHtml = '';
+  if (s.recent_orders && s.recent_orders.length > 0) {
+    var statusLabel = {'pending_approval':'待审核','confirmed':'已确认','in_production':'生产中','shipped':'已发货','delivered':'已交付'};
+    recentHtml = '<div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">'
+      + '<h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-clock-rotate" style="color:var(--gold)"></i> 最近订单</h4>';
+    s.recent_orders.forEach(function(o) {
+      recentHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(30,36,72,0.3)">'
+        + '<div><a href="#" onclick="event.stopPropagation();openOrderDetail(' + o.id + ');return false" style="color:var(--cyan);text-decoration:none;font-weight:600">' + esc(o.order_no) + '</a>'
+        + ' <span style="font-size:11px;color:var(--muted)">' + esc(o.customer_name || '') + '</span></div>'
+        + '<div><span style="font-size:11px;color:var(--muted)">' + (statusLabel[o.status] || o.status) + '</span>'
+        + ' <span style="font-weight:600;color:var(--gold)">' + (o.currency || 'USD') + ' ' + Number(o.total_amount || 0).toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>'
+        + '</div>';
+    });
+    recentHtml += '</div>';
+  }
+  document.getElementById('recentOrdersRow').innerHTML = recentHtml;
+
+  // === 备份按钮 ===
+  document.getElementById('backupSection').innerHTML = ''
+    + '<button class="btn btn-primary btn-sm" onclick="createBackup()"><i class="fas fa-database"></i> 创建备份</button> '
+    + '<button class="btn btn-sm" onclick="showBackups()" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-history"></i> 查看备份</button>'
+    + ' <span id="backupStatus" style="font-size:12px;color:var(--muted);margin-left:8px"></span>';
+
+  // === 每日建议 ===
   const hotNeed = wb.filter(c => c.status === 'hot' && c.days_since >= 1);
   const warmNeed = wb.filter(c => c.status === 'warm' && c.days_since >= 3);
   let tip = '';
   if (wb.length === 0) tip = '<i class="fas fa-hand"></i> 还没有客户，先去添加客户吧！';
-  else if (hotNeed.length > 0) tip = `<i class="fas fa-fire" style="color:var(--pink)"></i> 有 ${hotNeed.length} 个Hot客户待跟进，优先处理！`;
-  else if (warmNeed.length > 0) tip = `<i class="fas fa-clipboard"></i> 有 ${warmNeed.length} 个客户超过3天没联系了，去发个消息吧`;
+  else if (hotNeed.length > 0) tip = '<i class="fas fa-fire" style="color:var(--pink)"></i> 有 ' + hotNeed.length + ' 个Hot客户待跟进，优先处理！';
+  else if (warmNeed.length > 0) tip = '<i class="fas fa-clipboard"></i> 有 ' + warmNeed.length + ' 个客户超过3天没联系了，去发个消息吧';
   else if (s.today_msgs === 0) tip = '<i class="fas fa-sun"></i> 今天还没发消息，给客户发些效果图或新品推荐吧';
   else tip = '<i class="fas fa-thumbs-up"></i> 今天状态不错！可以准备一些报价或案例，主动发给潜在客户';
   document.getElementById('dailyTip').innerHTML = tip;
 
-  // 跟进列表
-  document.getElementById('followUpCount').innerHTML = needCount > 0 ? `(${needCount}个待跟进)` : '(全部已跟进 <i class="fas fa-check" style="color:#22c55e"></i>)';
+  // === 跟进列表 ===
+  document.getElementById('followUpCount').innerHTML = needCount > 0 ? '(' + needCount + '个待跟进)' : '(全部已跟进 <i class="fas fa-check" style="color:#22c55e"></i>)';
   const list = document.getElementById('followUpList');
   if (!wb.length) {
     list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">暂无客户，点击「新增客户」开始</div>';
     return;
   }
-
-  list.innerHTML = wb.map(c => {
+  list.innerHTML = wb.map(function(c) {
     const ds = c.days_since || 0;
     const need = (c.status === 'hot' && ds >= 1) || (c.status === 'warm' && ds >= 3) || ds >= 7;
     const icon = c.status === 'hot' ? '<i class="fas fa-circle" style="color:var(--pink);font-size:8px"></i>' : c.status === 'warm' ? '<i class="fas fa-circle" style="color:var(--gold);font-size:8px"></i>' : '<i class="fas fa-circle" style="color:#444;font-size:8px"></i>';
-    const daysText = ds === 0 ? '今天已联系' : ds === 1 ? '昨天联系过' : `${ds}天没联系`;
-    const last = c.last_msg ? `「${esc(c.last_msg).slice(0, 30)}」` : '暂无记录';
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);${need ? 'background:rgba(212,175,55,0.04)' : ''}">
-      <div>
-        <div style="font-weight:600;font-size:14px">${icon} ${esc(c.name)} <span style="font-size:11px;color:var(--muted);font-weight:400">${esc(c.company)}</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${daysText} · 上次: ${last}</div>
-      </div>
-      ${need
-        ? `<button class="btn btn-primary btn-sm" onclick="switchToChat(${c.id})"><i class="fas fa-comment"></i> 发消息</button>`
-        : `<span style="font-size:12px;color:var(--muted)"><i class="fas fa-check-circle" style="color:#22c55e"></i> 已跟进</span>`
-      }
-    </div>`;
+    const daysText = ds === 0 ? '今天已联系' : ds === 1 ? '昨天联系过' : ds + '天没联系';
+    const last = c.last_msg ? '「' + esc(c.last_msg).slice(0, 30) + '」' : '暂无记录';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);' + (need ? 'background:rgba(212,175,55,0.04)' : '') + '">'
+      + '<div><div style="font-weight:600;font-size:14px">' + icon + ' ' + esc(c.name) + ' <span style="font-size:11px;color:var(--muted);font-weight:400">' + esc(c.company) + '</span></div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:2px">' + daysText + ' · 上次: ' + last + '</div></div>'
+      + (need
+        ? '<button class="btn btn-primary btn-sm" onclick="switchToChat(' + c.id + ')"><i class="fas fa-comment"></i> 发消息</button>'
+        : '<span style="font-size:12px;color:var(--muted)"><i class="fas fa-check-circle" style="color:#22c55e"></i> 已跟进</span>')
+      + '</div>';
   }).join('');
 }
 
@@ -6559,6 +6599,67 @@ function editCommissionRate(userId, currentRate, salesName) {
       loadCommissionStats();
     }
   });
+}
+
+
+// ================= 导出与备份 =================
+function exportOrders() {
+  var a = document.createElement('a');
+  a.href = '/api/export/orders';
+  a.download = 'orders.xlsx';
+  a.click();
+  showToast('正在导出订单...');
+}
+
+function exportInventory() {
+  var a = document.createElement('a');
+  a.href = '/api/export/inventory';
+  a.download = 'inventory.xlsx';
+  a.click();
+  showToast('正在导出库存...');
+}
+
+function exportCommission() {
+  var a = document.createElement('a');
+  a.href = '/api/export/commission';
+  a.download = 'commission.xlsx';
+  a.click();
+  showToast('正在导出提成...');
+}
+
+async function createBackup() {
+  var btn = event && event.target ? event.target : null;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 备份中...'; }
+  document.getElementById('backupStatus').textContent = '';
+  try {
+    var r = await api('/api/backup', { method: 'POST' });
+    if (r && r.ok) {
+      document.getElementById('backupStatus').innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e"></i> 备份成功: ' + r.filename + ' (' + (r.size / 1024).toFixed(1) + ' KB)';
+      showToast('备份创建成功');
+    } else {
+      document.getElementById('backupStatus').innerHTML = '<span style="color:var(--pink)">备份失败: ' + (r.error || '未知错误') + '</span>';
+    }
+  } catch(e) {
+    document.getElementById('backupStatus').innerHTML = '<span style="color:var(--pink)">备份失败: ' + e.message + '</span>';
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-database"></i> 创建备份'; }
+}
+
+async function showBackups() {
+  try {
+    var backups = await api('/api/backups');
+    if (!backups || backups.length === 0) {
+      showToast('暂无备份');
+      return;
+    }
+    var msg = '📦 系统备份列表:\n';
+    backups.forEach(function(b, i) {
+      msg += (i+1) + '. ' + b.filename + ' (' + (b.size/1024).toFixed(1) + ' KB) - ' + b.created_at + '\n';
+    });
+    alert(msg);
+  } catch(e) {
+    showToast('加载备份列表失败: ' + e.message);
+  }
 }
 
 // ================= 订单统计 =================

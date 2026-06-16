@@ -18,6 +18,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from datetime import datetime
+import io
+import openpyxl
 
 from database import init_db, get_stats, get_workbench, get_customers, get_customer, add_customer, update_customer, delete_customer
 from database import get_messages, add_message, get_media, add_media, delete_media
@@ -3253,6 +3255,158 @@ def api_add_stock_movement(iid):
         created_by=session.get("user_id"),
     )
     return jsonify({"ok": True})
+
+
+
+
+# ==================== 数据导出 ====================
+@app.route("/api/export/orders")
+@login_required
+def api_export_orders():
+    orders = get_orders()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "订单列表"
+    ws.append(["订单号", "客户", "金额", "币种", "状态", "成本", "利润", "利润率%", "创建时间"])
+    for o in orders:
+        ws.append([
+            o.get("order_no", ""),
+            o.get("customer_name", ""),
+            o.get("total_amount", 0),
+            o.get("currency", "USD"),
+            o.get("status", ""),
+            o.get("partner_cost", 0),
+            o.get("profit", 0),
+            o.get("profit_margin", 0),
+            o.get("created_at", ""),
+        ])
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return _send_excel(output, "订单导出.xlsx")
+
+
+@app.route("/api/export/inventory")
+@login_required
+def api_export_inventory():
+    items = get_inventory_items()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "库存清单"
+    ws.append(["物料名称", "分类", "单位", "库存量", "警戒线", "单价", "库存价值", "备注"])
+    for item in items:
+        ws.append([
+            item.get("name", ""),
+            item.get("category", ""),
+            item.get("unit", ""),
+            item.get("quantity", 0),
+            item.get("reorder_level", 0),
+            item.get("unit_cost", 0),
+            item.get("stock_value", 0),
+            item.get("notes", ""),
+        ])
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return _send_excel(output, "库存导出.xlsx")
+
+
+@app.route("/api/export/commission")
+@login_required
+def api_export_commission():
+    data = get_commission_stats()
+    wb = openpyxl.Workbook()
+    # Sheet 1: 按销售员汇总
+    ws1 = wb.active
+    ws1.title = "提成汇总"
+    ws1.append(["销售员", "订单数", "营收", "成本", "利润", "提成率%", "提成金额"])
+    for s in data.get("sales_summary", []):
+        ws1.append([
+            s.get("sales_name", ""),
+            s.get("order_count", 0),
+            s.get("total_revenue", 0),
+            s.get("total_cost", 0),
+            s.get("total_profit", 0),
+            s.get("commission_rate", 0),
+            s.get("total_commission", 0),
+        ])
+    # Sheet 2: 明细
+    ws2 = wb.create_sheet("提成明细")
+    ws2.append(["订单号", "客户", "销售员", "金额", "成本", "利润", "提成率%", "提成", "日期"])
+    for d in data.get("detail", []):
+        ws2.append([
+            d.get("order_no", ""),
+            d.get("customer_name", ""),
+            d.get("sales_name", ""),
+            d.get("total_amount", 0),
+            d.get("partner_cost", 0),
+            d.get("profit", 0),
+            d.get("commission_rate", 0),
+            d.get("commission", 0),
+            d.get("created_at", ""),
+        ])
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return _send_excel(output, "提成导出.xlsx")
+
+
+def _send_excel(output, filename):
+    from flask import send_file
+    output.seek(0)
+    return send_file(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+# ==================== 系统备份 ====================
+import shutil
+
+BACKUP_DIR = os.path.join(BASE_DIR, "backups")
+os.makedirs(BACKUP_DIR, exist_ok=True)
+
+
+@app.route("/api/backup", methods=["POST"])
+@login_required
+def api_create_backup():
+    from database import DB_PATH
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"crm_backup_{ts}.db"
+    dest = os.path.join(BACKUP_DIR, filename)
+    try:
+        shutil.copy2(DB_PATH, dest)
+        # Keep only last 20 backups
+        backups = sorted(
+            [f for f in os.listdir(BACKUP_DIR) if f.endswith(".db")],
+            reverse=True
+        )
+        for old in backups[20:]:
+            try:
+                os.remove(os.path.join(BACKUP_DIR, old))
+            except:
+                pass
+        return jsonify({"ok": True, "filename": filename, "size": os.path.getsize(dest)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/backups")
+@login_required
+def api_list_backups():
+    backups = []
+    if os.path.isdir(BACKUP_DIR):
+        for f in sorted(os.listdir(BACKUP_DIR), reverse=True):
+            if f.endswith(".db"):
+                fp = os.path.join(BACKUP_DIR, f)
+                backups.append({
+                    "filename": f,
+                    "size": os.path.getsize(fp),
+                    "created_at": datetime.fromtimestamp(os.path.getmtime(fp)).strftime("%Y-%m-%d %H:%M:%S"),
+                })
+    return jsonify(backups)
 
 
 # ==================== 合作方管理 ====================

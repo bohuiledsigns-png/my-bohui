@@ -975,9 +975,52 @@ def get_stats():
     recent = conn.execute(
         "SELECT id, name, company FROM customers ORDER BY updated_at DESC LIMIT 5"
     ).fetchall()
+
+    # 订单统计
+    total_orders = conn.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+    pending_orders = conn.execute("SELECT COUNT(*) FROM orders WHERE status='pending_approval'").fetchone()[0]
+    in_production = conn.execute("SELECT COUNT(*) FROM orders WHERE status='in_production'").fetchone()[0]
+    month_revenue = conn.execute(
+        """SELECT COALESCE(SUM(total_amount),0) FROM orders
+           WHERE strftime('%Y-%m', created_at)=strftime('%Y-%m', 'now')"""
+    ).fetchone()[0]
+
+    # 生产排期
+    prod_confirmed = conn.execute("SELECT COUNT(*) FROM orders WHERE status='confirmed'").fetchone()[0]
+    prod_shipped = conn.execute("SELECT COUNT(*) FROM orders WHERE status='shipped'").fetchone()[0]
+
+    # 库存预警
+    low_stock = conn.execute(
+        "SELECT COUNT(*) FROM inventory_items WHERE quantity <= reorder_level"
+    ).fetchone()[0]
+
+    # 最近订单
+    recent_orders = conn.execute(
+        """SELECT o.id, o.order_no, o.status, o.total_amount, o.currency,
+                  c.name as customer_name
+           FROM orders o LEFT JOIN customers c ON o.customer_id=c.id
+           ORDER BY o.created_at DESC LIMIT 5"""
+    ).fetchall()
+
     conn.close()
-    return {"customers": customers, "today_msgs": msgs, "total_files": files,
-            "recent": [dict(r) for r in recent]}
+    return {
+        "customers": customers,
+        "today_msgs": msgs,
+        "total_files": files,
+        "recent": [dict(r) for r in recent],
+        # 订单
+        "total_orders": total_orders,
+        "pending_orders": pending_orders,
+        "in_production": in_production,
+        "month_revenue": round(float(month_revenue), 2),
+        # 生产
+        "prod_confirmed": prod_confirmed,
+        "prod_shipped": prod_shipped,
+        # 库存
+        "low_stock": low_stock,
+        # 最近订单
+        "recent_orders": [dict(r) for r in recent_orders],
+    }
 
 
 def get_workbench():
