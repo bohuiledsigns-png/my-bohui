@@ -380,6 +380,24 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_activity_log_time ON activity_log(created_at)")
     except:
         pass
+    # 生产任务表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS production_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            task_name TEXT NOT NULL,
+            sort_order INTEGER DEFAULT 0,
+            is_done INTEGER DEFAULT 0,
+            done_at TIMESTAMP,
+            done_by INTEGER DEFAULT NULL,
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_prod_tasks_order ON production_tasks(order_id)")
+    except:
+        pass
     conn.commit()
     conn.close()
 
@@ -2391,6 +2409,66 @@ def get_production_schedule():
 
     conn.close()
     return result
+
+
+# ========= 生产任务追踪 =========
+def get_production_task_defaults():
+    """返回默认生产步骤模板"""
+    return [
+        {"task_name": "设计确认", "sort_order": 0},
+        {"task_name": "材料准备", "sort_order": 1},
+        {"task_name": "雕刻制作", "sort_order": 2},
+        {"task_name": "组装焊接", "sort_order": 3},
+        {"task_name": "接线测试", "sort_order": 4},
+        {"task_name": "质检包装", "sort_order": 5},
+        {"task_name": "发货准备", "sort_order": 6},
+    ]
+
+
+def get_production_tasks(order_id):
+    """获取某订单的生产任务列表，JOIN users 取 done_by 人名"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT pt.*, u.display_name AS done_by_name
+        FROM production_tasks pt
+        LEFT JOIN users u ON pt.done_by = u.id
+        WHERE pt.order_id = ?
+        ORDER BY pt.sort_order ASC, pt.id ASC
+    """, (order_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def save_production_tasks(order_id, tasks):
+    """批量保存任务列表（先删后插）"""
+    conn = get_db()
+    conn.execute("DELETE FROM production_tasks WHERE order_id=?", (order_id,))
+    for t in tasks:
+        conn.execute(
+            "INSERT INTO production_tasks (order_id, task_name, sort_order) VALUES (?,?,?)",
+            (order_id, t.get("task_name", ""), t.get("sort_order", 0))
+        )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def update_production_task_status(task_id, is_done, done_by=None):
+    """勾选/取消勾选单个任务，自动记录 done_at"""
+    conn = get_db()
+    if is_done:
+        conn.execute(
+            "UPDATE production_tasks SET is_done=1, done_at=CURRENT_TIMESTAMP, done_by=? WHERE id=?",
+            (done_by, task_id)
+        )
+    else:
+        conn.execute(
+            "UPDATE production_tasks SET is_done=0, done_at=NULL, done_by=NULL WHERE id=?",
+            (task_id,)
+        )
+    conn.commit()
+    conn.close()
+    return True
 
 
 # ========= 库存管理 CRUD =========

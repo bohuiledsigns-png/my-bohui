@@ -30,7 +30,7 @@ from database import get_cases, get_case, add_case, update_case, delete_case, ge
 from database import get_quotes, get_quote, add_quote, update_quote, delete_quote
 from database import get_users, get_user_by_username, add_user, update_user
 from database import get_orders, get_order, add_order, update_order, delete_order
-from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule
+from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule, get_production_tasks, save_production_tasks, update_production_task_status, get_production_task_defaults
 from database import add_payment, get_ar_summary, get_ar_by_customer, get_payment_history, get_aging_analysis, migrate_payments_from_orders
 from database import get_leads, get_lead_summary, get_lead_funnel, assign_lead, update_lead_status, update_lead_source
 from database import get_leads_due_followup, get_today_followup_summary, update_last_contacted
@@ -3317,6 +3317,56 @@ def api_order_payment(oid):
         add_activity_log(uid, "payment", "order", oid,
             f"订单 {order.get('order_no','')} 收款 {data.get('amount',0)} ({'定金' if ptype=='deposit' else '尾款'})")
     return jsonify({"ok": True})
+
+
+# ==================== 生产步骤追踪 API ====================
+@app.route("/api/orders/<int:oid>/tasks")
+@login_required
+def api_get_production_tasks(oid):
+    """获取订单的生产任务列表"""
+    return jsonify(get_production_tasks(oid))
+
+
+@app.route("/api/orders/<int:oid>/tasks", methods=["POST"])
+@login_required
+@role_required('admin', 'production')
+def api_save_production_tasks(oid):
+    """批量保存生产任务（管理员预设步骤）"""
+    data = request.json or {}
+    tasks = data.get("tasks", [])
+    save_production_tasks(oid, tasks)
+    uid = session.get("user_id")
+    if uid:
+        order = get_order(oid)
+        add_activity_log(uid, "update", "order", oid,
+            f"更新生产步骤 ({len(tasks)} 项) - {order.get('order_no','')}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/orders/<int:oid>/tasks/<int:tid>", methods=["PUT"])
+@login_required
+def api_update_task_status(oid, tid):
+    """勾选/取消勾选单个任务"""
+    data = request.json or {}
+    is_done = data.get("is_done", 0)
+    done_by = session.get("user_id")
+    update_production_task_status(tid, is_done, done_by)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/orders/<int:oid>/generate-tasks", methods=["POST"])
+@login_required
+@role_required('admin', 'production')
+def api_generate_tasks(oid):
+    """按默认模板为订单生成初始任务列表"""
+    defaults = get_production_task_defaults()
+    save_production_tasks(oid, defaults)
+    uid = session.get("user_id")
+    if uid:
+        order = get_order(oid)
+        add_activity_log(uid, "create", "order", oid,
+            f"生成默认生产步骤 - {order.get('order_no','')}")
+    return jsonify({"ok": True, "tasks": get_production_tasks(oid)})
 
 
 @app.route("/api/quotes/<int:qid>/convert", methods=["POST"])

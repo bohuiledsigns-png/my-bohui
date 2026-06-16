@@ -499,6 +499,16 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 .kanban-card .kc-actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
 .kanban-card .kc-actions button{font-size:9px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
 .kanban-card .kc-actions button:hover{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.kanban-card .prod-task-list{max-height:300px;overflow-y:auto;margin-top:8px;border-top:1px solid var(--border);padding-top:6px}
+.kanban-card .prod-task-item{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px}
+.kanban-card .prod-task-item input[type=checkbox]{accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
+.kanban-card .prod-task-item .task-name{flex:1;color:var(--text-bright)}
+.kanban-card .prod-task-item .task-name.done{text-decoration:line-through;opacity:0.5}
+.kanban-card .prod-task-item .task-meta{font-size:9px;color:var(--muted);white-space:nowrap}
+.task-progress-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin:4px 0}
+.task-progress-bar div{height:100%;background:var(--cyan);border-radius:2px;transition:width 0.3s}
+.task-badge{cursor:pointer;transition:all 0.2s}
+.task-badge:hover{color:var(--cyan)!important}
 }
 
 .pool-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
@@ -2302,6 +2312,29 @@ function detailNewQuote() {
           <button class="btn btn-primary" onclick="saveProdSchedule()" style="width:100%;justify-content:center;margin-top:8px">
             <i class="fas fa-save"></i> 保存
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 生产步骤编辑弹窗 -->
+    <div class="modal" id="prodTaskModal" style="display:none">
+      <div class="modal-bg" onclick="closeProdTaskModal()"></div>
+      <div class="modal-content" style="max-width:500px">
+        <div class="modal-header">
+          <h3 id="prodTaskModalTitle">编辑生产步骤</h3>
+          <button class="close" onclick="closeProdTaskModal()">×</button>
+        </div>
+        <div class="modal-body" style="padding:20px">
+          <input type="hidden" id="prodTaskModalOrderId">
+          <div style="margin-bottom:12px">
+            <button class="btn btn-xs" onclick="generateDefaultTasksForModal()" style="border-color:var(--cyan);color:var(--cyan)"><i class="fas fa-magic"></i> 预设模板</button>
+            <button class="btn btn-xs" onclick="addTaskRow()" style="border-color:var(--gold);color:var(--gold);margin-left:6px"><i class="fas fa-plus"></i> 添加步骤</button>
+          </div>
+          <div id="prodTaskListEditor"></div>
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="saveProdTasks()" style="flex:1;justify-content:center"><i class="fas fa-save"></i> 保存</button>
+            <button class="btn btn-ghost" onclick="closeProdTaskModal()" style="flex:0">取消</button>
+          </div>
         </div>
       </div>
     </div>
@@ -7164,6 +7197,7 @@ function renderProdKanban(data) {
       if (o.assigned_name) {
         html += '<span><i class="fas fa-user"></i> ' + esc(o.assigned_name) + '</span>';
       }
+      html += '<span class="task-badge" data-oid="' + o.id + '" onclick="event.stopPropagation();toggleProdTasks(' + o.id + ',this)" title="生产步骤"><i class="fas fa-tasks"></i> <span class="task-count-' + o.id + '">-</span></span>';
       if (startDate) {
         html += '<span><i class="fas fa-play"></i> ' + startDate + '</span>';
       }
@@ -7172,6 +7206,10 @@ function renderProdKanban(data) {
       }
 
       html += '</div>';
+
+      // Task progress bar (for all statuses)
+      html += '<div class="task-progress-bar"><div class="task-prog-fill-' + o.id + '" style="width:0%"></div></div>';
+      html += '<div class="prod-task-list" id="prodTaskList-' + o.id + '" style="display:none"></div>';
 
       // Progress bar
       if (col.key === 'in_production') {
@@ -7190,6 +7228,7 @@ function renderProdKanban(data) {
 
       html += '<button class="prod-status-btn" data-oid="' + o.id + '" data-next="' + nextStatus + '">→ ' + nextLabel + '</button>';
       html += '<button class="prod-sched-btn" data-oid="' + o.id + '" data-ono="' + esc(o.order_no) + '" data-start="' + startDate + '" data-end="' + endDate + '" data-progress="' + progress + '" data-notes="' + esc(o.production_notes) + '" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-calendar"></i> 排期</button>';
+      html += '<button class="prod-task-btn" data-oid="' + o.id + '" data-ono="' + esc(o.order_no) + '" style="border-color:var(--cyan);color:var(--cyan)"><i class="fas fa-list-check"></i> 步骤</button>';
       html += '</div></div>';
     });
 
@@ -7197,6 +7236,197 @@ function renderProdKanban(data) {
   });
 
   board.innerHTML = html;
+  // Load task counts for all cards
+  setTimeout(loadTaskCountsForKanban, 100);
+}
+
+// ================= 生产步骤追踪 =================
+async function loadTaskCountsForKanban() {
+  /* Called after renderProdKanban to load task counts for all cards */
+  var cards = document.querySelectorAll('.kanban-card');
+  cards.forEach(async function(card) {
+    var badge = card.querySelector('.task-badge');
+    if (!badge) return;
+    var oid = badge.getAttribute('data-oid');
+    if (!oid) return;
+    try {
+      var tasks = await api('/api/orders/' + oid + '/tasks');
+      if (!tasks || !tasks.length) {
+        card.querySelector('.task-count-' + oid).textContent = '0';
+        return;
+      }
+      var done = tasks.filter(function(t){ return t.is_done; }).length;
+      card.querySelector('.task-count-' + oid).textContent = done + '/' + tasks.length;
+      var pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+      var fill = card.querySelector('.task-prog-fill-' + oid);
+      if (fill) fill.style.width = pct + '%';
+      // Store tasks data on card for later use
+      card._prodTasks = tasks;
+    } catch(e) {}
+  });
+}
+
+async function toggleProdTasks(oid, badgeEl) {
+  event.stopPropagation();
+  var list = document.getElementById('prodTaskList-' + oid);
+  if (!list) return;
+  if (list.style.display !== 'none') {
+    list.style.display = 'none';
+    return;
+  }
+  // Load tasks if not already loaded
+  var card = badgeEl ? badgeEl.closest('.kanban-card') : null;
+  var tasks = card ? card._prodTasks : null;
+  if (!tasks) {
+    try {
+      tasks = await api('/api/orders/' + oid + '/tasks');
+      if (card) card._prodTasks = tasks;
+    } catch(e) { return; }
+  }
+  if (!tasks || !tasks.length) {
+    list.innerHTML = '<div style="padding:8px;text-align:center;color:var(--muted);font-size:11px">暂无步骤，点击"步骤"按钮添加</div>';
+    list.style.display = '';
+    return;
+  }
+  list.innerHTML = tasks.map(function(t) {
+    var checked = t.is_done ? 'checked' : '';
+    var doneCls = t.is_done ? 'done' : '';
+    var meta = '';
+    if (t.is_done && t.done_at) {
+      var timeStr = t.done_at.substring(0,16).replace('T',' ');
+      meta = '<span class="task-meta">' + timeStr + (t.done_by_name ? ' · ' + esc(t.done_by_name) : '') + '</span>';
+    }
+    return '<div class="prod-task-item">'
+      + '<input type="checkbox" ' + checked + ' onchange="checkProdTask(' + oid + ',' + t.id + ',this)">'
+      + '<span class="task-name ' + doneCls + '">' + esc(t.task_name) + '</span>'
+      + meta
+      + '</div>';
+  }).join('');
+  list.style.display = '';
+}
+
+async function checkProdTask(oid, tid, cb) {
+  var is_done = cb.checked ? 1 : 0;
+  try {
+    var r = await api('/api/orders/' + oid + '/tasks/' + tid, {
+      method: 'PUT',
+      body: JSON.stringify({ is_done: is_done })
+    });
+    if (r && r.ok) {
+      showToast(is_done ? '步骤已完成' : '步骤已取消');
+      // Re-count and update badge
+      var card = cb.closest('.kanban-card');
+      if (card) card._prodTasks = null; // invalidate cache
+      // Refresh task list display
+      var badge = card ? card.querySelector('.task-badge') : null;
+      await toggleProdTasks(oid, badge);
+      toggleProdTasks(oid, badge); // call again to re-open after toggle closed it
+      // Reload counts
+      loadTaskCountsForKanban();
+    }
+  } catch(e) {
+    cb.checked = !cb.checked;
+    showToast('操作失败');
+  }
+}
+
+function openProdTaskEdit(oid, orderNo) {
+  document.getElementById('prodTaskModalOrderId').value = oid;
+  document.getElementById('prodTaskModalTitle').textContent = '编辑生产步骤 - ' + orderNo;
+  document.getElementById('prodTaskModal').style.display = 'flex';
+  loadTaskEditor(oid);
+}
+
+function closeProdTaskModal() {
+  document.getElementById('prodTaskModal').style.display = 'none';
+}
+
+async function loadTaskEditor(oid) {
+  var container = document.getElementById('prodTaskListEditor');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">加载中...</div>';
+  try {
+    var tasks = await api('/api/orders/' + oid + '/tasks');
+    renderTaskEditor(container, tasks);
+  } catch(e) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--pink)">加载失败</div>';
+  }
+}
+
+function renderTaskEditor(container, tasks) {
+  if (!tasks || !tasks.length) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">暂无步骤，点击"添加步骤"或"预设模板"</div>';
+    return;
+  }
+  var html = '';
+  tasks.forEach(function(t, i) {
+    html += '<div class="prod-task-item" style="padding:6px 0;border-bottom:1px solid var(--border)">'
+      + '<input type="hidden" class="task-editor-id" value="' + t.id + '">'
+      + '<input type="text" class="task-editor-name field" value="' + esc(t.task_name) + '" style="flex:1;padding:5px 8px;font-size:12px;border-radius:6px">'
+      + '<input type="hidden" class="task-editor-sort" value="' + (t.sort_order || i) + '">'
+      + '<button class="btn btn-xs" onclick="this.closest('.prod-task-item').remove()" style="border-color:#ef444480;color:#ef4444;flex-shrink:0"><i class="fas fa-times"></i></button>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function addTaskRow() {
+  var container = document.getElementById('prodTaskListEditor');
+  // If empty, replace placeholder
+  if (!container.querySelector('.prod-task-item')) {
+    container.innerHTML = '';
+  }
+  var div = document.createElement('div');
+  div.className = 'prod-task-item';
+  div.style.cssText = 'padding:6px 0;border-bottom:1px solid var(--border)';
+  var idx = container.querySelectorAll('.prod-task-item').length;
+  div.innerHTML = '<input type="hidden" class="task-editor-id" value="0">'
+    + '<input type="text" class="task-editor-name field" value="" placeholder="步骤名称" style="flex:1;padding:5px 8px;font-size:12px;border-radius:6px">'
+    + '<input type="hidden" class="task-editor-sort" value="' + idx + '">'
+    + '<button class="btn btn-xs" onclick="this.parentElement.remove()" style="border-color:#ef444480;color:#ef4444;flex-shrink:0"><i class="fas fa-times"></i></button>';
+  container.appendChild(div);
+}
+
+async function generateDefaultTasksForModal() {
+  var oid = document.getElementById('prodTaskModalOrderId').value;
+  try {
+    var r = await api('/api/orders/' + oid + '/generate-tasks', { method: 'POST' });
+    if (r && r.ok) {
+      showToast('默认步骤已生成');
+      loadTaskEditor(oid);
+    }
+  } catch(e) {
+    showToast('生成失败');
+  }
+}
+
+async function saveProdTasks() {
+  var oid = document.getElementById('prodTaskModalOrderId').value;
+  var items = document.querySelectorAll('#prodTaskListEditor .prod-task-item');
+  var tasks = [];
+  items.forEach(function(item, idx) {
+    var name = item.querySelector('.task-editor-name').value.trim();
+    if (name) {
+      tasks.push({ task_name: name, sort_order: idx });
+    }
+  });
+  if (!tasks.length) {
+    showToast('请至少添加一个步骤');
+    return;
+  }
+  try {
+    var r = await api('/api/orders/' + oid + '/tasks', {
+      method: 'POST',
+      body: JSON.stringify({ tasks: tasks })
+    });
+    if (r && r.ok) {
+      showToast('步骤已保存');
+      closeProdTaskModal();
+      // Refresh kanban
+      loadTaskCountsForKanban();
+    }
+  } catch(e) {
+    showToast('保存失败');
+  }
 }
 
 // Event delegation for production buttons
@@ -7206,6 +7436,12 @@ document.addEventListener('click', function(e) {
     var oid = e.target.getAttribute('data-oid');
     var next = e.target.getAttribute('data-next');
     quickProdStatus(oid, next, e.target);
+  }
+  // Task edit button
+  if (e.target.classList.contains('prod-task-btn')) {
+    var oid = e.target.getAttribute('data-oid');
+    var ono = e.target.getAttribute('data-ono');
+    openProdTaskEdit(oid, ono);
   }
   // Schedule button
   if (e.target.classList.contains('prod-sched-btn')) {
