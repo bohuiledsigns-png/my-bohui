@@ -2767,6 +2767,76 @@ def delete_qc_inspection(iid):
     conn.close()
 
 
+# ========= 报表统计 =========
+def get_monthly_sales_detail(months=12):
+    """每月销售额/成本/利润/订单数 (已发货+已交付)"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT strftime('%Y-%m', created_at) AS month,
+               COUNT(*) AS order_count,
+               COALESCE(SUM(total_amount),0) AS revenue,
+               COALESCE(SUM(partner_cost),0) AS cost
+        FROM orders
+        WHERE status IN ('shipped','delivered')
+          AND created_at >= date('now', ?)
+        GROUP BY month ORDER BY month ASC
+    """, (f"-{months} months",)).fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        d = dict(r)
+        d["profit"] = round(d["revenue"] - d["cost"], 2)
+        result.append(d)
+    return result
+
+
+def get_customer_acquisition_stats(months=12):
+    """每月新增客户数"""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT strftime('%Y-%m', created_at) AS month,
+               COUNT(*) AS new_customers
+        FROM customers
+        WHERE created_at >= date('now', ?)
+        GROUP BY month ORDER BY month ASC
+    """, (f"-{months} months",)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_production_stats():
+    """生产完成率统计"""
+    conn = get_db()
+    result = {}
+    # Total tasks per order
+    rows = conn.execute("""
+        SELECT order_id, COUNT(*) AS total,
+               SUM(CASE WHEN is_done=1 THEN 1 ELSE 0 END) AS done
+        FROM production_tasks
+        GROUP BY order_id
+    """).fetchall()
+    total_tasks = sum(r["total"] for r in rows) if rows else 0
+    done_tasks = sum(r["done"] for r in rows) if rows else 0
+    result["total_tasks"] = total_tasks
+    result["done_tasks"] = done_tasks
+    result["completion_rate"] = round(done_tasks / total_tasks * 100, 1) if total_tasks else 0
+    result["order_task_count"] = len(rows)
+
+    # QC pass/fail stats
+    qc_rows = conn.execute("""
+        SELECT result, COUNT(*) AS cnt
+        FROM qc_inspections
+        GROUP BY result
+    """).fetchall()
+    qc_stats = {}
+    for r in qc_rows:
+        qc_stats[r["result"]] = r["cnt"]
+    result["qc_stats"] = qc_stats
+
+    conn.close()
+    return result
+
+
 # ========= 库存管理 CRUD =========
 def get_inventory_items(category=None, low_stock=False):
     conn = get_db()

@@ -542,6 +542,20 @@ h2 .fas{color:var(--cyan);margin-right:8px}
 .pool-safe .pool-status-dot{background:#22c55e}
 .pool-warning .pool-status-dot{background:#fbbf24}
 .pool-expired .pool-status-dot{background:#ef4444}
+.reports-page{max-width:1200px;margin:0 auto}
+.report-tabs{display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,0.02);border-radius:10px;padding:3px;width:fit-content}
+.report-tab{padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);font-family:inherit}
+.report-tab.active{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000;box-shadow:0 0 12px var(--cyan-glow)}
+.report-tab:hover:not(.active){color:var(--text-bright);background:rgba(255,255,255,0.05)}
+.report-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+.report-card h4{font-size:14px;margin-bottom:12px;color:var(--text-bright);display:flex;align-items:center;gap:8px}
+.report-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.report-summary .item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.report-summary .item .num{font-size:22px;font-weight:700;color:var(--cyan)}
+.report-summary .item .label{font-size:11px;color:var(--muted);margin-top:4px}
+.report-chart-wrap{height:280px;position:relative}
+.report-tab-content{display:none}
+.report-tab-content.active{display:block;animation:fadeIn 0.2s ease}
 
 /* ===== 客户详情页 ===== */
 .customer-detail{display:flex;gap:20px;align-items:flex-start}
@@ -875,6 +889,7 @@ function detailNewQuote() {
     <div class="nav-item" data-page="cases-admin" style="display:none"><i class="fas fa-building"></i> 案例管理</div>
     <div class="nav-item" data-page="qc-templates" style="display:none"><i class="fas fa-clipboard-check"></i> 质检模板</div>
     <div class="nav-item" data-page="users" style="display:none"><i class="fas fa-user-gear"></i> 用户管理</div>
+    <div class="nav-item" data-page="reports"><i class="fas fa-chart-pie"></i> 报表中心</div>
     <div class="nav-item" data-page="activity-logs"><i class="fas fa-clock-rotate-left"></i> 操作日志</div>
   </div>
   <div style="padding:12px 20px;font-size:10px;color:var(--muted);border-top:1px solid var(--border)">
@@ -2445,6 +2460,81 @@ function detailNewQuote() {
   </div>
 </div>
 
+<!-- ======== 报表中心 ======== -->
+<div class="page" id="page-reports">
+  <div class="reports-page">
+
+    <!-- 筛选栏 -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <h3 style="flex:1;font-size:16px"><i class="fas fa-chart-pie" style="color:var(--cyan)"></i> 报表中心</h3>
+      <label style="font-size:12px;color:var(--muted)">月份范围:</label>
+      <select id="rptMonths" style="padding:6px 10px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border);font-size:12px" onchange="loadReportsPage()">
+        <option value="3">最近3个月</option>
+        <option value="6">最近6个月</option>
+        <option value="12" selected>最近12个月</option>
+        <option value="24">最近24个月</option>
+      </select>
+      <button class="btn btn-sm" onclick="loadReportsPage()"><i class="fas fa-sync"></i> 刷新</button>
+      <button class="btn btn-sm" onclick="exportReportSales()" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-file-excel"></i> 导出Excel</button>
+    </div>
+
+    <!-- 子导航Tabs -->
+    <div class="report-tabs">
+      <div class="report-tab active" data-rpttab="overview" onclick="switchRptTab(this)">销售概览</div>
+      <div class="report-tab" data-rpttab="customer" onclick="switchRptTab(this)">客户分析</div>
+      <div class="report-tab" data-rpttab="production" onclick="switchRptTab(this)">生产统计</div>
+    </div>
+
+    <!-- Tab 1: 销售概览 -->
+    <div class="report-tab-content active" id="rptOverview">
+      <div class="report-summary" id="rptSummaryCards">
+        <div class="item"><div class="num" id="rptTotalRevenue">--</div><div class="label">总营收 (USD)</div></div>
+        <div class="item"><div class="num" id="rptTotalProfit">--</div><div class="label">总利润 (USD)</div></div>
+        <div class="item"><div class="num" id="rptTotalOrders">--</div><div class="label">总订单数</div></div>
+        <div class="item"><div class="num" id="rptAvgMargin">--</div><div class="label">平均利润率</div></div>
+      </div>
+      <div class="report-card">
+        <h4><i class="fas fa-chart-line" style="color:var(--cyan)"></i> 月度趋势</h4>
+        <div class="report-chart-wrap"><canvas id="rptTrendChart"></canvas></div>
+      </div>
+      <div class="report-card">
+        <h4><i class="fas fa-trophy" style="color:var(--gold)"></i> 销售排行</h4>
+        <div class="report-chart-wrap"><canvas id="rptSalesChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 客户分析 -->
+    <div class="report-tab-content" id="rptCustomer">
+      <div class="report-card">
+        <h4><i class="fas fa-user-plus" style="color:var(--cyan)"></i> 月度新增客户</h4>
+        <div class="report-chart-wrap"><canvas id="rptCustomerChart"></canvas></div>
+      </div>
+      <div class="report-card">
+        <h4><i class="fas fa-crown" style="color:var(--gold)"></i> Top客户消费排行</h4>
+        <div class="report-chart-wrap"><canvas id="rptTopCustomersChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Tab 3: 生产统计 -->
+    <div class="report-tab-content" id="rptProduction">
+      <div class="report-summary" id="rptProdSummary">
+        <div class="item"><div class="num" id="rptProdTotal">--</div><div class="label">总任务数</div></div>
+        <div class="item"><div class="num" id="rptProdCompleted">--</div><div class="label">已完成</div></div>
+        <div class="item"><div class="num" id="rptProdRate">--</div><div class="label">完成率</div></div>
+      </div>
+      <div class="report-card">
+        <h4><i class="fas fa-clipboard-check" style="color:var(--cyan)"></i> 生产任务完成率</h4>
+        <div class="report-chart-wrap"><canvas id="rptProdChart"></canvas></div>
+      </div>
+      <div class="report-card">
+        <h4><i class="fas fa-check-double" style="color:var(--gold)"></i> 质检结果分布</h4>
+        <div class="report-chart-wrap"><canvas id="rptQcChart"></canvas></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ======== 潜客管理 ======== -->
 <div class="page" id="page-leads">
   <div style="max-width:1300px;margin:0 auto">
@@ -3615,12 +3705,12 @@ document.querySelectorAll('.nav-item').forEach(item => {
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'cases-admin','qc-templates','users','activity-logs'],
+              'cases-admin','qc-templates','users','reports','activity-logs'],
       sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'activity-logs'],
+              'reports','activity-logs'],
       production: ['dashboard','orders','products','production','inventory',
               'activity-logs']
     };
@@ -3674,6 +3764,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'scripts') loadScripts();
     if (page === 'countries') loadCountryProfiles();
     if (page === 'users') loadUsers();
+    if (page === 'reports') loadReportsPage();
     if (page === 'activity-logs') loadActivityLogs();
   };
 });
@@ -8172,6 +8263,263 @@ function editCommissionRate(userId, currentRate, salesName) {
   });
 }
 
+
+// ================= 报表中心 =================
+var _rptCharts = {};
+
+function destroyRptCharts() {
+  Object.keys(_rptCharts).forEach(function(k) { if (_rptCharts[k]) { _rptCharts[k].destroy(); delete _rptCharts[k]; } });
+}
+
+function switchRptTab(el) {
+  document.querySelectorAll('.report-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.report-tab-content').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  var tab = el.getAttribute('data-rpttab');
+  document.getElementById('rpt' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  // Re-render charts in this tab (Chart.js needs visible canvas)
+  if (tab === 'overview') { renderSalesOverview(); }
+  else if (tab === 'customer') { renderCustomerAnalysis(); }
+  else if (tab === 'production') { renderProductionStats(); }
+}
+
+async function loadReportsPage() {
+  destroyRptCharts();
+  var months = document.getElementById('rptMonths').value;
+  try {
+    var data = await api('/api/reports/sales?months=' + months);
+    if (!data) return;
+    window._rptData = data;
+    renderSalesOverview();
+    renderCustomerAnalysis();
+    renderProductionStats();
+  } catch(e) { if (e.message !== '未登录') console.error(e); }
+}
+
+function renderSalesOverview() {
+  var data = window._rptData;
+  if (!data) return;
+  var c = chartColors();
+
+  // --- Summary cards ---
+  var detail = data.sales_detail || [];
+  var totalRevenue = 0, totalCost = 0, totalOrders = 0;
+  detail.forEach(function(d) {
+    totalRevenue += Number(d.revenue || 0);
+    totalCost += Number(d.cost || 0);
+    totalOrders += Number(d.order_count || 0);
+  });
+  var totalProfit = totalRevenue - totalCost;
+  var avgMargin = totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) + '%' : '0%';
+
+  document.getElementById('rptTotalRevenue').textContent = '$' + totalRevenue.toLocaleString(undefined, {minimumFractionDigits:0});
+  document.getElementById('rptTotalProfit').textContent = '$' + totalProfit.toLocaleString(undefined, {minimumFractionDigits:0});
+  document.getElementById('rptTotalOrders').textContent = totalOrders;
+  document.getElementById('rptAvgMargin').textContent = avgMargin;
+
+  // --- Monthly trend line chart ---
+  if (detail.length) {
+    var ctx1 = document.getElementById('rptTrendChart').getContext('2d');
+    _rptCharts.trend = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: detail.map(function(d) { return d.month; }),
+        datasets: [{
+          label: '营收',
+          data: detail.map(function(d) { return d.revenue; }),
+          borderColor: c.cyan,
+          backgroundColor: c.cyan + '20',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: c.cyan,
+        }, {
+          label: '成本',
+          data: detail.map(function(d) { return d.cost; }),
+          borderColor: c.pink,
+          backgroundColor: 'transparent',
+          borderDash: [4, 4],
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: c.pink,
+        }, {
+          label: '利润',
+          data: detail.map(function(d) { return d.profit; }),
+          borderColor: c.gold,
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          pointRadius: 2,
+          pointBorderColor: c.gold,
+        }]
+      },
+      options: chartOpts({ legend: true })
+    });
+  } else {
+    showNoData('rptTrendChart', '暂无月度数据');
+  }
+
+  // --- Sales performance bar chart ---
+  var perf = data.sales_performance || [];
+  if (perf.length) {
+    var ctx2 = document.getElementById('rptSalesChart').getContext('2d');
+    _rptCharts.sales = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: perf.map(function(d) { return d.sales_name || '未知'; }),
+        datasets: [{
+          label: '利润 (USD)',
+          data: perf.map(function(d) { return d.total_profit || 0; }),
+          backgroundColor: c.cyan + '60',
+          borderColor: c.cyan,
+          borderWidth: 1,
+          borderRadius: 4,
+        }, {
+          label: '提成 (USD)',
+          data: perf.map(function(d) { return d.total_commission || 0; }),
+          backgroundColor: c.gold + '60',
+          borderColor: c.gold,
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: chartOpts({ legend: true })
+    });
+  } else {
+    showNoData('rptSalesChart', '暂无销售排行数据');
+  }
+}
+
+function renderCustomerAnalysis() {
+  var data = window._rptData;
+  if (!data) return;
+  var c = chartColors();
+
+  // --- Customer acquisition line chart ---
+  var acq = data.customer_acquisition || [];
+  if (acq.length) {
+    var ctx1 = document.getElementById('rptCustomerChart').getContext('2d');
+    _rptCharts.customer = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: acq.map(function(d) { return d.month; }),
+        datasets: [{
+          label: '新增客户',
+          data: acq.map(function(d) { return d.new_customers || 0; }),
+          borderColor: c.cyan,
+          backgroundColor: c.cyan + '20',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: c.cyan,
+        }, {
+          label: '有订单客户',
+          data: acq.map(function(d) { return d.active_customers || 0; }),
+          borderColor: c.gold,
+          backgroundColor: 'transparent',
+          borderDash: [4, 4],
+          tension: 0.3,
+          pointRadius: 2,
+          pointBorderColor: c.gold,
+        }]
+      },
+      options: chartOpts({ legend: true })
+    });
+  } else {
+    showNoData('rptCustomerChart', '暂无客户数据');
+  }
+
+  // --- Top customers (reuse dashboard data) ---
+  // Fetch chart-data for top customers
+  api('/api/stats/chart-data').then(function(chartData) {
+    if (chartData && chartData.top_customers && chartData.top_customers.length) {
+      var tops = chartData.top_customers;
+      var ctx2 = document.getElementById('rptTopCustomersChart').getContext('2d');
+      _rptCharts.topCust = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: tops.map(function(d) { return esc(d.name); }),
+          datasets: [{
+            label: '消费金额 (USD)',
+            data: tops.map(function(d) { return d.total; }),
+            backgroundColor: c.gold + '60',
+            borderColor: c.gold,
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: chartOpts({ indexAxis: 'y', legend: false })
+      });
+    } else {
+      showNoData('rptTopCustomersChart', '暂无Top客户数据');
+    }
+  }).catch(function() { showNoData('rptTopCustomersChart', '暂无Top客户数据'); });
+}
+
+function renderProductionStats() {
+  var data = window._rptData;
+  if (!data) return;
+  var c = chartColors();
+  var ps = data.production_stats || {};
+
+  // --- Summary cards ---
+  var taskSummary = ps.task_summary || {};
+  var total = taskSummary.total || 0;
+  var completed = taskSummary.completed || 0;
+  var rate = total > 0 ? (completed / total * 100).toFixed(1) + '%' : '0%';
+
+  document.getElementById('rptProdTotal').textContent = total;
+  document.getElementById('rptProdCompleted').textContent = completed;
+  document.getElementById('rptProdRate').textContent = rate;
+
+  // --- Production completion chart (doughnut) ---
+  if (total > 0) {
+    var ctx1 = document.getElementById('rptProdChart').getContext('2d');
+    _rptCharts.prod = new Chart(ctx1, {
+      type: 'doughnut',
+      data: {
+        labels: ['已完成', '未完成'],
+        datasets: [{
+          data: [completed, total - completed],
+          backgroundColor: [c.green, c.muted + '60'],
+          borderWidth: 0,
+        }]
+      },
+      options: chartOpts({ type: 'doughnut' })
+    });
+  } else {
+    showNoData('rptProdChart', '暂无生产任务数据');
+  }
+
+  // --- QC results chart (doughnut) ---
+  var qc = ps.qc_summary || {};
+  var qcTotal = (qc.pass || 0) + (qc.fail || 0) + (qc.pending || 0);
+  if (qcTotal > 0) {
+    var ctx2 = document.getElementById('rptQcChart').getContext('2d');
+    _rptCharts.qc = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['通过', '失败', '待检'],
+        datasets: [{
+          data: [qc.pass || 0, qc.fail || 0, qc.pending || 0],
+          backgroundColor: [c.green, c.pink, c.gold + '80'],
+          borderWidth: 0,
+        }]
+      },
+      options: chartOpts({ type: 'doughnut' })
+    });
+  } else {
+    showNoData('rptQcChart', '暂无质检数据');
+  }
+}
+
+function exportReportSales() {
+  var months = document.getElementById('rptMonths').value;
+  var a = document.createElement('a');
+  a.href = '/api/export/report-sales?months=' + months;
+  a.download = 'sales_report.xlsx';
+  a.click();
+  showToast('正在导出销售报表...');
+}
 
 // ================= 导出与备份 =================
 function exportOrders() {

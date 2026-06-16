@@ -31,6 +31,7 @@ from database import get_quotes, get_quote, add_quote, update_quote, delete_quot
 from database import get_users, get_user_by_username, add_user, update_user
 from database import get_orders, get_order, add_order, update_order, delete_order
 from database import add_timeline_entry, get_payment_dashboard, get_order_profit_stats, get_order_stats, get_commission_stats, get_production_schedule, get_production_tasks, save_production_tasks, update_production_task_status, get_production_task_defaults, get_shipments, get_shipment, add_shipment, update_shipment, delete_shipment
+from database import get_monthly_sales_detail, get_customer_acquisition_stats, get_production_stats
 from database import get_qc_templates, get_qc_template, save_qc_template, delete_qc_template, get_order_qc_inspections, get_qc_inspection, add_qc_inspection, update_qc_inspection, delete_qc_inspection
 from database import add_payment, get_ar_summary, get_ar_by_customer, get_payment_history, get_aging_analysis, migrate_payments_from_orders
 from database import get_leads, get_lead_summary, get_lead_funnel, assign_lead, update_lead_status, update_lead_source
@@ -3544,6 +3545,61 @@ def api_delete_qc(iid):
         add_activity_log(uid, "delete", "qc_inspection", iid,
             f"删除了质检记录 - 订单 #{ins.get('order_id','')}")
     return jsonify({"ok": True})
+
+
+# ==================== 报表中心 API ====================
+@app.route("/api/reports/sales")
+@login_required
+def api_reports_sales():
+    """综合销售报表"""
+    months = request.args.get("months", 12, type=int)
+    sales_detail = get_monthly_sales_detail(months)
+    customer_acq = get_customer_acquisition_stats(months)
+    prod_stats = get_production_stats()
+    commission = get_commission_stats()
+    return jsonify({
+        "sales_detail": sales_detail,
+        "customer_acquisition": customer_acq,
+        "production_stats": prod_stats,
+        "commission_summary": commission.get("summary", {}),
+        "sales_performance": commission.get("sales_summary", []),
+    })
+
+
+@app.route("/api/export/report-sales")
+@login_required
+def api_export_report_sales():
+    """导出销售报表Excel"""
+    import openpyxl, io
+    from openpyxl.styles import Font, PatternFill, Alignment
+
+    months = request.args.get("months", 12, type=int)
+    sales_detail = get_monthly_sales_detail(months)
+    commission = get_commission_stats()
+
+    wb = openpyxl.Workbook()
+
+    # Sheet 1: 月度明细
+    ws1 = wb.active
+    ws1.title = "月度销售明细"
+    ws1.append(["月份", "订单数", "营收(USD)", "成本(USD)", "利润(USD)"])
+    for r in sales_detail:
+        ws1.append([r["month"], r["order_count"], r["revenue"], r["cost"], r["profit"]])
+
+    # Sheet 2: 销售排行
+    ws2 = wb.create_sheet("销售排行")
+    ws2.append(["销售员", "订单数", "营收(USD)", "成本(USD)", "利润(USD)", "提成率", "提成金额"])
+    for r in (commission.get("sales_summary") or []):
+        ws2.append([
+            r.get("sales_name", ""), r.get("order_count", 0),
+            r.get("total_revenue", 0), r.get("total_cost", 0),
+            r.get("total_profit", 0), f"{r.get('commission_rate', 0)}%",
+            r.get("total_commission", 0)
+        ])
+
+    output = io.BytesIO()
+    wb.save(output)
+    return _send_excel(output, "销售报表.xlsx")
 
 
 @app.route("/api/quotes/<int:qid>/convert", methods=["POST"])
