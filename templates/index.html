@@ -878,6 +878,21 @@ function detailNewQuote() {
     <div class="nav-item" data-page="orders"><i class="fas fa-box"></i> 订单管理</div>
     <div class="nav-item" data-page="order-stats"><i class="fas fa-chart-bar"></i> 订单统计</div>
     <div class="nav-item" data-page="lead-analytics"><i class="fas fa-bullseye"></i> 获客分析</div>
+    <div class="nav-item" data-page="campaigns"><i class="fas fa-bullhorn"></i> 活动管理</div>
+    <div style="padding:8px 20px 2px;font-size:9px;text-transform:uppercase;color:var(--cyan);font-weight:700;letter-spacing:1px">V5 全球收入OS</div>
+    <div class="nav-item" data-page="v5-regions"><i class="fas fa-globe"></i> 区域概览</div>
+    <div class="nav-item" data-page="v5-agents"><i class="fas fa-users-gear"></i> 销售团队</div>
+    <div class="nav-item" data-page="v5-factories"><i class="fas fa-industry"></i> 工厂管理</div>
+    <div class="nav-item" data-page="v5-pricing"><i class="fas fa-tags"></i> 市场定价</div>
+    <div class="nav-item" data-page="v5-leads"><i class="fas fa-route"></i> 全球路由</div>
+    <div class="nav-item" data-page="v5-dashboard"><i class="fas fa-chart-line"></i> 全球仪表盘</div>
+    <div style="padding:8px 20px 2px;font-size:9px;text-transform:uppercase;color:var(--gold);font-weight:700;letter-spacing:1px">V6 财务智能OS</div>
+    <div class="nav-item" data-page="v6-pl"><i class="fas fa-file-invoice-dollar"></i> 损益表</div>
+    <div class="nav-item" data-page="v6-invoices"><i class="fas fa-receipt"></i> 发票管理</div>
+    <div class="nav-item" data-page="v6-expenses"><i class="fas fa-money-bill-wave"></i> 费用管理</div>
+    <div class="nav-item" data-page="v6-budgets"><i class="fas fa-chart-pie"></i> 预算控制</div>
+    <div class="nav-item" data-page="v6-cashflow"><i class="fas fa-water"></i> 现金流</div>
+    <div class="nav-item" data-page="v6-exec"><i class="fas fa-gauge-high"></i> CEO仪表盘</div>
     <div class="nav-item" data-page="ar-dashboard"><i class="fas fa-hand-holding-usd"></i> 应收账款</div>
     <div class="nav-item" data-page="commission"><i class="fas fa-percent"></i> 销售提成</div>
     <div class="nav-item" data-page="production"><i class="fas fa-industry"></i> 生产排期</div>
@@ -2717,6 +2732,70 @@ function detailNewQuote() {
   </div>
 </div>
 
+<!-- ======== 活动管理 (V4) ======== -->
+<div class="page" id="page-campaigns">
+  <div style="max-width:1300px;margin:0 auto">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:16px;font-weight:600"><i class="fas fa-bullhorn" style="color:var(--cyan)"></i> 活动管理</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="showCampaignModal()"><i class="fas fa-plus"></i> 创建活动</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadCampaigns()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card"><div class="num" id="campTotal">0</div><div class="label">总活动数</div></div>
+      <div class="stat-card"><div class="num" id="campActive">0</div><div class="label" style="color:#22c55e">进行中</div></div>
+      <div class="stat-card"><div class="num" id="campTotalLeads">0</div><div class="label">总触达线索</div></div>
+      <div class="stat-card"><div class="num" id="campTotalRevenue" style="color:var(--gold)">$0</div><div class="label">活动收入</div></div>
+    </div>
+
+    <!-- Campaign List -->
+    <div id="campaignList"></div>
+
+  </div>
+</div>
+
+<!-- 创建活动弹窗 -->
+<div class="modal" id="campaignModal" style="display:none">
+  <div class="modal-bg" onclick="closeModal('campaignModal')"></div>
+  <div class="modal-content" style="max-width:600px">
+    <div class="modal-header">
+      <h3><i class="fas fa-bullhorn" style="color:var(--cyan)"></i> <span id="campModalTitle">创建活动</span></h3>
+      <button class="close" onclick="closeModal('campaignModal')">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <div class="form-group">
+        <label>活动名称</label>
+        <input id="campName" placeholder="如: US Restaurant Q3">
+      </div>
+      <div class="form-group">
+        <label>目标国家 (逗号分隔)</label>
+        <input id="campCountries" placeholder="US, UK, CA, AU">
+      </div>
+      <div class="form-group">
+        <label>目标行业 (逗号分隔)</label>
+        <input id="campIndustries" placeholder="restaurant, retail, hotel">
+      </div>
+      <div class="form-group">
+        <label>每日触达上限</label>
+        <input id="campMaxOutreach" type="number" value="10">
+      </div>
+      <div class="form-group">
+        <label>首条话术模板</label>
+        <textarea id="campMsgTemplate" rows="3" placeholder="Hi {name}, this is Philip from Bohui GLOWFORGE...">{name}, this is Philip from Bohui GLOWFORGE — we manufacture custom illuminated signage for {industry} businesses and ship worldwide. Do you currently have a storefront sign, or are you planning a new one?</textarea>
+      </div>
+      <div class="form-group">
+        <label>跟进节奏 (天, 逗号分隔)</label>
+        <input id="campFollowupDays" value="1,3,7,14,30">
+      </div>
+      <button class="btn btn-primary" onclick="saveCampaign()" style="width:100%"><i class="fas fa-save"></i> 保存活动</button>
+    </div>
+  </div>
+</div>
+
 <!-- 订单编辑弹窗 -->
 <div class="modal" id="orderModal" style="display:none">
   <div class="modal-bg" onclick="closeOrderModal()"></div>
@@ -3690,6 +3769,184 @@ A premium illuminated channel letter sign..."></textarea>
   </div>
 </div>
 
+<!-- ======== V5: 区域概览 ======== -->
+<div class="page" id="page-v5-regions">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-globe"></i> V5 全球区域概览</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV5Regions()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="seedV5Regions()"><i class="fas fa-seedling"></i> 初始化区域</button>
+      </div>
+    </div>
+    <div id="v5RegionsContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+    <div style="margin-top:20px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">
+      <h4 style="margin:0 0 12px;color:var(--gold);font-size:14px"><i class="fas fa-exchange-alt"></i> 汇率转换器</h4>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="v5ConvAmount" type="number" value="1000" style="width:120px;padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px">
+        <select id="v5ConvFrom" style="padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px"><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="AUD">AUD</option></select>
+        <span style="color:var(--muted)">→</span>
+        <select id="v5ConvTo" style="padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
+        <button class="btn btn-primary btn-sm" onclick="doV5Convert()"><i class="fas fa-calculator"></i> 转换</button>
+        <span id="v5ConvResult" style="color:var(--cyan);font-weight:600;font-size:14px"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== V5: 销售团队 ======== -->
+<div class="page" id="page-v5-agents">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-users-gear"></i> V5 全球销售团队</h3>
+      <button class="btn btn-ghost btn-sm" onclick="loadV5Agents()"><i class="fas fa-sync"></i> 刷新</button>
+    </div>
+    <div id="v5AgentsContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+    <div style="margin-top:20px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">
+      <h4 style="margin:0 0 12px;color:var(--gold);font-size:14px"><i class="fas fa-robot"></i> Agent选择器</h4>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--muted)">国家:</span>
+        <select id="v5AgentCountry" style="padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px">
+          <option value="US">美国</option><option value="DE">德国</option><option value="JP">日本</option>
+          <option value="BR">巴西</option><option value="AE">阿联酋</option><option value="AU">澳大利亚</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="doV5AgentSelect()"><i class="fas fa-search"></i> 查询</button>
+        <span id="v5AgentResult" style="font-size:13px;color:var(--cyan);font-weight:600"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== V5: 工厂管理 ======== -->
+<div class="page" id="page-v5-factories">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-industry"></i> V5 工厂管理</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV5Factories()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="loadV5Shipping()"><i class="fas fa-truck"></i> 运费估算</button>
+      </div>
+    </div>
+    <div id="v5FactoriesContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+    <div id="v5ShippingContent" style="margin-top:16px;display:none"></div>
+  </div>
+</div>
+
+<!-- ======== V5: 市场定价 ======== -->
+<div class="page" id="page-v5-pricing">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-tags"></i> V5 市场定价策略</h3>
+      <button class="btn btn-ghost btn-sm" onclick="loadV5Pricing()"><i class="fas fa-sync"></i> 刷新</button>
+    </div>
+    <div id="v5PricingContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V5: 全球路由 ======== -->
+<div class="page" id="page-v5-leads">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-route"></i> V5 全球线索路由</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV5Leads()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="exportV5Leads()"><i class="fas fa-download"></i> 导出分析</button>
+      </div>
+    </div>
+    <div id="v5LeadsContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V5: 全球仪表盘 ======== -->
+<div class="page" id="page-v5-dashboard">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--cyan)"><i class="fas fa-chart-line"></i> V5 全球收入仪表盘</h3>
+      <button class="btn btn-ghost btn-sm" onclick="loadV5Dashboard()"><i class="fas fa-sync"></i> 刷新</button>
+    </div>
+    <div id="v5DashboardContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: P&L 损益表 ======== -->
+<div class="page" id="page-v6-pl">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-file-invoice-dollar"></i> V6 损益表</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6PL()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v6PLContent"><div style="color:var(--muted);text-align:center;padding:40px">选择会计期间查看损益表</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: 发票管理 ======== -->
+<div class="page" id="page-v6-invoices">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-receipt"></i> V6 发票管理</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6Invoices()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--gold);color:#000" onclick="loadV6Invoices()"><i class="fas fa-plus"></i> 查看发票</button>
+      </div>
+    </div>
+    <div id="v6InvoicesContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: 费用管理 ======== -->
+<div class="page" id="page-v6-expenses">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-money-bill-wave"></i> V6 费用管理</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6Expenses()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v6ExpensesContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: 预算控制 ======== -->
+<div class="page" id="page-v6-budgets">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-chart-pie"></i> V6 预算控制</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6Budgets()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v6BudgetsContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: 现金流 ======== -->
+<div class="page" id="page-v6-cashflow">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-water"></i> V6 现金流</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6Cashflow()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v6CashflowContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V6: CEO仪表盘 ======== -->
+<div class="page" id="page-v6-exec">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-gauge-high"></i> V6 CEO仪表盘</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV6Exec()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v6ExecContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
 <script>
 // ================= 数据 =================
 let customers = [];
@@ -3709,12 +3966,14 @@ document.querySelectorAll('.nav-item').forEach(item => {
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'cases-admin','qc-templates','users','reports','activity-logs'],
+              'cases-admin','qc-templates','users','reports','activity-logs',
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec'],
       sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'reports','activity-logs'],
+              'reports','activity-logs',
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec'],
       production: ['dashboard','orders','products','production','inventory',
               'activity-logs']
     };
@@ -3749,6 +4008,19 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'leads') loadLeads();
     if (page === 'lead-followup') loadFollowupPage();
     if (page === 'lead-analytics') loadLeadAnalytics();
+    if (page === 'campaigns') loadCampaigns();
+    if (page === 'v5-regions') loadV5Regions();
+    if (page === 'v5-agents') loadV5Agents();
+    if (page === 'v5-factories') loadV5Factories();
+    if (page === 'v5-pricing') loadV5Pricing();
+    if (page === 'v5-leads') loadV5Leads();
+    if (page === 'v5-dashboard') loadV5Dashboard();
+    if (page === 'v6-pl') loadV6PL();
+    if (page === 'v6-invoices') loadV6Invoices();
+    if (page === 'v6-expenses') loadV6Expenses();
+    if (page === 'v6-budgets') loadV6Budgets();
+    if (page === 'v6-cashflow') loadV6Cashflow();
+    if (page === 'v6-exec') loadV6Exec();
     if (page === 'chat') loadChat();
     if (page === 'media') { loadMedia('all'); loadMediaTags(); }
     if (page === 'products') loadProducts();
@@ -3815,15 +4087,17 @@ async function checkAuth() {
     hideLogin();
     // Role-based nav visibility (whitelist)
     var rolePages = {
-      admin: ['dashboard','customers','leads','lead-followup','chat','media','products',
+      admin: ['dashboard','customers','leads','lead-followup','campaigns','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
-              'cases-admin','qc-templates','users'],
-      sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
+              'cases-admin','qc-templates','users',
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard'],
+      sales: ['dashboard','customers','leads','lead-followup','campaigns','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
-              'catalog','email','ai','prompts','knowledge','scripts','countries'],
+              'catalog','email','ai','prompts','knowledge','scripts','countries',
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard'],
       production: ['dashboard','orders','products','production','inventory']
     };
     var allowed = rolePages[user.role] || [];
@@ -3846,8 +4120,47 @@ async function checkAuth() {
       if (document.getElementById('page-lead-followup').classList.contains('active')) {
         loadFollowupPage();
       }
+      if (document.getElementById('page-campaigns').classList.contains('active')) {
+        loadCampaigns();
+      }
       if (document.getElementById('page-ar-dashboard').classList.contains('active')) {
         loadArDashboard();
+      }
+      if (document.getElementById('page-v5-regions').classList.contains('active')) {
+        loadV5Regions();
+      }
+      if (document.getElementById('page-v5-agents').classList.contains('active')) {
+        loadV5Agents();
+      }
+      if (document.getElementById('page-v5-factories').classList.contains('active')) {
+        loadV5Factories();
+      }
+      if (document.getElementById('page-v5-pricing').classList.contains('active')) {
+        loadV5Pricing();
+      }
+      if (document.getElementById('page-v5-leads').classList.contains('active')) {
+        loadV5Leads();
+      }
+      if (document.getElementById('page-v5-dashboard').classList.contains('active')) {
+        loadV5Dashboard();
+      }
+      if (document.getElementById('page-v6-pl').classList.contains('active')) {
+        loadV6PL();
+      }
+      if (document.getElementById('page-v6-invoices').classList.contains('active')) {
+        loadV6Invoices();
+      }
+      if (document.getElementById('page-v6-expenses').classList.contains('active')) {
+        loadV6Expenses();
+      }
+      if (document.getElementById('page-v6-budgets').classList.contains('active')) {
+        loadV6Budgets();
+      }
+      if (document.getElementById('page-v6-cashflow').classList.contains('active')) {
+        loadV6Cashflow();
+      }
+      if (document.getElementById('page-v6-exec').classList.contains('active')) {
+        loadV6Exec();
       }
       if (document.getElementById('page-order-stats').classList.contains('active')) {
       loadOrderStats();
@@ -11059,6 +11372,94 @@ async function skipFollowup(cid, btn) {
   }
 }
 
+// ================= 活动管理 (V4) =================
+
+async function loadCampaigns() {
+  try {
+    var camps = await api("/api/v4/campaigns");
+    var active = camps.filter(function(c) { return c.status === 'active'; });
+    var totalLeads = camps.reduce(function(s, c) { return s + (c.total_leads || 0); }, 0);
+    var totalRev = camps.reduce(function(s, c) { return s + (c.revenue_generated || 0); }, 0);
+    document.getElementById('campTotal').textContent = camps.length;
+    document.getElementById('campActive').textContent = active.length;
+    document.getElementById('campTotalLeads').textContent = totalLeads;
+    document.getElementById('campTotalRevenue').textContent = '$' + Number(totalRev).toLocaleString();
+    var el = document.getElementById('campaignList');
+    if (!camps.length) {
+      el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)"><i class="fas fa-bullhorn" style="font-size:48px;margin-bottom:12px;opacity:0.3"></i><div>暂无活动</div><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="showCampaignModal()">创建第一个活动</button></div>';
+      return;
+    }
+    el.innerHTML = camps.map(function(c) {
+      var rate = c.total_leads > 0 ? (c.converted_leads / c.total_leads * 100).toFixed(1) : '0.0';
+      var statusColor = {draft:'#666', active:'#22c55e', paused:'#fbbf24', completed:'#60a5fa'}[c.status] || '#666';
+      var industries = Array.isArray(c.target_industries) ? c.target_industries.join(', ') : (c.target_industries || '');
+      var countries = Array.isArray(c.target_countries) ? c.target_countries.join(', ') : (c.target_countries || '');
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden">' +
+        '<div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+          '<div><span style="font-weight:600;font-size:14px">' + esc(c.name) + '</span>' +
+          ' <span style="display:inline-block;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:600;background:' + statusColor + '22;color:' + statusColor + ';margin-left:6px">' + c.status + '</span></div>' +
+          '<div style="display:flex;gap:6px">' +
+            (c.status === 'draft' ? '<button class="btn btn-sm" style="background:#22c55e;color:#fff;border:none;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600" onclick="updateCampaignStatus(' + c.id + ',\'active\')">激活</button>' : '') +
+            (c.status === 'active' ? '<button class="btn btn-sm" style="background:#fbbf24;color:#000;border:none;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600" onclick="updateCampaignStatus(' + c.id + ',\'paused\')">暂停</button>' : '') +
+            (c.status !== 'completed' ? '<button class="btn btn-sm" style="background:#666;color:#fff;border:none;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600" onclick="updateCampaignStatus(' + c.id + ',\'completed\')">完成</button>' : '') +
+          '</div></div>' +
+        '<div style="padding:12px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;font-size:12px">' +
+          '<div><span style="color:var(--muted)">🎯 国家:</span> ' + esc(countries || '全部') + '</div>' +
+          '<div><span style="color:var(--muted)">🏭 行业:</span> ' + esc(industries || '全部') + '</div>' +
+          '<div><span style="color:var(--muted)">📊 线索:</span> <strong>' + (c.total_leads || 0) + '</strong></div>' +
+          '<div><span style="color:var(--muted)">📞 已联系:</span> <strong>' + (c.contacted_leads || 0) + '</strong></div>' +
+          '<div><span style="color:var(--muted)">✅ 转化:</span> <strong>' + (c.converted_leads || 0) + '</strong> (' + rate + '%)</div>' +
+          '<div><span style="color:var(--gold)">💰 收入:</span> <strong>$' + Number(c.revenue_generated || 0).toLocaleString() + '</strong></div>' +
+        '</div></div>';
+    }).join('');
+  } catch(e) { if (e.message !== "未登录") console.error(e); }
+}
+
+function showCampaignModal() {
+  document.getElementById('campModalTitle').textContent = '创建活动';
+  document.getElementById('campName').value = '';
+  document.getElementById('campCountries').value = 'US, UK, CA, AU';
+  document.getElementById('campIndustries').value = 'restaurant, retail, hotel';
+  document.getElementById('campMaxOutreach').value = 10;
+  document.getElementById('campMsgTemplate').value = 'Hi {name}, this is Philip from Bohui GLOWFORGE — we manufacture custom illuminated signage for {industry} businesses and ship worldwide. Do you currently have a storefront sign, or are you planning a new one?';
+  document.getElementById('campFollowupDays').value = '1,3,7,14,30';
+  openModal('campaignModal');
+}
+
+async function saveCampaign() {
+  var name = document.getElementById('campName').value.trim();
+  if (!name) { alert('请输入活动名称'); return; }
+  var data = {
+    name: name,
+    target_countries: document.getElementById('campCountries').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean),
+    target_industries: document.getElementById('campIndustries').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean),
+    message_template: document.getElementById('campMsgTemplate').value.trim(),
+    max_outreach_per_day: parseInt(document.getElementById('campMaxOutreach').value) || 10,
+  };
+  try {
+    var r = await api("/api/v4/campaigns", {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+    if (r.ok) {
+      closeModal('campaignModal');
+      loadCampaigns();
+    } else {
+      alert('创建失败: ' + (r.error || '未知错误'));
+    }
+  } catch(e) { alert('创建失败: ' + e.message); }
+}
+
+async function updateCampaignStatus(cid, status) {
+  try {
+    await api("/api/v4/campaigns/" + cid + "/status", {
+      method: "PUT",
+      body: JSON.stringify({status: status})
+    });
+    loadCampaigns();
+  } catch(e) { console.error(e); }
+}
+
 
 // ================= 通知系统 =================
 var _notifTimer = null;
@@ -11521,6 +11922,637 @@ async function loadActivityLogs() {
 }
 
 // (activity-logs nav handled by the generic nav click handler above)
+
+// ================= V5: 区域概览 =================
+
+async function loadV5Regions() {
+  const el = document.getElementById('v5RegionsContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const regions = await api('/api/v5/regions');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">';
+    for (const r of regions) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<div style="font-size:14px;font-weight:700;color:var(--cyan)">' + r.code + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted);margin:4px 0 8px">' + r.name + '</div>';
+      html += '<div style="font-size:12px">币种: <b>' + r.base_currency + '</b> &middot; 加价: <b>' + (r.default_markup||'') + '</b></div>';
+      html += '<div style="font-size:12px">国家: <b>' + (r.country_count||0) + '</b> 个 &middot; ' + (r.status||'active') + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Exchange rates
+    html += '<div style="margin-top:16px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<h4 style="margin:0 0 12px;color:var(--text-bright);font-size:13px"><i class="fas fa-dollar-sign"></i> 当前汇率 (→ USD)</h4>';
+    html += '<table style="width:100%;font-size:12px"><tr><th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);color:var(--muted)">币种</th><th style="text-align:right;padding:4px 8px;border-bottom:1px solid var(--border);color:var(--muted)">汇率</th></tr>';
+    for (const cur of ['EUR','GBP','JPY','AUD','CNY','SGD','CHF','KRW','BRL','AED']) {
+      try {
+        const rr = await api('/api/v5/exchange-rates?from=' + cur);
+        html += '<tr><td style="padding:4px 8px;border-bottom:1px solid var(--border)"><b>' + cur + '</b></td>';
+        html += '<td style="padding:4px 8px;border-bottom:1px solid var(--border);text-align:right">' + (rr.rate || '—') + '</td></tr>';
+      } catch(e) {}
+    }
+    html += '</table></div>';
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败: ' + e.message + '</div>';
+  }
+}
+
+async function seedV5Regions() {
+  if (!confirm('初始化区域和默认汇率？')) return;
+  try {
+    const r = await api('/api/v5/seed-regions', {method:'POST'});
+    alert('区域: ' + r.regions_seeded + ' 个, 汇率: ' + r.rates_seeded + ' 条');
+    loadV5Regions();
+  } catch(e) { alert('失败: ' + e.message); }
+}
+
+async function doV5Convert() {
+  const amount = parseFloat(document.getElementById('v5ConvAmount').value) || 0;
+  const from = document.getElementById('v5ConvFrom').value;
+  const to = document.getElementById('v5ConvTo').value;
+  try {
+    const r = await api('/api/v5/currency-convert', {method:'POST', body:JSON.stringify({amount,from,to})});
+    document.getElementById('v5ConvResult').textContent = r.amount + ' ' + r.from_currency + ' = ' + r.converted_amount + ' ' + r.to_currency + ' (rate: ' + r.rate + ')';
+  } catch(e) { document.getElementById('v5ConvResult').textContent = '失败'; }
+}
+
+// ================= V5: 销售团队 =================
+
+async function loadV5Agents() {
+  const el = document.getElementById('v5AgentsContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const agents = await api('/api/v5/agents');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">';
+    for (const a of agents) {
+      const langs = (a.languages||[]).join(', ');
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<div style="font-size:14px;font-weight:700;color:var(--cyan)">' + (a.name||a.agent_id) + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted);margin:4px 0">' + (a.agent_id||'') + ' &middot; ' + (a.region||'') + '</div>';
+      html += '<div style="font-size:12px;margin-top:8px">语言: ' + langs + '</div>';
+      html += '<div style="font-size:12px">定价系数: <b>' + (a.pricing_multiplier||1.0) + 'x</b></div>';
+      if (a.culture_context) html += '<div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">' + a.culture_context.substring(0,120) + '...</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Stats
+    try {
+      const stats = await api('/api/v5/agents/stats');
+      if (stats.length) {
+        html += '<div style="margin-top:16px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+        html += '<h4 style="margin:0 0 12px;color:var(--text-bright);font-size:13px"><i class="fas fa-chart-simple"></i> 触达统计</h4>';
+        for (const s of stats) {
+          html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+          html += '<span>' + s.agent_id + '</span>';
+          html += '<span>线索 ' + s.total_leads + ' | 触达 ' + s.contacted + ' | 转化 ' + s.converted + ' (' + s.conversion_rate + '%)</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+    } catch(e) {}
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+async function doV5AgentSelect() {
+  const country = document.getElementById('v5AgentCountry').value;
+  try {
+    const r = await api('/api/v5/agents/select?country=' + country);
+    document.getElementById('v5AgentResult').textContent = r.agent_id + ' (' + r.name + ') ×' + r.pricing_multiplier;
+  } catch(e) {
+    document.getElementById('v5AgentResult').textContent = '查询失败';
+  }
+}
+
+// ================= V5: 工厂管理 =================
+
+async function loadV5Factories() {
+  const el = document.getElementById('v5FactoriesContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const factories = await api('/api/v5/factories');
+    const util = await api('/api/v5/factories/utilization');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">';
+    for (const f of factories) {
+      const tags = Array.isArray(f.capability_tags) ? f.capability_tags.join(', ') : (f.capability_tags||'');
+      const zones = Array.isArray(f.shipping_zones) ? f.shipping_zones.join(', ') : (f.shipping_zones||'');
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<div style="font-size:13px;font-weight:700;color:var(--cyan)">' + (f.name||'') + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted)">' + (f.location||'') + '</div>';
+      html += '<div style="font-size:12px;margin-top:6px">产能: <b>' + (f.max_capacity_monthly||'—') + '</b> 件/月</div>';
+      html += '<div style="font-size:12px">币种: ' + (f.base_currency||'USD') + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted);margin-top:4px">能力: ' + tags.substring(0,80) + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted)">发货: ' + zones + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Utilization
+    if (util.length) {
+      html += '<div style="margin-top:16px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<h4 style="margin:0 0 12px;color:var(--text-bright);font-size:13px"><i class="fas fa-gauge-high"></i> 产能利用率</h4>';
+      for (const u of util) {
+        const color = u.utilization_rate > 85 ? 'var(--pink)' : (u.utilization_rate > 60 ? 'var(--gold)' : 'var(--green)');
+        html += '<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><span>' + u.name + '</span><span style="color:' + color + '">' + u.utilization_rate + '% (' + u.status + ')</span></div>';
+        html += '<div style="height:6px;background:var(--border);border-radius:3px;margin-top:3px"><div style="height:100%;background:' + color + ';border-radius:3px;width:' + Math.min(u.utilization_rate,100) + '%"></div></div></div>';
+      }
+      html += '</div>';
+    }
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+async function loadV5Shipping() {
+  const el = document.getElementById('v5ShippingContent');
+  el.style.display = 'block';
+  el.innerHTML = '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+  el.innerHTML += '<h4 style="margin:0 0 12px;color:var(--gold);font-size:14px"><i class="fas fa-truck"></i> 运费估算</h4>';
+  el.innerHTML += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+  el.innerHTML += '目的地: <select id="v5ShipCountry" style="padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px"><option value="US">美国</option><option value="DE">德国</option><option value="JP">日本</option><option value="BR">巴西</option><option value="AE">阿联酋</option></select>';
+  el.innerHTML += '体积(m3): <input id="v5ShipVolume" type="number" value="0.1" step="0.05" style="width:80px;padding:6px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px">';
+  el.innerHTML += '<button class="btn btn-primary btn-sm" onclick="doV5Shipping()"><i class="fas fa-calculator"></i> 估算</button>';
+  el.innerHTML += '</div><div id="v5ShipResult" style="margin-top:12px;font-size:13px"></div></div>';
+}
+
+async function doV5Shipping() {
+  const country = document.getElementById('v5ShipCountry').value;
+  const volume = parseFloat(document.getElementById('v5ShipVolume').value) || 0.1;
+  try {
+    const r = await api('/api/v5/factories/shipping', {method:'POST', body:JSON.stringify({destination_country:country, volume_m3:volume})});
+    const el = document.getElementById('v5ShipResult');
+    el.innerHTML = '海运: <b>$' + r.cost_sea + '</b> (' + r.days_sea + '天) &nbsp;|&nbsp; 空运: <b>$' + r.cost_air + '</b> (' + r.days_air + '天)';
+  } catch(e) { document.getElementById('v5ShipResult').textContent = '估算失败'; }
+}
+
+// ================= V5: 市场定价 =================
+
+async function loadV5Pricing() {
+  const el = document.getElementById('v5PricingContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const pricing = await api('/api/v5/market-pricing');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
+    for (const p of pricing) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<div style="font-size:13px;font-weight:700;color:var(--cyan)">' + (p.region_code||'') + ': ' + (p.product_category||'') + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted)">' + (p.region_name||'') + '</div>';
+      html += '<div style="font-size:12px;margin-top:8px">目标利润率: <b>' + (p.target_margin ? (p.target_margin*100).toFixed(0) + '%' : '—') + '</b></div>';
+      html += '<div style="font-size:12px">最低利润率: ' + (p.min_margin ? (p.min_margin*100).toFixed(0) + '%' : '—') + '</div>';
+      html += '<div style="font-size:12px">竞品系数: ' + (p.competitor_factor||'1.0') + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    if (!pricing.length) {
+      html = '<div style="text-align:center;padding:40px;color:var(--muted)">暂无市场定价配置，请先通过"初始化区域"创建数据</div>';
+    }
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+// ================= V5: 全球路由 =================
+
+async function loadV5Leads() {
+  const el = document.getElementById('v5LeadsContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const leads = await api('/api/v5/lead-router/export?limit=20');
+    let html = '<div style="overflow-x:auto">';
+    html += '<table style="width:100%;font-size:12px"><thead><tr>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">客户</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">国家</th>';
+    html += '<th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">评分</th>';
+    html += '<th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">等级</th>';
+    html += '<th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">区域</th>';
+    html += '<th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">Agent</th>';
+    html += '<th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);color:var(--muted)">当前状态</th></tr></thead><tbody>';
+    for (const l of leads) {
+      const levelColor = l.level === 'premium' ? 'var(--green)' : (l.level === 'standard' ? 'var(--gold)' : 'var(--muted)');
+      html += '<tr>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)"><b>' + (l.name||'—') + '</b></td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + (l.country||'—') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;font-weight:700">' + (l.score||'—') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:' + levelColor + '">' + (l.level||'—') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center">' + (l.region||'—') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center">' + (l.agent||'—') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center">' + (l.current_status||'—') + '</td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+async function exportV5Leads() {
+  try {
+    const data = await api('/api/v5/lead-router/export?limit=100');
+    const csv = 'id,name,company,country,score,region,agent,level,current_status\n' +
+      data.map(l => [l.id,l.name,l.company,l.country,l.score,l.region,l.agent,l.level,l.current_status].join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'v5_lead_analysis.csv'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('导出失败'); }
+}
+
+// ================= V5: 全球仪表盘 =================
+
+async function loadV5Dashboard() {
+  const el = document.getElementById('v5DashboardContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const [kpi, revenue, profit, leadStats, ranking, multiCurr] = await Promise.all([
+      api('/api/v5/dashboard/global-kpi'),
+      api('/api/v5/dashboard/revenue-by-region'),
+      api('/api/v5/dashboard/profit-by-region'),
+      api('/api/v5/dashboard/lead-stats'),
+      api('/api/v5/dashboard/ranking'),
+      api('/api/v5/dashboard/multi-currency'),
+    ]);
+    let html = '';
+
+    // KPI cards
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px">';
+    const kpiItems = [
+      {label:'总收入', value:'$' + (kpi.total_revenue||0).toLocaleString(), color:'var(--green)'},
+      {label:'总利润', value:'$' + (kpi.total_profit||0).toLocaleString(), color:'var(--gold)'},
+      {label:'利润率', value:(kpi.profit_margin||0) + '%', color:'var(--cyan)'},
+      {label:'客户', value:kpi.total_customers||0, color:'var(--text-bright)'},
+      {label:'订单', value:kpi.total_orders||0, color:'var(--text-bright)'},
+      {label:'区域', value:kpi.regions||0, color:'var(--muted)'},
+      {label:'工厂', value:kpi.factories||0, color:'var(--muted)'},
+      {label:'Agent', value:kpi.agents||0, color:'var(--muted)'},
+    ];
+    for (const ki of kpiItems) {
+      html += '<div style="padding:14px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);text-align:center">';
+      html += '<div style="font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + ki.label + '</div>';
+      html += '<div style="font-size:18px;font-weight:700;color:' + ki.color + '">' + ki.value + '</div></div>';
+    }
+    html += '</div>';
+
+    // Revenue by region
+    if (revenue.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+      html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-chart-bar"></i> 各区域收入</h4>';
+      for (const r of revenue) {
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+        html += '<span><b>' + r.region_code + '</b> ' + r.region_name + '</span>';
+        html += '<span>$' + (r.revenue||0).toLocaleString() + ' (' + (r.orders||0) + '单, 均价$' + (r.avg_order_value||0) + ')</span></div>';
+      }
+      html += '</div>';
+    }
+
+    // Profit by region
+    if (profit.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+      html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-coins"></i> 各区域利润</h4>';
+      for (const p of profit) {
+        const marginColor = (p.margin_rate||0) >= 30 ? 'var(--green)' : ((p.margin_rate||0) >= 15 ? 'var(--gold)' : 'var(--pink)');
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+        html += '<span><b>' + p.region_code + '</b> ' + p.region_name + '</span>';
+        html += '<span style="color:' + marginColor + '">$' + (p.profit||0).toLocaleString() + ' (' + p.margin_rate + '%)</span></div>';
+      }
+      html += '</div>';
+    }
+
+    // Lead stats by region
+    if (leadStats.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+      html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-users"></i> 各区域线索</h4>';
+      for (const l of leadStats) {
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+        html += '<span><b>' + l.region_code + '</b> ' + l.region_name + '</span>';
+        html += '<span>线索' + l.total_leads + ' | 触达率' + l.contact_rate + '% | 转化率' + l.conversion_rate + '%</span></div>';
+      }
+      html += '</div>';
+    }
+
+    // Multi-currency
+    if (multiCurr.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+      html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-money-bills"></i> 多币种收入</h4>';
+      for (const m of multiCurr) {
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+        html += '<span><b>' + m.currency + '</b></span>';
+        html += '<span>' + (m.total_amount||0).toLocaleString() + ' (' + (m.order_count||0) + '单)</span></div>';
+      }
+      html += '</div>';
+    }
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+
+// ================= V6: P&L =================
+
+async function loadV6PL() {
+  const el = document.getElementById('v6PLContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const periods = await api('/api/v6/pl/periods');
+    let periodId = '';
+    let selHtml = '<select id="v6PeriodSelect" onchange="loadV6PL()" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:#0a0c18;color:var(--text-bright);font-size:12px;margin-bottom:12px">';
+    for (const p of periods) {
+      selHtml += '<option value="' + p.id + '"' + (periodId == p.id ? ' selected' : '') + '>' + p.period_code + ' (' + p.start_date + ' ~ ' + p.end_date + ')' + (p.is_closed ? ' [已关账]' : '') + '</option>';
+    }
+    selHtml += '</select>';
+    if (!periodId && periods.length) periodId = periods[0].id;
+
+    const pl = periodId ? await api('/api/v6/pl/summary?period_id=' + periodId) : {};
+    let html = selHtml;
+
+    if (pl.error) {
+      html += '<div style="color:var(--pink);text-align:center;padding:20px">' + pl.error + '</div>';
+      el.innerHTML = html; return;
+    }
+
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px">';
+    const kpis = [
+      {label:'收入', val:'$' + (pl.revenue||0).toLocaleString(), color:'var(--green)'},
+      {label:'毛利润', val:'$' + (pl.gross_profit||0).toLocaleString(), color:'var(--cyan)'},
+      {label:'净利润', val:'$' + (pl.net_profit||0).toLocaleString(), color:'var(--gold)'},
+      {label:'毛利率', val:(pl.gross_margin||0) + '%', color:'var(--text-bright)'},
+      {label:'净利率', val:(pl.net_margin||0) + '%', color:'var(--text-bright)'},
+    ];
+    for (const k of kpis) {
+      html += '<div style="padding:14px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);text-align:center">';
+      html += '<div style="font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + k.label + '</div>';
+      html += '<div style="font-size:18px;font-weight:700;color:' + k.color + '">' + k.val + '</div></div>';
+    }
+    html += '</div>';
+
+    if (pl.accounts && pl.accounts.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+      html += '<table style="width:100%;font-size:12px"><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">科目</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">名称</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">类别</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">金额</th></tr>';
+      for (const a of pl.accounts) {
+        const amtColor = a.type === 'revenue' ? 'var(--green)' : 'var(--pink)';
+        html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + a.code + '</td>';
+        html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + a.name + '</td>';
+        html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + a.category + '</td>';
+        html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right;color:' + amtColor + '">$' + (a.amount||0).toLocaleString() + '</td></tr>';
+      }
+      html += '</table></div>';
+    }
+
+    html += '<canvas id="v6PLTrendChart" style="margin-top:16px;height:200px;width:100%"></canvas>';
+    el.innerHTML = html;
+
+    try {
+      const trend = await api('/api/v6/pl/trend?months=6');
+      if (trend && trend.length) {
+        const ctx = document.getElementById('v6PLTrendChart').getContext('2d');
+        new Chart(ctx, {
+          type:'line',
+          data:{
+            labels: trend.map(t=>t.month),
+            datasets:[
+              {label:'收入', data:trend.map(t=>t.revenue), borderColor:'#00d4aa', fill:false},
+              {label:'净利润', data:trend.map(t=>t.net_profit), borderColor:'#ffd700', fill:false},
+            ]
+          },
+          options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8899bb',font:{size:10}}}},
+            scales:{x:{ticks:{color:'#667799',font:{size:9}}},y:{ticks:{color:'#667799',font:{size:9}}}}}
+        });
+      }
+    } catch(e) {}
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败: ' + e.message + '</div>'; }
+}
+
+// ================= V6: 发票管理 =================
+
+async function loadV6Invoices() {
+  const el = document.getElementById('v6InvoicesContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const [invoices, stats, overdue] = await Promise.all([
+      api('/api/v6/invoices'),
+      api('/api/v6/invoices/stats'),
+      api('/api/v6/invoices/overdue'),
+    ]);
+    let html = '';
+
+    if (overdue && overdue.length) {
+      html += '<div style="padding:12px 16px;background:#2a0c0c;border:1px solid var(--pink);border-radius:8px;margin-bottom:12px;color:var(--pink);font-size:13px">';
+      html += '<i class="fas fa-exclamation-triangle"></i> ' + overdue.length + ' 张逾期发票，合计 $' + ((stats&&stats.overdue_amount)||0).toLocaleString();
+      html += '</div>';
+    }
+
+    if (stats && stats.by_status) {
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px">';
+      for (const [k, v] of Object.entries(stats.by_status)) {
+        html += '<div style="padding:10px;background:#0a0c18;border-radius:8px;border:1px solid var(--border);text-align:center">';
+        html += '<div style="font-size:10px;color:var(--muted)">' + k + '</div><div style="font-size:16px;font-weight:700">' + v + '</div></div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<table style="width:100%;font-size:12px"><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">发票号</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">客户</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">金额</th><th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">状态</th><th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">到期日</th></tr>';
+    for (const inv of (invoices||[])) {
+      const statusColor = inv.status === 'paid' ? 'var(--green)' : inv.status === 'overdue' ? 'var(--pink)' : inv.status === 'draft' ? 'var(--muted)' : 'var(--gold)';
+      html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><b>' + (inv.invoice_no||'') + '</b></td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + (inv.customer_name||'') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right">$' + (inv.total_amount||0).toLocaleString() + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:' + statusColor + '">' + inv.status + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center">' + (inv.due_date||'') + '</td></tr>';
+    }
+    html += '</table></div>';
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+// ================= V6: 费用管理 =================
+
+async function loadV6Expenses() {
+  const el = document.getElementById('v6ExpensesContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const expenses = await api('/api/v6/expenses');
+    let html = '';
+
+    html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<table style="width:100%;font-size:12px"><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">类别</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">金额</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">描述</th><th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">状态</th><th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">日期</th></tr>';
+    for (const e of (expenses||[])) {
+      const sc = e.status === 'approved' ? 'var(--green)' : e.status === 'rejected' ? 'var(--pink)' : 'var(--gold)';
+      html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + (e.category||'') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right">$' + (e.amount||0).toLocaleString() + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + (e.description||'') + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:' + sc + '">' + e.status + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center">' + (e.expense_date||'') + '</td></tr>';
+    }
+    html += '</table></div>';
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+// ================= V6: 预算控制 =================
+
+async function loadV6Budgets() {
+  const el = document.getElementById('v6BudgetsContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const vs = await api('/api/v6/budgets/vs-actual?period=2026-06');
+    const alerts = await api('/api/v6/budgets/alerts');
+    let html = '';
+
+    if (alerts && alerts.length) {
+      html += '<div style="padding:12px 16px;background:#2a0c0c;border:1px solid var(--pink);border-radius:8px;margin-bottom:12px">';
+      html += '<div style="color:var(--pink);font-size:13px;margin-bottom:6px"><i class="fas fa-bell"></i> 超支预警</div>';
+      for (const a of alerts) {
+        html += '<div style="font-size:11px;color:var(--text-bright);padding:2px 0">' + a.category + ': ' + a.variance_pct + '% 超支 (预算 $' + a.budgeted + ', 实际 $' + a.actual + ')</div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px">预算 vs 实际 (2026-06)</h4>';
+    html += '<table style="width:100%;font-size:12px"><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">类别</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">预算</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">实际</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">差额</th><th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">状态</th></tr>';
+    for (const v of (vs||[])) {
+      const stColor = v.status === 'over_budget' ? 'var(--pink)' : v.status === 'under_budget' ? 'var(--cyan)' : 'var(--green)';
+      const varColor = v.variance > 0 ? 'var(--pink)' : 'var(--green)';
+      html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)">' + v.category + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right">$' + (v.budgeted||0).toLocaleString() + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right">$' + (v.actual||0).toLocaleString() + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right;color:' + varColor + '">' + (v.variance > 0 ? '+' : '') + v.variance + '</td>';
+      html += '<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:' + stColor + '">' + v.status + '</td></tr>';
+    }
+    html += '</table></div>';
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+// ================= V6: 现金流 =================
+
+async function loadV6Cashflow() {
+  const el = document.getElementById('v6CashflowContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const cp = await api('/api/v6/exec/cash-position');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px">';
+    const items = [
+      {label:'当前余额', val:'$' + (cp.current_balance||0).toLocaleString(), color:'var(--green)'},
+      {label:'应收', val:'$' + (cp.receivables||0).toLocaleString(), color:'var(--gold)'},
+      {label:'应付', val:'$' + (cp.payables||0).toLocaleString(), color:'var(--pink)'},
+      {label:'30天净预测', val:'$' + (cp.net_position||0).toLocaleString(), color:cp.net_position >= 0 ? 'var(--cyan)' : 'var(--pink)'},
+    ];
+    for (const it of items) {
+      html += '<div style="padding:14px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);text-align:center">';
+      html += '<div style="font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + it.label + '</div>';
+      html += '<div style="font-size:18px;font-weight:700;color:' + it.color + '">' + it.val + '</div></div>';
+    }
+    html += '</div>';
+
+    html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px">30天现金流预测</h4>';
+    html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span>预计流入</span><span style="color:var(--green)">$' + (cp.forecast_30day_inflow||0).toLocaleString() + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span>预计流出</span><span style="color:var(--pink)">$' + (cp.forecast_30day_outflow||0).toLocaleString() + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px"><span><b>净头寸</b></span><span style="color:' + (cp.net_position >= 0 ? 'var(--green)' : 'var(--pink)') + '"><b>$' + (cp.net_position||0).toLocaleString() + '</b></span></div>';
+    html += '</div>';
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+// ================= V6: CEO仪表盘 =================
+
+async function loadV6Exec() {
+  const el = document.getElementById('v6ExecContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const [summary, health, waterfall, cash] = await Promise.all([
+      api('/api/v6/exec/summary'),
+      api('/api/v6/exec/health-score'),
+      api('/api/v6/exec/revenue-waterfall'),
+      api('/api/v6/exec/cash-position'),
+    ]);
+    let html = '';
+
+    const score = (health && health.total_score) || 0;
+    const gaugeColor = score >= 85 ? '#00d4aa' : score >= 70 ? '#ffd700' : score >= 50 ? '#ff922b' : '#ff6b6b';
+    html += '<div style="display:flex;gap:16px;margin-bottom:16px">';
+    html += '<div style="flex:0 0 180px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);text-align:center">';
+    html += '<div style="font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">财务健康评分</div>';
+    html += '<div style="position:relative;width:120px;height:120px;margin:0 auto">';
+    html += '<canvas id="v6HealthGauge" width="120" height="120"></canvas>';
+    html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:700;color:' + gaugeColor + '">' + score + '</div>';
+    html += '</div>';
+    html += '<div style="font-size:11px;color:var(--muted);margin-top:4px">' + ((health&&health.label)||'') + '</div>';
+
+    if (health && health.components) {
+      for (const c of health.components) {
+        html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid var(--border)">';
+        html += '<span style="color:var(--muted)">' + c.label + '</span><span>' + c.score + '/' + c.max + '</span></div>';
+      }
+    }
+    html += '</div>';
+
+    html += '<div style="flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;align-content:start">';
+    const kpiItems = [
+      {label:'总收入', val:'$' + ((summary&&summary.total_revenue)||0).toLocaleString(), color:'var(--green)'},
+      {label:'净利润', val:'$' + ((summary&&summary.net_profit)||0).toLocaleString(), color:'var(--gold)'},
+      {label:'净利率', val:((summary&&summary.net_margin)||0) + '%', color:'var(--cyan)'},
+      {label:'费用率', val:((summary&&summary.expense_ratio)||0) + '%', color:'var(--text-bright)'},
+      {label:'本月收入', val:'$' + ((summary&&summary.month_revenue)||0).toLocaleString(), color:'var(--text-bright)'},
+      {label:'现金流', val:'$' + ((summary&&summary.cash_position)||0).toLocaleString(), color:(summary&&summary.cash_position) >= 0 ? 'var(--green)' : 'var(--pink)'},
+      {label:'逾期发票', val:(summary&&summary.overdue_count)||0, color:(summary&&summary.overdue_count) > 0 ? 'var(--pink)' : 'var(--green)'},
+      {label:'预算预警', val:(summary&&summary.budget_alerts_count)||0, color:(summary&&summary.budget_alerts_count) > 0 ? 'var(--gold)' : 'var(--green)'},
+    ];
+    for (const ki of kpiItems) {
+      html += '<div style="padding:12px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);text-align:center">';
+      html += '<div style="font-size:9px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + ki.label + '</div>';
+      html += '<div style="font-size:16px;font-weight:700;color:' + ki.color + '">' + ki.val + '</div></div>';
+    }
+    html += '</div></div>';
+
+    if (waterfall && waterfall.length) {
+      html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+      html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-chart-bar"></i> 收入瀑布图</h4>';
+      const maxVal = Math.max(...waterfall.map(x => Math.abs(x.value)));
+      for (const w of waterfall) {
+        const wColor = w.type === 'negative' ? 'var(--pink)' : w.type === 'total' ? 'var(--green)' : 'var(--gold)';
+        const barWidth = Math.max(10, Math.abs(w.value) / maxVal * 100);
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px">';
+        html += '<span style="width:80px;color:var(--muted)">' + w.label + '</span>';
+        html += '<div style="flex:1;height:20px;background:var(--bg);border-radius:4px;overflow:hidden">';
+        html += '<div style="height:100%;width:' + barWidth + '%;background:' + wColor + ';border-radius:4px;opacity:0.8"></div></div>';
+        html += '<span style="width:100px;text-align:right;color:' + wColor + '">$' + (w.value||0).toLocaleString() + '</span></div>';
+      }
+      html += '</div>';
+    }
+
+    el.innerHTML = html;
+
+    try {
+      const canvas = document.getElementById('v6HealthGauge');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const cx = 60, cy = 60, r = 50;
+        ctx.clearRect(0, 0, 120, 120);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0.75 * Math.PI, 0.25 * Math.PI);
+        ctx.strokeStyle = '#1a1d2e';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0.75 * Math.PI, 0.75 * Math.PI + (score / 100) * 1.5 * Math.PI);
+        ctx.strokeStyle = gaugeColor;
+        ctx.lineWidth = 10;
+        ctx.stroke();
+      }
+    } catch(e) {}
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
 </script>
 
 </body>

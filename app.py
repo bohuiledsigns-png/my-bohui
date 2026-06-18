@@ -49,6 +49,9 @@ from ai_engine import generate_video_from_image, generate_image_volc, ask_ali, g
 from catalog_generator import generate_catalog
 from scripts.generate_product_catalog import generate_product_catalog
 from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server, get_qr_base64
+from lead_state_engine import update_lead_state, get_lead_state, init_customer_state
+from decision_engine import decide_action
+from action_router import execute_action, register_action, log_action
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "glowforge-crm-2026-secret-key-change-in-production")
@@ -1165,6 +1168,32 @@ def _whatsapp_message_handler(chat_name, messages):
 
         translation = analysis.get("translation", text)
         reply_en = analysis.get("suggested_reply_en", "")
+        intent = analysis.get("intent", "其他")
+
+        # ====== Lead State Engine: 更新客户状态 ======
+        if is_new:
+            init_customer_state(c["id"])
+        state_result = update_lead_state(c["id"], intent, trigger_detail=text[:80])
+        if state_result["transitioned"]:
+            print(f"[LeadState] 客户#{c['id']} {chat_name}: {state_result['from_state']} → {state_result['to_state']} ({state_result['reason']})")
+            _add_wa_activity("state_change", c["id"], chat_name,
+                             f"{state_result['from_state']}→{state_result['to_state']}: {state_result['reason']}")
+
+        # ====== Decision Engine: 决定下一步动作 ======
+        decision = decide_action(c["id"], intent, extra_context={
+            "urgency": analysis.get("urgency", "中"),
+        })
+        if decision["action"] != "ROUTINE_REPLY":
+            print(f"[Decision] 客户#{c['id']} {chat_name}: 动作={decision['action']} ({decision['reason']})")
+            # ====== Action Router: 执行动作 ======
+            action_result = execute_action(decision["action"], c["id"], context={
+                "chat_name": chat_name,
+                "intent": intent,
+                "reply_text": reply_en,
+                "analysis": analysis,
+            })
+            if not action_result.get("ok"):
+                print(f"[Action] 执行失败: {decision['action']} — {action_result.get('error', '')}")
 
         # 保存收到的消息到数据库
         add_message(c["id"], "received", translation, text)
@@ -2119,6 +2148,56 @@ def api_send_quote(qid):
             print(f"[Quote] send error: {e}")
     threading.Thread(target=job, daemon=True).start()
     return jsonify({"ok": True, "msg": "发送中"})
+
+
+# ==================== Lead State API ====================
+@app.route("/api/leads/<int:cid>/state")
+def api_lead_state(cid):
+    """查看客户当前状态 + 历史"""
+    from lead_state_engine import get_lead_state, get_state_history
+    from action_router import get_action_history
+    c = get_customer(cid)
+    if not c:
+        return jsonify({"error": "客户不存在"}), 404
+    return jsonify({
+        "customer": c["name"],
+        "current_state": get_lead_state(cid),
+        "state_history": get_state_history(cid),
+        "action_history": get_action_history(cid),
+    })
+
+
+@app.route("/api/leads/<int:cid>/state", methods=["POST"])
+def api_lead_set_state(cid):
+    """手动设置客户状态"""
+    from lead_state_engine import get_lead_state, set_lead_state, log_state_transition
+    data = request.json or {}
+    new_state = data.get("state", "")
+    valid_states = ["NEW", "INTERESTED", "REQUESTED_PRICE", "QUOTED", "NEGOTIATING", "HOT", "COLD", "CLOSED_WON", "CLOSED_LOST"]
+    if new_state not in valid_states:
+        return jsonify({"error": f"无效状态，可选: {', '.join(valid_states)}"}), 400
+    old = get_lead_state(cid)
+    set_lead_state(cid, new_state)
+    log_state_transition(cid, old, new_state, trigger_source="manual", trigger_detail=f"手动设置: {data.get('reason', '')}")
+    return jsonify({"ok": True, "from": old, "to": new_state})
+
+
+@app.route("/api/leads/states")
+def api_lead_states_summary():
+    """所有客户状态分布统计"""
+    from lead_state_engine import LEAD_STATES
+    import sqlite3
+    conn = sqlite3.connect(os.path.join(BASE_DIR, "crm_data.db"))
+    try:
+        rows = conn.execute("SELECT lead_state, COUNT(*) as cnt FROM customers GROUP BY lead_state ORDER BY cnt DESC").fetchall()
+    except:
+        rows = []
+    conn.close()
+    dist = {r[0]: r[1] for r in rows}
+    return jsonify({
+        "states": {k: {"label": v, "count": dist.get(k, 0)} for k, v in LEAD_STATES.items()},
+        "distribution": dist,
+    })
 
 
 # ========= 产品目录 =========
@@ -3933,6 +4012,1020 @@ def api_leads_followup_msg(cid):
     return jsonify({"ok": True, "followup_type": followup_type, "message": result})
 
 
+# ==================== V4 — 自动销售网络 API ====================
+
+@app.route("/api/v4/dashboard/kpi")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_kpi():
+    """V4 仪表盘KPI"""
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_kpi_summary())
+
+
+@app.route("/api/v4/dashboard/funnel")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_funnel():
+    """V4 转化漏斗"""
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_conversion_funnel())
+
+
+@app.route("/api/v4/dashboard/campaigns")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_campaigns():
+    """V4 活动表现"""
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_campaign_performance())
+
+
+@app.route("/api/v4/dashboard/geo")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_geo():
+    """V4 国家分布"""
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_geo_distribution())
+
+
+@app.route("/api/v4/dashboard/industry")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_industry():
+    """V4 行业分布"""
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_industry_distribution())
+
+
+@app.route("/api/v4/dashboard/top-leads")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_top_leads():
+    """V4 高分线索"""
+    limit = request.args.get("limit", 10, type=int)
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_top_leads(limit=limit))
+
+
+@app.route("/api/v4/dashboard/revenue-trend")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_dashboard_revenue_trend():
+    """V4 收入趋势"""
+    days = request.args.get("days", 30, type=int)
+    from dashboard_engine import DashboardEngine
+    return jsonify(DashboardEngine().get_revenue_trend(days=days))
+
+
+@app.route("/api/v4/campaigns")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_list():
+    """V4 活动列表"""
+    status = request.args.get("status")
+    from campaign_engine import CampaignEngine
+    return jsonify(CampaignEngine().list_campaigns(status=status))
+
+
+@app.route("/api/v4/campaigns", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_create():
+    """V4 创建活动"""
+    data = request.json or {}
+    from campaign_engine import Campaign, CampaignEngine
+    c = Campaign(
+        name=data.get("name", ""),
+        target_countries=data.get("target_countries"),
+        target_industries=data.get("target_industries"),
+        message_template=data.get("message_template", ""),
+        max_outreach_per_day=data.get("max_outreach_per_day", 10),
+    )
+    cid = CampaignEngine().create_campaign(c)
+    return jsonify({"ok": True, "campaign_id": cid})
+
+
+@app.route("/api/v4/campaigns/<int:cid>")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_get(cid):
+    """V4 活动详情"""
+    from campaign_engine import CampaignEngine
+    camp = CampaignEngine().get_campaign(cid)
+    if not camp:
+        return jsonify({"error": "活动不存在"}), 404
+    return jsonify(camp)
+
+
+@app.route("/api/v4/campaigns/<int:cid>/status", methods=["PUT"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_status(cid):
+    """V4 更新活动状态"""
+    data = request.json or {}
+    status = data.get("status", "")
+    if status not in ("draft", "active", "paused", "completed"):
+        return jsonify({"error": "无效状态"}), 400
+    from campaign_engine import CampaignEngine
+    CampaignEngine().update_status(cid, status)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/v4/campaigns/<int:cid>/assign", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_assign(cid):
+    """V4 分配线索到活动"""
+    data = request.json or {}
+    customer_ids = data.get("customer_ids", [])
+    if not customer_ids:
+        return jsonify({"error": "缺少 customer_ids"}), 400
+    from campaign_engine import CampaignEngine
+    CampaignEngine().assign_leads(cid, customer_ids)
+    return jsonify({"ok": True, "assigned": len(customer_ids)})
+
+
+@app.route("/api/v4/campaigns/<int:cid>/leads")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_leads(cid):
+    """V4 活动下线索列表"""
+    from campaign_engine import CampaignEngine
+    return jsonify(CampaignEngine().get_campaign_leads(cid))
+
+
+@app.route("/api/v4/campaigns/<int:cid>/reply", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_reply(cid):
+    """V4 记录回复"""
+    from campaign_engine import CampaignEngine
+    CampaignEngine().record_reply(cid)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/v4/campaigns/<int:cid>/convert", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_campaigns_convert(cid):
+    """V4 记录转化"""
+    data = request.json or {}
+    revenue = data.get("revenue", 0)
+    from campaign_engine import CampaignEngine
+    CampaignEngine().record_conversion(cid, revenue)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/v4/leads/import", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_leads_import():
+    """V4 CSV导入线索 + 自动评分"""
+    import tempfile
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "请上传CSV文件"}), 400
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+    file.save(tmp.name)
+    from lead_router import LeadRouter
+    result = LeadRouter().import_csv(tmp.name)
+    os.unlink(tmp.name)
+    status_code = 200 if result["imported"] > 0 else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/v4/leads/score/<int:cid>")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_leads_score(cid):
+    """V4 评分单个线索"""
+    from lead_router import LeadRouter
+    from database import get_customer
+    cust = get_customer(cid)
+    if not cust:
+        return jsonify({"error": "客户不存在"}), 404
+    result = LeadRouter().score_lead(cid, cust)
+    route = LeadRouter().route_lead(cid, cust)
+    return jsonify({"score_result": result, "route": route})
+
+
+@app.route("/api/v4/leads/score-batch", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_leads_score_batch():
+    """V4 批量评分"""
+    data = request.json or {}
+    ids = data.get("customer_ids", [])
+    if not ids:
+        return jsonify({"error": "缺少 customer_ids"}), 400
+    from lead_router import LeadRouter
+    results = LeadRouter().score_batch(ids)
+    return jsonify(results)
+
+
+@app.route("/api/v4/outreach/process", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_outreach_process():
+    """V4 处理待触达线索"""
+    data = request.json or {}
+    limit = data.get("limit", 10)
+    from outreach_engine import OutreachEngine
+    result = OutreachEngine().process_new_leads(limit=limit)
+    return jsonify(result)
+
+
+@app.route("/api/v4/outreach/followups")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_outreach_followups():
+    """V4 获取待跟进线索"""
+    limit = request.args.get("limit", 20, type=int)
+    from outreach_engine import OutreachEngine
+    return jsonify(OutreachEngine().get_due_followups(limit=limit))
+
+
+@app.route("/api/v4/outreach/schedule", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_outreach_schedule():
+    """V4 执行跟进调度"""
+    data = request.json or {}
+    limit = data.get("limit", 20)
+    from outreach_engine import OutreachEngine
+    result = OutreachEngine().schedule_followups(limit=limit)
+    return jsonify(result)
+
+
+@app.route("/api/v4/leads/export-template")
+@login_required
+@role_required('admin', 'sales')
+def api_v4_leads_export_template():
+    """V4 下载CSV导入模板"""
+    import csv, io as csv_io
+    output = csv_io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["name", "company", "whatsapp", "country", "industry", "source", "campaign", "notes"])
+    writer.writerow(["Example Cafe", "Sunny Cafe", "+1234567890", "US", "restaurant", "import", "Q3 US Campaign", "needs LED storefront sign"])
+    output.seek(0)
+    from flask import Response
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=lead_import_template.csv"}
+    )
+
+
+# ==================== V5 — 全球收入操作系统 API ====================
+
+# ---- V5: 区域引擎 ----
+
+@app.route("/api/v5/regions")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_regions():
+    """获取所有区域"""
+    from region_engine import RegionEngine
+    return jsonify(RegionEngine().get_all_regions())
+
+
+@app.route("/api/v5/regions/<country_code>")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_region_for_country(country_code):
+    """获取国家所属区域"""
+    from region_engine import RegionEngine
+    return jsonify(RegionEngine().get_region_for_country(country_code))
+
+
+@app.route("/api/v5/exchange-rates")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_exchange_rates():
+    """获取汇率列表"""
+    from_currency = request.args.get("from", "EUR")
+    to_currency = request.args.get("to", "USD")
+    from region_engine import RegionEngine
+    rate = RegionEngine().get_rate(from_currency, to_currency)
+    history = RegionEngine().get_exchange_rate_history(from_currency, to_currency)
+    return jsonify({"rate": rate, "history": history})
+
+
+@app.route("/api/v5/exchange-rates", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v5_update_exchange_rate():
+    """更新汇率"""
+    data = request.json
+    if not data or "from_currency" not in data or "rate" not in data:
+        return jsonify({"error": "缺少 from_currency 或 rate"}), 400
+    from region_engine import RegionEngine
+    ok = RegionEngine().update_rate(
+        data["from_currency"], data["rate"],
+        data.get("to_currency", "USD"),
+        data.get("date"),
+        data.get("source", "manual"),
+    )
+    return jsonify({"ok": ok})
+
+
+@app.route("/api/v5/currency-convert", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_currency_convert():
+    """币种转换"""
+    data = request.json
+    if not data or "amount" not in data or "from" not in data:
+        return jsonify({"error": "缺少 amount 或 from"}), 400
+    from region_engine import RegionEngine
+    result = RegionEngine().convert(
+        data["amount"], data["from"],
+        data.get("to", "USD"),
+        data.get("date"),
+    )
+    return jsonify(result)
+
+
+@app.route("/api/v5/seed-regions", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v5_seed_regions():
+    """种子区域数据"""
+    from region_engine import RegionEngine
+    re = RegionEngine()
+    regions = re.seed_default_regions()
+    rates = re.seed_default_rates()
+    return jsonify({"regions_seeded": regions, "rates_seeded": rates})
+
+# ---- V5: 市场定价 ----
+
+@app.route("/api/v5/market-pricing")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_market_pricing():
+    """获取市场定价策略"""
+    from region_engine import RegionEngine
+    region_id = request.args.get("region_id", type=int)
+    return jsonify(RegionEngine().get_market_margin_targets(region_id))
+
+
+@app.route("/api/v5/market-pricing/<int:region_id>/<product_category>")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_pricing_coefficient(region_id, product_category):
+    """获取特定区域+产品的定价系数"""
+    from region_engine import RegionEngine
+    return jsonify(RegionEngine().get_pricing_coefficient(region_id, product_category))
+
+
+# ---- V5: 全球线索路由 ----
+
+@app.route("/api/v5/lead-router/score/<int:customer_id>")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_lead_score(customer_id):
+    """V5 全球评分"""
+    from global_lead_router import GlobalLeadRouter
+    return jsonify(GlobalLeadRouter().score_lead_global(customer_id))
+
+
+@app.route("/api/v5/lead-router/route/<int:customer_id>")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_lead_route(customer_id):
+    """V5 全球路由"""
+    from global_lead_router import GlobalLeadRouter
+    return jsonify(GlobalLeadRouter().route_lead_global(customer_id))
+
+
+@app.route("/api/v5/lead-router/export")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_lead_export():
+    """V5 导出全量线索分析"""
+    from global_lead_router import GlobalLeadRouter
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify(GlobalLeadRouter().export_lead_analysis(limit))
+
+
+# ---- V5: 多Agent团队 ----
+
+@app.route("/api/v5/agents")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_agents():
+    """获取所有Agent"""
+    from multi_agent_team import MultiAgentTeam
+    return jsonify(MultiAgentTeam().get_all_agents())
+
+
+@app.route("/api/v5/agents/select")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_agent_select():
+    """选择适合国家的Agent"""
+    country = request.args.get("country", "").upper()
+    language = request.args.get("language", "English")
+    from multi_agent_team import MultiAgentTeam
+    return jsonify(MultiAgentTeam().select_agent(country, language))
+
+
+@app.route("/api/v5/agents/stats")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_agent_stats():
+    """Agent触达统计"""
+    from multi_agent_team import MultiAgentTeam
+    days = request.args.get("days", 30, type=int)
+    return jsonify(MultiAgentTeam().get_agent_stats(days))
+
+
+# ---- V5: 利润引擎 ----
+
+@app.route("/api/v5/margin/cost", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_margin_cost():
+    """计算完整成本"""
+    data = request.json or {}
+    from margin_engine import MarginEngine
+    return jsonify(MarginEngine().calculate_full_cost(
+        data.get("factory_id"),
+        data.get("product_category", "general"),
+        data.get("quantity", 1),
+    ))
+
+
+@app.route("/api/v5/margin/evaluate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_margin_evaluate():
+    """评估利润率"""
+    data = request.json or {}
+    if "selling_price" not in data:
+        return jsonify({"error": "缺少 selling_price"}), 400
+    from margin_engine import MarginEngine
+    return jsonify(MarginEngine().evaluate_margin(
+        data.get("factory_id"),
+        data.get("product_category", "general"),
+        data["selling_price"],
+        data.get("currency", "USD"),
+        data.get("customer_country", ""),
+        data.get("quantity", 1),
+    ))
+
+
+@app.route("/api/v5/margin/optimize", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_margin_optimize():
+    """最优定价建议"""
+    data = request.json or {}
+    if "customer_country" not in data or "product_category" not in data:
+        return jsonify({"error": "缺少 customer_country 或 product_category"}), 400
+    from margin_engine import MarginEngine
+    return jsonify(MarginEngine().optimize_price(
+        data.get("factory_id"),
+        data["product_category"],
+        data["customer_country"],
+        data.get("target_margin"),
+        data.get("quantity", 1),
+    ))
+
+
+@app.route("/api/v5/margin/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_margin_summary():
+    """利润汇总"""
+    from margin_engine import MarginEngine
+    region = request.args.get("region")
+    days = request.args.get("days", 30, type=int)
+    return jsonify(MarginEngine().get_profit_summary(region, days))
+
+
+# ---- V5: 工厂分配 ----
+
+@app.route("/api/v5/factories")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_factories():
+    """获取所有工厂"""
+    from factory_allocator import FactoryAllocator
+    return jsonify(FactoryAllocator().get_all_factories())
+
+
+@app.route("/api/v5/factories/utilization")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_factory_utilization():
+    """工厂产能利用率"""
+    from factory_allocator import FactoryAllocator
+    return jsonify(FactoryAllocator().get_factory_utilization())
+
+
+@app.route("/api/v5/factories/best", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_factory_best():
+    """寻找最优工厂"""
+    data = request.json or {}
+    if "product_category" not in data or "destination_country" not in data:
+        return jsonify({"error": "缺少 product_category 或 destination_country"}), 400
+    from factory_allocator import FactoryAllocator
+    return jsonify(FactoryAllocator().find_best_factory(
+        data["product_category"],
+        data["destination_country"],
+        data.get("preference", "cost"),
+    ))
+
+
+@app.route("/api/v5/factories/shipping", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_shipping_estimate():
+    """运费估算"""
+    data = request.json or {}
+    if "destination_country" not in data:
+        return jsonify({"error": "缺少 destination_country"}), 400
+    from factory_allocator import FactoryAllocator
+    return jsonify(FactoryAllocator().estimate_shipping(
+        data["destination_country"],
+        data.get("volume_m3", 0.1),
+        data.get("mode", "sea"),
+    ))
+
+
+# ---- V5: 收入仪表盘 ----
+
+@app.route("/api/v5/dashboard/global-kpi")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_global_kpi():
+    """全球KPI汇总"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    return jsonify(RevenueDashboardV5().get_global_kpi_summary())
+
+
+@app.route("/api/v5/dashboard/revenue-by-region")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_revenue_by_region():
+    """按区域收入"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    days = request.args.get("days", 30, type=int)
+    return jsonify(RevenueDashboardV5().get_revenue_by_region(days))
+
+
+@app.route("/api/v5/dashboard/profit-by-region")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_profit_by_region():
+    """按区域利润"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    days = request.args.get("days", 30, type=int)
+    return jsonify(RevenueDashboardV5().get_profit_margin_by_region(days))
+
+
+@app.route("/api/v5/dashboard/lead-stats")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_lead_stats():
+    """区域线索统计"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    return jsonify(RevenueDashboardV5().get_region_lead_stats())
+
+
+@app.route("/api/v5/dashboard/ranking")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_ranking():
+    """全球绩效排名"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    return jsonify(RevenueDashboardV5().get_global_performance_ranking())
+
+
+@app.route("/api/v5/dashboard/multi-currency")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_multi_currency():
+    """多币种收入"""
+    from revenue_dashboard_v5 import RevenueDashboardV5
+    days = request.args.get("days", 30, type=int)
+    return jsonify(RevenueDashboardV5().get_multi_currency_revenue(days))
+
+
+# ==================== V6 — Financial Intelligence OS API ====================
+
+# ---- V6: P&L Engine ----
+
+@app.route("/api/v6/pl/accounts")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_accounts():
+    """获取会计科目表"""
+    from pl_engine import PLEngine
+    return jsonify(PLEngine().get_pl_accounts() if hasattr(PLEngine(), 'get_pl_accounts') else {"accounts": PLEngine()._import_db().get_pl_accounts()})
+
+
+@app.route("/api/v6/pl/seed-accounts", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_pl_seed_accounts():
+    """初始化会计科目"""
+    from pl_engine import PLEngine
+    count = PLEngine().seed_accounts()
+    return jsonify({"seeded": count})
+
+
+@app.route("/api/v6/pl/periods")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_periods():
+    """获取会计期间"""
+    from pl_engine import PLEngine
+    return jsonify(PLEngine().get_periods())
+
+
+@app.route("/api/v6/pl/periods", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_pl_create_period():
+    """创建会计期间"""
+    data = request.json
+    if not data or "code" not in data:
+        return jsonify({"error": "缺少 code"}), 400
+    from pl_engine import PLEngine
+    result = PLEngine().create_period(
+        data["code"], data.get("type", "monthly"),
+        data["start_date"], data["end_date"], data.get("notes", "")
+    )
+    return jsonify(result)
+
+
+@app.route("/api/v6/pl/close-period", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_pl_close_period():
+    """关账"""
+    data = request.json
+    if not data or "period_id" not in data:
+        return jsonify({"error": "缺少 period_id"}), 400
+    from pl_engine import PLEngine
+    result = PLEngine().close_period(data["period_id"])
+    return jsonify(result)
+
+
+@app.route("/api/v6/pl/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_summary():
+    """P&L 损益表"""
+    period_id = request.args.get("period_id", type=int)
+    from pl_engine import PLEngine
+    if not period_id:
+        periods = PLEngine().get_periods()
+        if not periods:
+            return jsonify({"error": "无会计期间，请先创建"}), 400
+        period_id = periods[0]["id"]
+    return jsonify(PLEngine().generate_pl(period_id))
+
+
+@app.route("/api/v6/pl/trend")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_trend():
+    """P&L 趋势"""
+    months = request.args.get("months", 6, type=int)
+    from pl_engine import PLEngine
+    return jsonify(PLEngine().get_pl_trend(months))
+
+
+@app.route("/api/v6/pl/by-dimension")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_by_dimension():
+    """按维度钻取"""
+    period_id = request.args.get("period_id", type=int)
+    dimension = request.args.get("dimension", "category")
+    from pl_engine import PLEngine
+    if not period_id:
+        periods = PLEngine().get_periods()
+        if not periods:
+            return jsonify([])
+        period_id = periods[0]["id"]
+    return jsonify(PLEngine().get_pl_by_dimension(period_id, dimension))
+
+
+@app.route("/api/v6/pl/compare")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_compare():
+    """环比分析"""
+    current_id = request.args.get("current_id", type=int)
+    previous_id = request.args.get("previous_id", type=int)
+    from pl_engine import PLEngine
+    if not current_id or not previous_id:
+        return jsonify({"error": "需要 current_id 和 previous_id"}), 400
+    return jsonify(PLEngine().period_over_period(current_id, previous_id))
+
+
+@app.route("/api/v6/pl/margin-analysis")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_pl_margin():
+    """毛利率分析"""
+    period_id = request.args.get("period_id", type=int)
+    from pl_engine import PLEngine
+    if not period_id:
+        periods = PLEngine().get_periods()
+        if not periods:
+            return jsonify({"error": "无会计期间"}), 400
+        period_id = periods[0]["id"]
+    return jsonify(PLEngine().get_margin_analysis(period_id))
+
+
+# ---- V6: Invoices ----
+
+@app.route("/api/v6/invoices")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_invoices():
+    """获取发票列表"""
+    status = request.args.get("status")
+    limit = request.args.get("limit", 50, type=int)
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().get_invoices(status, limit))
+
+
+@app.route("/api/v6/invoices/stats")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_invoice_stats():
+    """发票统计"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().get_invoice_stats())
+
+
+@app.route("/api/v6/invoices/overdue")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_invoices_overdue():
+    """逾期发票"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().get_overdue_invoices())
+
+
+@app.route("/api/v6/invoices/<int:invoice_id>")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_invoice_detail(invoice_id):
+    """发票详情"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().get_invoice(invoice_id))
+
+
+@app.route("/api/v6/invoices/create/<int:order_id>", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_invoice_create(order_id):
+    """创建发票"""
+    from invoice_engine import InvoiceEngine
+    user_id = session.get("user_id")
+    result = InvoiceEngine().create_invoice(order_id, created_by=user_id)
+    return jsonify(result)
+
+
+@app.route("/api/v6/invoices/<int:invoice_id>/send", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v6_invoice_send(invoice_id):
+    """发送发票"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().send_invoice(invoice_id))
+
+
+@app.route("/api/v6/invoices/<int:invoice_id>/pay", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v6_invoice_pay(invoice_id):
+    """标记已付"""
+    data = request.json or {}
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().mark_paid(invoice_id, data.get("payment_id")))
+
+
+@app.route("/api/v6/invoices/<int:invoice_id>/cancel", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v6_invoice_cancel(invoice_id):
+    """取消发票"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().cancel_invoice(invoice_id))
+
+
+@app.route("/api/v6/invoices/check-overdue", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_invoice_check_overdue():
+    """检查并更新逾期"""
+    from invoice_engine import InvoiceEngine
+    return jsonify(InvoiceEngine().check_and_update_overdue())
+
+
+# ---- V6: Expenses ----
+
+@app.route("/api/v6/expenses")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_expenses():
+    """获取费用列表"""
+    category = request.args.get("category")
+    status = request.args.get("status")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    limit = request.args.get("limit", 50, type=int)
+    from expense_engine import ExpenseEngine
+    return jsonify(ExpenseEngine().get_expenses(category, status, start_date, end_date, limit))
+
+
+@app.route("/api/v6/expenses/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_expense_summary():
+    """费用汇总"""
+    group_by = request.args.get("group_by", "category")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    from expense_engine import ExpenseEngine
+    return jsonify(ExpenseEngine().get_expense_summary(group_by, start_date, end_date))
+
+
+@app.route("/api/v6/expenses/trend")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_expense_trend():
+    """费用趋势"""
+    months = request.args.get("months", 6, type=int)
+    from expense_engine import ExpenseEngine
+    return jsonify(ExpenseEngine().get_expense_trend(months))
+
+
+@app.route("/api/v6/expenses", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_add_expense():
+    """添加费用"""
+    data = request.json
+    if not data or "category" not in data or "amount" not in data:
+        return jsonify({"error": "缺少 category 或 amount"}), 400
+    from expense_engine import ExpenseEngine
+    result = ExpenseEngine().add_expense(
+        category=data["category"],
+        amount=data["amount"],
+        currency=data.get("currency", "USD"),
+        expense_date=data.get("expense_date"),
+        vendor=data.get("vendor", ""),
+        paid_by=data.get("paid_by"),
+        notes=data.get("notes", ""),
+        description=data.get("description", ""),
+    )
+    return jsonify(result)
+
+
+@app.route("/api/v6/expenses/<int:expense_id>/approve", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v6_expense_approve(expense_id):
+    """审批通过"""
+    from expense_engine import ExpenseEngine
+    user_id = session.get("user_id")
+    return jsonify(ExpenseEngine().approve_expense(expense_id, approved_by=user_id))
+
+
+@app.route("/api/v6/expenses/<int:expense_id>/reject", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v6_expense_reject(expense_id):
+    """驳回"""
+    data = request.json or {}
+    from expense_engine import ExpenseEngine
+    user_id = session.get("user_id")
+    return jsonify(ExpenseEngine().reject_expense(expense_id, approved_by=user_id, reason=data.get("reason", "")))
+
+
+# ---- V6: Budgets ----
+
+@app.route("/api/v6/budgets")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_budgets():
+    """获取预算"""
+    period = request.args.get("period")
+    category = request.args.get("category")
+    from budget_engine import BudgetEngine
+    return jsonify(BudgetEngine().get_budgets(period, category))
+
+
+@app.route("/api/v6/budgets/vs-actual")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_budget_vs_actual():
+    """预算 vs 实际"""
+    period = request.args.get("period")
+    if not period:
+        return jsonify({"error": "缺少 period"}), 400
+    from budget_engine import BudgetEngine
+    return jsonify(BudgetEngine().get_budget_vs_actual(period))
+
+
+@app.route("/api/v6/budgets/alerts")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_budget_alerts():
+    """预算预警"""
+    threshold = request.args.get("threshold", 10, type=int)
+    from budget_engine import BudgetEngine
+    return jsonify(BudgetEngine().get_budget_alerts(threshold))
+
+
+@app.route("/api/v6/budgets", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_set_budget():
+    """设置预算"""
+    data = request.json
+    if not data or "period" not in data or "category" not in data or "amount" not in data:
+        return jsonify({"error": "缺少 period/category/amount"}), 400
+    from budget_engine import BudgetEngine
+    result = BudgetEngine().set_budget(data["period"], data["category"], data["amount"], data.get("notes", ""))
+    return jsonify(result)
+
+
+@app.route("/api/v6/budgets/auto-generate", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v6_budget_auto():
+    """自动生成预算模板"""
+    data = request.json
+    if not data or "year" not in data or "months" not in data:
+        return jsonify({"error": "缺少 year 或 months"}), 400
+    from budget_engine import BudgetEngine
+    count = BudgetEngine().auto_generate_months(data["year"], data["months"])
+    return jsonify({"generated": count})
+
+
+# ---- V6: Executive Dashboard ----
+
+@app.route("/api/v6/exec/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_exec_summary():
+    """CEO 综合摘要"""
+    from executive_dash import ExecutiveDashboard
+    return jsonify(ExecutiveDashboard().get_ceo_summary())
+
+
+@app.route("/api/v6/exec/health-score")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_exec_health():
+    """财务健康评分"""
+    from executive_dash import ExecutiveDashboard
+    return jsonify(ExecutiveDashboard().get_financial_health_score())
+
+
+@app.route("/api/v6/exec/revenue-waterfall")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_exec_waterfall():
+    """收入瀑布图"""
+    period_id = request.args.get("period_id", type=int)
+    from executive_dash import ExecutiveDashboard
+    return jsonify(ExecutiveDashboard().get_revenue_waterfall(period_id))
+
+
+@app.route("/api/v6/exec/profit-drivers")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_exec_profit_drivers():
+    """利润驱动因素"""
+    period_id = request.args.get("period_id", type=int)
+    from executive_dash import ExecutiveDashboard
+    return jsonify(ExecutiveDashboard().get_profit_driver_analysis(period_id))
+
+
+@app.route("/api/v6/exec/cash-position")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_exec_cash():
+    """现金流状况"""
+    from executive_dash import ExecutiveDashboard
+    return jsonify(ExecutiveDashboard().get_cash_position())
+
+
 @app.route("/api/knowledge-base/reload", methods=["POST"])
 @login_required
 @role_required('admin', 'sales')
@@ -4549,6 +5642,48 @@ def _kill_orphan_playwright():
         pass
 
 
+# ==================== Lead State Engine 初始化 ====================
+def _init_lead_state_engine():
+    """初始化客户状态机：确保表字段存在 + 注册动作回调"""
+    import lead_state_engine as lse
+    import action_router as ar
+
+    # 确保数据库有 lead_state 字段 + state_log 表
+    lse._ensure_state_field()
+    lse._ensure_state_log_table()
+    ar._ensure_action_log()
+    print("[LeadState] 客户状态引擎已就绪")
+
+    # ---- 注册动作回调 ----
+    def _callback_generate_quote(cid, ctx):
+        """预生成报价（实际调用报价API）"""
+        chat_name = ctx.get("chat_name", "")
+        print(f"[Action] GENERATE_QUOTE 客户#{cid} {chat_name}")
+        return {"ok": True, "result": "已触发报价生成", "detail": f"客户#{cid}报价请求已记录"}
+
+    def _callback_follow_up(cid, ctx):
+        """标记跟进"""
+        chat_name = ctx.get("chat_name", "")
+        print(f"[Action] FOLLOW_UP 客户#{cid} {chat_name}")
+        return {"ok": True, "result": "已标记跟进", "detail": f"客户#{cid}跟进已记录"}
+
+    def _callback_escalate(cid, ctx):
+        """升级到人工"""
+        chat_name = ctx.get("chat_name", "")
+        print(f"[Action] ESCALATE 客户#{cid} {chat_name} — 需人工处理")
+        return {"ok": True, "result": "已升级", "detail": "通知管理员待处理"}
+
+    # 注册
+    ar.register_action("GENERATE_QUOTE", _callback_generate_quote)
+    ar.register_action("SEND_QUOTE", _callback_generate_quote)
+    ar.register_action("FOLLOW_UP", _callback_follow_up)
+    ar.register_action("ESCALATE", _callback_escalate)
+    print(f"[LeadState] 动作回调已注册: GENERATE_QUOTE, SEND_QUOTE, FOLLOW_UP, ESCALATE")
+
+
+_init_lead_state_engine()
+
+
 if __name__ == "__main__":
     import webbrowser
     port = 5789
@@ -4599,6 +5734,21 @@ if __name__ == "__main__":
             threading.Event().wait(1800)
 
     threading.Thread(target=_reclaim_pool_loop, daemon=True).start()
+
+    # 后台线程：每15分钟检查沉默客户 → COLD状态
+    def _lead_state_timeout_check():
+        from lead_state_engine import batch_check_timeout
+        while True:
+            try:
+                results = batch_check_timeout()
+                if results:
+                    for r in results:
+                        print(f"[LeadState] 超时沉默: {r['name']} → COLD")
+            except Exception as e:
+                print(f"[LeadState] 超时检查异常: {e}")
+            threading.Event().wait(900)
+
+    threading.Thread(target=_lead_state_timeout_check, daemon=True).start()
 
     try:
         app.run(host="127.0.0.1", port=port, debug=False)

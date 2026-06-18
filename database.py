@@ -447,6 +447,258 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_qc_inspections_order ON qc_inspections(order_id)")
     except:
         pass
+
+    # ==================== V5 — Global Revenue OS tables ====================
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS regions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            base_currency TEXT NOT NULL DEFAULT 'USD',
+            default_markup REAL DEFAULT 1.3,
+            status TEXT DEFAULT 'active',
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS region_countries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            region_id INTEGER NOT NULL,
+            country_code TEXT NOT NULL,
+            country_name TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (region_id) REFERENCES regions(id),
+            UNIQUE(region_id, country_code)
+        );
+        CREATE TABLE IF NOT EXISTS exchange_rates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            from_currency TEXT NOT NULL,
+            to_currency TEXT NOT NULL DEFAULT 'USD',
+            rate REAL NOT NULL,
+            date TEXT NOT NULL,
+            source TEXT DEFAULT 'manual',
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(from_currency, to_currency, date)
+        );
+        CREATE TABLE IF NOT EXISTS factories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            location TEXT DEFAULT '',
+            country TEXT DEFAULT 'China',
+            base_currency TEXT DEFAULT 'CNY',
+            capability_tags TEXT DEFAULT '[]',
+            max_capacity_monthly INTEGER DEFAULT 0,
+            current_load INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            shipping_zones TEXT DEFAULT '[]',
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS agent_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_id TEXT NOT NULL UNIQUE,
+            region_id INTEGER,
+            name TEXT DEFAULT '',
+            role TEXT DEFAULT 'sales',
+            languages TEXT DEFAULT '[]',
+            pricing_multiplier REAL DEFAULT 1.0,
+            culture_context TEXT DEFAULT '',
+            active INTEGER DEFAULT 1,
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (region_id) REFERENCES regions(id)
+        );
+        CREATE TABLE IF NOT EXISTS market_pricing (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            region_id INTEGER NOT NULL,
+            product_category TEXT NOT NULL,
+            min_price REAL DEFAULT 0,
+            max_price REAL DEFAULT 0,
+            target_margin REAL DEFAULT 0.50,
+            min_margin REAL DEFAULT 0.35,
+            competitor_factor REAL DEFAULT 1.0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (region_id) REFERENCES regions(id),
+            UNIQUE(region_id, product_category)
+        );
+        CREATE TABLE IF NOT EXISTS production_costs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            factory_id INTEGER NOT NULL,
+            product_category TEXT NOT NULL,
+            base_cost REAL DEFAULT 0,
+            currency TEXT DEFAULT 'CNY',
+            material_cost REAL DEFAULT 0,
+            labor_cost REAL DEFAULT 0,
+            overhead_cost REAL DEFAULT 0,
+            effective_from TEXT NOT NULL,
+            effective_to TEXT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (factory_id) REFERENCES factories(id)
+        );
+    """)
+
+    # V5: ALTER TABLE migrations for existing tables
+    for col_v5 in [
+        ("partners","country", "TEXT DEFAULT ''"),
+        ("partners","region_id", "INTEGER DEFAULT NULL"),
+        ("partners","commission_type", "TEXT DEFAULT 'percentage'"),
+        ("partners","commission_rate", "REAL DEFAULT 0"),
+        ("partners","currency", "TEXT DEFAULT 'USD'"),
+        ("partners","payment_terms", "TEXT DEFAULT ''"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE {col_v5[0]} ADD COLUMN {col_v5[1]} {col_v5[2]}")
+        except:
+            pass
+
+    for col_cust in [("customers","region_id", "INTEGER DEFAULT NULL")]:
+        try:
+            conn.execute(f"ALTER TABLE {col_cust[0]} ADD COLUMN {col_cust[1]} {col_cust[2]}")
+        except:
+            pass
+
+    for col_order in [
+        ("orders","region_id", "INTEGER DEFAULT NULL"),
+        ("orders","base_amount", "REAL DEFAULT 0"),
+        ("orders","exchange_rate", "REAL DEFAULT 1.0"),
+        ("orders","factory_id", "INTEGER DEFAULT NULL"),
+        ("orders","production_cost", "REAL DEFAULT 0"),
+        ("orders","shipping_cost", "REAL DEFAULT 0"),
+        ("orders","platform_fee", "REAL DEFAULT 0"),
+        ("orders","net_profit", "REAL DEFAULT 0"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE {col_order[0]} ADD COLUMN {col_order[1]} {col_order[2]}")
+        except:
+            pass
+
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN region_commissions TEXT DEFAULT '{}'")
+    except:
+        pass
+
+    # ==================== V6 — Financial Intelligence OS tables ====================
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS pl_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL CHECK(type IN ('revenue','cogs','expense','other_income','other_expense')),
+            category TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            sort_order INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS pl_periods (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            period_code TEXT NOT NULL UNIQUE,
+            type TEXT NOT NULL CHECK(type IN ('monthly','quarterly','yearly')),
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            is_closed INTEGER DEFAULT 0,
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS pl_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            period_id INTEGER NOT NULL,
+            account_id INTEGER NOT NULL,
+            order_id INTEGER DEFAULT NULL,
+            amount REAL NOT NULL DEFAULT 0,
+            entry_type TEXT NOT NULL DEFAULT 'actual' CHECK(entry_type IN ('actual','budget','adjustment')),
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (period_id) REFERENCES pl_periods(id),
+            FOREIGN KEY (account_id) REFERENCES pl_accounts(id),
+            FOREIGN KEY (order_id) REFERENCES orders(id)
+        );
+        CREATE TABLE IF NOT EXISTS invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_no TEXT NOT NULL UNIQUE,
+            order_id INTEGER NOT NULL,
+            customer_id INTEGER NOT NULL,
+            issue_date TEXT NOT NULL,
+            due_date TEXT NOT NULL,
+            total_amount REAL NOT NULL DEFAULT 0,
+            currency TEXT DEFAULT 'USD',
+            status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','sent','paid','overdue','cancelled')),
+            pdf_path TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            sent_at TIMESTAMP,
+            paid_at TIMESTAMP,
+            cancelled_at TIMESTAMP,
+            created_by INTEGER DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (order_id) REFERENCES orders(id),
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL CHECK(category IN ('operation','marketing','shipping','commission','salary','office','travel','maintenance','other')),
+            amount REAL NOT NULL DEFAULT 0,
+            currency TEXT DEFAULT 'USD',
+            expense_date TEXT NOT NULL,
+            vendor TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')),
+            paid_by INTEGER DEFAULT NULL,
+            approved_by INTEGER DEFAULT NULL,
+            approved_at TIMESTAMP,
+            receipt_path TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (paid_by) REFERENCES users(id),
+            FOREIGN KEY (approved_by) REFERENCES users(id)
+        );
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            period TEXT NOT NULL,
+            category TEXT NOT NULL,
+            planned_amount REAL NOT NULL DEFAULT 0,
+            notes TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(period, category)
+        );
+    """)
+
+    # V6: ALTER TABLE migrations
+    for col_v6 in [
+        ("customers","credit_limit", "REAL DEFAULT 0"),
+        ("customers","payment_terms", "TEXT DEFAULT '30'"),
+        ("customers","tax_id", "TEXT DEFAULT ''"),
+        ("orders","invoice_id", "INTEGER DEFAULT NULL"),
+        ("orders","tax_rate", "REAL DEFAULT 0"),
+        ("orders","tax_amount", "REAL DEFAULT 0"),
+        ("payments","invoice_id", "INTEGER DEFAULT NULL"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE {col_v6[0]} ADD COLUMN {col_v6[1]} {col_v6[2]}")
+        except:
+            pass
+
+    # V6: Indexes
+    for idx in [
+        "CREATE INDEX IF NOT EXISTS idx_pl_entries_period ON pl_entries(period_id)",
+        "CREATE INDEX IF NOT EXISTS idx_pl_entries_account ON pl_entries(account_id)",
+        "CREATE INDEX IF NOT EXISTS idx_pl_entries_order ON pl_entries(order_id)",
+        "CREATE INDEX IF NOT EXISTS idx_invoices_order ON invoices(order_id)",
+        "CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id)",
+        "CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status)",
+        "CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date)",
+        "CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)",
+        "CREATE INDEX IF NOT EXISTS idx_budgets_period ON budgets(period)",
+    ]:
+        try:
+            conn.execute(idx)
+        except:
+            pass
+
     conn.commit()
     conn.close()
 
@@ -2986,3 +3238,733 @@ def get_inventory_summary():
         "low_stock_count": low_count,
         "categories": [dict(r) for r in categories],
     }
+
+
+# ==================== V5 — Global Revenue OS CRUD ====================
+
+# === Regions ===
+def get_regions():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM regions ORDER BY sort_order, name").fetchall()
+    # Attach country count
+    result = []
+    for r in rows:
+        d = dict(r)
+        d["country_count"] = conn.execute(
+            "SELECT COUNT(*) FROM region_countries WHERE region_id=?", (d["id"],)
+        ).fetchone()[0]
+        result.append(d)
+    conn.close()
+    return result
+
+
+def get_region(rid):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM regions WHERE id=?", (rid,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_region(data):
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO regions (code, name, description, base_currency, default_markup, sort_order) VALUES (?,?,?,?,?,?)",
+        (data.get("code",""), data.get("name",""), data.get("description",""),
+         data.get("base_currency","USD"), data.get("default_markup",1.3), data.get("sort_order",0))
+    )
+    rid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return rid
+
+
+def update_region(rid, data):
+    conn = get_db()
+    for k, v in data.items():
+        if k in ("code","name","description","base_currency","default_markup","status","sort_order"):
+            conn.execute(f"UPDATE regions SET {k}=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (v, rid))
+    conn.commit()
+    conn.close()
+
+
+def delete_region(rid):
+    conn = get_db()
+    conn.execute("DELETE FROM region_countries WHERE region_id=?", (rid,))
+    conn.execute("DELETE FROM regions WHERE id=?", (rid,))
+    conn.commit()
+    conn.close()
+
+
+def get_region_countries(region_id):
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM region_countries WHERE region_id=?", (region_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def add_region_country(region_id, country_code, country_name=""):
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO region_countries (region_id, country_code, country_name) VALUES (?,?,?)",
+            (region_id, country_code, country_name)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception:
+        conn.close()
+        return False
+
+
+def remove_region_country(rid):
+    conn = get_db()
+    conn.execute("DELETE FROM region_countries WHERE id=?", (rid,))
+    conn.commit()
+    conn.close()
+
+
+def get_region_for_country(country_code):
+    conn = get_db()
+    row = conn.execute(
+        """SELECT r.* FROM regions r
+           JOIN region_countries rc ON r.id = rc.region_id
+           WHERE rc.country_code = ?""",
+        (country_code.upper(),)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def seed_default_regions():
+    """Seed predefined regions if table is empty."""
+    conn = get_db()
+    existing = conn.execute("SELECT COUNT(*) FROM regions").fetchone()[0]
+    if existing > 0:
+        conn.close()
+        return 0
+    definitions = {
+        "NA": {"name":"North America", "countries":{"US":"United States","CA":"Canada"}, "base_currency":"USD", "markup":1.4, "sort":1},
+        "EU": {"name":"Europe", "countries":{"GB":"United Kingdom","DE":"Germany","FR":"France","IT":"Italy","ES":"Spain","NL":"Netherlands"}, "base_currency":"EUR", "markup":1.35, "sort":2},
+        "APAC": {"name":"Asia Pacific", "countries":{"JP":"Japan","AU":"Australia","SG":"Singapore","NZ":"New Zealand"}, "base_currency":"USD", "markup":1.25, "sort":3},
+        "LATAM": {"name":"Latin America", "countries":{"BR":"Brazil","MX":"Mexico","AR":"Argentina","CL":"Chile","CO":"Colombia"}, "base_currency":"USD", "markup":1.3, "sort":4},
+        "MEA": {"name":"Middle East & Africa", "countries":{"AE":"UAE","SA":"Saudi Arabia","ZA":"South Africa","EG":"Egypt"}, "base_currency":"USD", "markup":1.35, "sort":5},
+    }
+    count = 0
+    for code, defn in definitions.items():
+        cur = conn.execute(
+            "INSERT INTO regions (code, name, base_currency, default_markup, sort_order) VALUES (?,?,?,?,?)",
+            (code, defn["name"], defn["base_currency"], defn["markup"], defn["sort"])
+        )
+        rid = cur.lastrowid
+        count += 1
+        for cc, cname in defn["countries"].items():
+            try:
+                conn.execute("INSERT INTO region_countries (region_id, country_code, country_name) VALUES (?,?,?)",
+                             (rid, cc, cname))
+            except:
+                pass
+    conn.commit()
+    conn.close()
+    return count
+
+
+# === Exchange Rates ===
+def get_exchange_rates(from_currency=None, date=None):
+    conn = get_db()
+    sql = "SELECT * FROM exchange_rates WHERE 1=1"
+    params = []
+    if from_currency:
+        sql += " AND from_currency=?"
+        params.append(from_currency.upper())
+    if date:
+        sql += " AND date=?"
+        params.append(date)
+    sql += " ORDER BY date DESC, from_currency"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def upsert_exchange_rate(from_currency, to_currency, rate, date=None, source="manual"):
+    from datetime import date as dt_date
+    if date is None:
+        date = dt_date.today().isoformat()
+    conn = get_db()
+    try:
+        conn.execute(
+            """INSERT INTO exchange_rates (from_currency, to_currency, rate, date, source)
+               VALUES (?,?,?,?,?)
+               ON CONFLICT(from_currency, to_currency, date) DO UPDATE SET rate=?, source=?""",
+            (from_currency.upper(), to_currency.upper(), rate, date, source, rate, source)
+        )
+        conn.commit()
+    except Exception:
+        # SQLite without ON CONFLICT support
+        existing = conn.execute(
+            "SELECT id FROM exchange_rates WHERE from_currency=? AND to_currency=? AND date=?",
+            (from_currency.upper(), to_currency.upper(), date)
+        ).fetchone()
+        if existing:
+            conn.execute("UPDATE exchange_rates SET rate=?, source=? WHERE id=?",
+                         (rate, source, existing["id"]))
+        else:
+            conn.execute(
+                "INSERT INTO exchange_rates (from_currency, to_currency, rate, date, source) VALUES (?,?,?,?,?)",
+                (from_currency.upper(), to_currency.upper(), rate, date, source)
+            )
+        conn.commit()
+    conn.close()
+
+
+def get_exchange_rate(from_currency, to_currency="USD", date=None):
+    from datetime import date as dt_date
+    if date is None:
+        date = dt_date.today().isoformat()
+    conn = get_db()
+    row = conn.execute(
+        "SELECT rate FROM exchange_rates WHERE from_currency=? AND to_currency=? AND date=?",
+        (from_currency.upper(), to_currency.upper(), date)
+    ).fetchone()
+    conn.close()
+    return row["rate"] if row else None
+
+
+# === Factories ===
+def get_factories(region_code=None):
+    conn = get_db()
+    if region_code:
+        rows = conn.execute(
+            "SELECT * FROM factories WHERE shipping_zones LIKE ? ORDER BY name",
+            (f'%{region_code}%',)
+        ).fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM factories ORDER BY name").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_factory(fid):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM factories WHERE id=?", (fid,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_factory(data):
+    conn = get_db()
+    import json
+    cur = conn.execute(
+        """INSERT INTO factories (name, location, country, base_currency, capability_tags,
+           max_capacity_monthly, current_load, status, shipping_zones, notes)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (data.get("name",""), data.get("location",""), data.get("country","China"),
+         data.get("base_currency","CNY"),
+         json.dumps(data.get("capability_tags",[])),
+         data.get("max_capacity_monthly",0), data.get("current_load",0),
+         data.get("status","active"),
+         json.dumps(data.get("shipping_zones",[])),
+         data.get("notes",""))
+    )
+    fid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return fid
+
+
+def update_factory(fid, data):
+    conn = get_db()
+    import json
+    for k, v in data.items():
+        if k in ("name","location","country","base_currency","status","notes"):
+            conn.execute(f"UPDATE factories SET {k}=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (v, fid))
+        elif k in ("max_capacity_monthly","current_load"):
+            conn.execute(f"UPDATE factories SET {k}=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (int(v), fid))
+        elif k in ("capability_tags","shipping_zones"):
+            conn.execute(f"UPDATE factories SET {k}=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", (json.dumps(v), fid))
+    conn.commit()
+    conn.close()
+
+
+def delete_factory(fid):
+    conn = get_db()
+    conn.execute("DELETE FROM production_costs WHERE factory_id=?", (fid,))
+    conn.execute("DELETE FROM factories WHERE id=?", (fid,))
+    conn.commit()
+    conn.close()
+
+
+# === Production Costs ===
+def get_production_costs(factory_id=None):
+    conn = get_db()
+    if factory_id:
+        rows = conn.execute(
+            "SELECT pc.*, f.name as factory_name FROM production_costs pc LEFT JOIN factories f ON pc.factory_id=f.id WHERE pc.factory_id=? ORDER BY pc.product_category",
+            (factory_id,)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT pc.*, f.name as factory_name FROM production_costs pc LEFT JOIN factories f ON pc.factory_id=f.id ORDER BY pc.factory_id, pc.product_category"
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def add_production_cost(data):
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO production_costs (factory_id, product_category, base_cost, currency,
+           material_cost, labor_cost, overhead_cost, effective_from, effective_to)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (data.get("factory_id"), data.get("product_category",""), data.get("base_cost",0),
+         data.get("currency","CNY"), data.get("material_cost",0), data.get("labor_cost",0),
+         data.get("overhead_cost",0), data.get("effective_from",""), data.get("effective_to"))
+    )
+    cid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return cid
+
+
+# === Agent Profiles ===
+def get_agent_profiles(region_id=None):
+    conn = get_db()
+    if region_id:
+        rows = conn.execute(
+            "SELECT ap.*, r.name as region_name FROM agent_profiles ap LEFT JOIN regions r ON ap.region_id=r.id WHERE ap.region_id=? ORDER BY ap.sort_order",
+            (region_id,)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT ap.*, r.name as region_name FROM agent_profiles ap LEFT JOIN regions r ON ap.region_id=r.id ORDER BY ap.sort_order"
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_agent_profile(agent_id):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT ap.*, r.name as region_name FROM agent_profiles ap LEFT JOIN regions r ON ap.region_id=r.id WHERE ap.agent_id=?",
+        (agent_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_agent_profile(data):
+    import json
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO agent_profiles (agent_id, region_id, name, role, languages, pricing_multiplier, culture_context, sort_order)
+           VALUES (?,?,?,?,?,?,?,?)""",
+        (data.get("agent_id",""), data.get("region_id"), data.get("name",""),
+         data.get("role","sales"), json.dumps(data.get("languages",[])),
+         data.get("pricing_multiplier",1.0), data.get("culture_context",""), data.get("sort_order",0))
+    )
+    aid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return aid
+
+
+def update_agent_profile(aid, data):
+    import json
+    conn = get_db()
+    for k, v in data.items():
+        if k in ("name","role","culture_context","agent_id"):
+            conn.execute(f"UPDATE agent_profiles SET {k}=? WHERE id=?", (v, aid))
+        elif k == "languages":
+            conn.execute(f"UPDATE agent_profiles SET {k}=? WHERE id=?", (json.dumps(v), aid))
+        elif k in ("pricing_multiplier","sort_order","region_id"):
+            conn.execute(f"UPDATE agent_profiles SET {k}=? WHERE id=?", (v, aid))
+    conn.commit()
+    conn.close()
+
+
+# === Market Pricing ===
+def get_market_pricing(region_id=None):
+    conn = get_db()
+    if region_id:
+        rows = conn.execute(
+            "SELECT mp.*, r.name as region_name, r.code as region_code FROM market_pricing mp LEFT JOIN regions r ON mp.region_id=r.id WHERE mp.region_id=? ORDER BY mp.product_category",
+            (region_id,)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT mp.*, r.name as region_name, r.code as region_code FROM market_pricing mp LEFT JOIN regions r ON mp.region_id=r.id ORDER BY mp.region_id, mp.product_category"
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def upsert_market_pricing(data):
+    conn = get_db()
+    try:
+        conn.execute(
+            """INSERT INTO market_pricing (region_id, product_category, min_price, max_price, target_margin, min_margin, competitor_factor)
+               VALUES (?,?,?,?,?,?,?)
+               ON CONFLICT(region_id, product_category) DO UPDATE SET
+               min_price=?, max_price=?, target_margin=?, min_margin=?, competitor_factor=?""",
+            (data.get("region_id"), data.get("product_category",""),
+             data.get("min_price",0), data.get("max_price",0),
+             data.get("target_margin",0.5), data.get("min_margin",0.35),
+             data.get("competitor_factor",1.0),
+             data.get("min_price",0), data.get("max_price",0),
+             data.get("target_margin",0.5), data.get("min_margin",0.35),
+             data.get("competitor_factor",1.0))
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception:
+        conn.close()
+        return False
+
+
+# ==================== V6 — P&L Engine CRUD ====================
+
+def get_pl_accounts(active_only=True):
+    conn = get_db()
+    if active_only:
+        rows = conn.execute("SELECT * FROM pl_accounts WHERE is_active=1 ORDER BY sort_order, code").fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM pl_accounts ORDER BY sort_order, code").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_pl_account(account_id):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM pl_accounts WHERE id=?", (account_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_pl_account(data):
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO pl_accounts (code, name, type, category, description, sort_order)
+           VALUES (?,?,?,?,?,?)""",
+        (data.get("code"), data.get("name"), data.get("type"),
+         data.get("category", ""), data.get("description", ""), data.get("sort_order", 0))
+    )
+    aid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return aid
+
+
+def get_pl_periods():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM pl_periods ORDER BY start_date DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_pl_period(period_id):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM pl_periods WHERE id=?", (period_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_pl_period(data):
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO pl_periods (period_code, type, start_date, end_date, notes) VALUES (?,?,?,?,?)",
+        (data.get("period_code"), data.get("type"), data.get("start_date"),
+         data.get("end_date"), data.get("notes", ""))
+    )
+    pid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return pid
+
+
+def close_pl_period(period_id):
+    conn = get_db()
+    conn.execute("UPDATE pl_periods SET is_closed=1 WHERE id=?", (period_id,))
+    conn.commit()
+    conn.close()
+
+
+def add_pl_entry(data):
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO pl_entries (period_id, account_id, order_id, amount, entry_type, notes)
+           VALUES (?,?,?,?,?,?)""",
+        (data.get("period_id"), data.get("account_id"), data.get("order_id"),
+         data.get("amount", 0), data.get("entry_type", "actual"), data.get("notes", ""))
+    )
+    eid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return eid
+
+
+def get_pl_entries(period_id, account_id=None):
+    conn = get_db()
+    if account_id:
+        rows = conn.execute(
+            "SELECT pe.*, a.code as account_code, a.name as account_name, a.type as account_type, a.category as account_category "
+            "FROM pl_entries pe LEFT JOIN pl_accounts a ON pe.account_id=a.id "
+            "WHERE pe.period_id=? AND pe.account_id=? ORDER BY a.sort_order", (period_id, account_id)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT pe.*, a.code as account_code, a.name as account_name, a.type as account_type, a.category as account_category "
+            "FROM pl_entries pe LEFT JOIN pl_accounts a ON pe.account_id=a.id "
+            "WHERE pe.period_id=? ORDER BY a.sort_order", (period_id,)
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ==================== V6 — Invoice CRUD ====================
+
+def get_invoices(status=None, limit=50):
+    conn = get_db()
+    if status:
+        rows = conn.execute(
+            """SELECT i.*, c.name as customer_name, c.company as customer_company
+               FROM invoices i LEFT JOIN customers c ON i.customer_id=c.id
+               WHERE i.status=? ORDER BY i.created_at DESC LIMIT ?""",
+            (status, limit)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            """SELECT i.*, c.name as customer_name, c.company as customer_company
+               FROM invoices i LEFT JOIN customers c ON i.customer_id=c.id
+               ORDER BY i.created_at DESC LIMIT ?""",
+            (limit,)
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_invoice(invoice_id):
+    conn = get_db()
+    row = conn.execute(
+        """SELECT i.*, c.name as customer_name, c.company as customer_company, c.country as customer_country
+           FROM invoices i LEFT JOIN customers c ON i.customer_id=c.id
+           WHERE i.id=?""",
+        (invoice_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_invoice_by_no(invoice_no):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT i.*, c.name as customer_name FROM invoices i LEFT JOIN customers c ON i.customer_id=c.id WHERE i.invoice_no=?",
+        (invoice_no,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_invoice(data):
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO invoices (invoice_no, order_id, customer_id, issue_date, due_date,
+           total_amount, currency, status, notes, created_by)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (data.get("invoice_no"), data.get("order_id"), data.get("customer_id"),
+         data.get("issue_date"), data.get("due_date"), data.get("total_amount", 0),
+         data.get("currency", "USD"), data.get("status", "draft"),
+         data.get("notes", ""), data.get("created_by"))
+    )
+    iid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return iid
+
+
+def update_invoice(invoice_id, **kwargs):
+    allowed = ['status', 'pdf_path', 'notes', 'sent_at', 'paid_at', 'cancelled_at']
+    sets = []
+    vals = []
+    for k, v in kwargs.items():
+        if k in allowed:
+            sets.append(f"{k}=?")
+            vals.append(v)
+    if not sets:
+        return
+    conn = get_db()
+    conn.execute(f"UPDATE invoices SET {', '.join(sets)} WHERE id=?", (*vals, invoice_id))
+    conn.commit()
+    conn.close()
+
+
+def get_overdue_invoices():
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT i.*, c.name as customer_name, c.company as customer_company, c.whatsapp as customer_whatsapp
+           FROM invoices i LEFT JOIN customers c ON i.customer_id=c.id
+           WHERE i.status='sent' AND i.due_date < date('now')
+           ORDER BY i.due_date ASC"""
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_invoice_stats():
+    conn = get_db()
+    total = conn.execute("SELECT COUNT(*) FROM invoices").fetchone()[0]
+    by_status = dict(conn.execute(
+        "SELECT status, COUNT(*) as count FROM invoices GROUP BY status"
+    ).fetchall())
+    total_amount = conn.execute("SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE status NOT IN ('cancelled')").fetchone()[0]
+    paid_amount = conn.execute("SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE status='paid'").fetchone()[0]
+    overdue_amount = conn.execute("SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE status='overdue'").fetchone()[0]
+    conn.close()
+    return {
+        "total": total,
+        "by_status": by_status,
+        "total_amount": round(total_amount, 2),
+        "paid_amount": round(paid_amount, 2),
+        "overdue_amount": round(overdue_amount, 2),
+    }
+
+
+# ==================== V6 — Expense CRUD ====================
+
+def get_expenses(category=None, status=None, start_date=None, end_date=None, limit=50):
+    conn = get_db()
+    sql = """SELECT e.*, u.display_name as paid_by_name
+             FROM expenses e LEFT JOIN users u ON e.paid_by=u.id WHERE 1=1"""
+    params = []
+    if category:
+        sql += " AND e.category=?"
+        params.append(category)
+    if status:
+        sql += " AND e.status=?"
+        params.append(status)
+    if start_date:
+        sql += " AND e.expense_date>=?"
+        params.append(start_date)
+    if end_date:
+        sql += " AND e.expense_date<=?"
+        params.append(end_date)
+    sql += " ORDER BY e.expense_date DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_expense(eid):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM expenses WHERE id=?", (eid,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_expense(data):
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO expenses (category, amount, currency, expense_date, vendor, description, status, paid_by, notes, receipt_path)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (data.get("category"), data.get("amount", 0), data.get("currency", "USD"),
+         data.get("expense_date"), data.get("vendor", ""), data.get("description", ""),
+         data.get("status", "pending"), data.get("paid_by"), data.get("notes", ""),
+         data.get("receipt_path", ""))
+    )
+    eid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return eid
+
+
+def update_expense(eid, **kwargs):
+    allowed = ['status', 'approved_by', 'approved_at', 'notes', 'receipt_path']
+    sets = []
+    vals = []
+    for k, v in kwargs.items():
+        if k in allowed:
+            sets.append(f"{k}=?")
+            vals.append(v)
+    if not sets:
+        return
+    conn = get_db()
+    conn.execute(f"UPDATE expenses SET {', '.join(sets)} WHERE id=?", (*vals, eid))
+    conn.commit()
+    conn.close()
+
+
+def get_expense_summary(group_by="category", start_date=None, end_date=None):
+    conn = get_db()
+    sql = f"SELECT {group_by}, SUM(amount) as total, COUNT(*) as count FROM expenses WHERE status='approved'"
+    params = []
+    if start_date:
+        sql += " AND expense_date>=?"
+        params.append(start_date)
+    if end_date:
+        sql += " AND expense_date<=?"
+        params.append(end_date)
+    sql += f" GROUP BY {group_by} ORDER BY total DESC"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_expense_trend(months=6):
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT strftime('%Y-%m', expense_date) as month,
+                  SUM(amount) as total, COUNT(*) as count
+           FROM expenses WHERE status='approved'
+           AND expense_date >= date('now', ? || ' months')
+           GROUP BY strftime('%Y-%m', expense_date)
+           ORDER BY month""",
+        (f"-{months}",)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ==================== V6 — Budget CRUD ====================
+
+def get_budgets(period=None, category=None):
+    conn = get_db()
+    sql = "SELECT * FROM budgets WHERE 1=1"
+    params = []
+    if period:
+        sql += " AND period=?"
+        params.append(period)
+    if category:
+        sql += " AND category=?"
+        params.append(category)
+    sql += " ORDER BY category"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def set_budget(data):
+    conn = get_db()
+    try:
+        cur = conn.execute(
+            """INSERT INTO budgets (period, category, planned_amount, notes)
+               VALUES (?,?,?,?)
+               ON CONFLICT(period, category) DO UPDATE SET
+               planned_amount=?, notes=?, updated_at=CURRENT_TIMESTAMP""",
+            (data.get("period"), data.get("category"), data.get("amount", 0),
+             data.get("notes", ""), data.get("amount", 0), data.get("notes", ""))
+        )
+        bid = cur.lastrowid
+        conn.commit()
+        conn.close()
+        return bid
+    except Exception:
+        conn.close()
+        return None
+
+
+def delete_budget(bid):
+    conn = get_db()
+    conn.execute("DELETE FROM budgets WHERE id=?", (bid,))
+    conn.commit()
+    conn.close()
