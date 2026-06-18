@@ -144,6 +144,19 @@ def api_logged_in():
         return jsonify({"logged_in": False})
 
 
+@app.route("/qr")
+def api_qr():
+    """获取 WhatsApp 二维码（base64 PNG）+ 登录状态"""
+    if not _engine_started:
+        return jsonify({"qr": None, "logged_in": False})
+    try:
+        qr = wa.get_qr_base64()
+        logged_in = wa.is_logged_in()
+        return jsonify({"qr": qr, "logged_in": logged_in})
+    except Exception as e:
+        return jsonify({"qr": None, "logged_in": False, "error": str(e)})
+
+
 @app.route("/unread")
 def api_unread():
     """获取未读聊天列表"""

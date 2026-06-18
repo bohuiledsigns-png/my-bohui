@@ -47,13 +47,25 @@ from ai_engine import translate, generate_image, generate_video, VIDEO_PRESETS, 
 from ai_engine import get_country_context, generate_customized_script, search_industry_knowledge, analyze_chat_history, parse_whatsapp_export, analyze_product_image
 from ai_engine import generate_video_from_image, generate_image_volc, ask_ali, get_ai_greeting, get_ai_followup_message, clear_knowledge_base_cache
 from catalog_generator import generate_catalog
-from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server
+from scripts.generate_product_catalog import generate_product_catalog
+from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server, get_qr_base64
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "glowforge-crm-2026-secret-key-change-in-production")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# 自动连接独立 WhatsApp 服务（gunicorn 模式也适用）
+def _auto_connect_wa():
+    import urllib.request, json as _j
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:15789/health", timeout=2) as r:
+            if _j.loads(r.read().decode()).get("ok"):
+                set_remote_server("http://127.0.0.1:15789")
+    except:
+        pass
+threading.Thread(target=_auto_connect_wa, daemon=True).start()
 
 # ========= AI 风格学习 =========
 # 你手动发的消息会被保存下来，AI 学习你的语气
@@ -981,6 +993,66 @@ def api_whatsapp_refresh():
     """手动刷新 WhatsApp Web 页面（二维码过期时用）"""
     ok = refresh_whatsapp_page()
     return jsonify({"ok": ok, "msg": "刷新成功" if ok else "刷新失败"})
+
+
+@app.route("/api/whatsapp-qr")
+def api_whatsapp_qr():
+    """获取 WhatsApp 登录二维码 + 登录状态"""
+    qr = get_qr_base64()
+    logged_in = is_logged_in()
+    return jsonify({"qr": qr, "logged_in": logged_in})
+
+
+@app.route("/whatsapp-login")
+def whatsapp_login_page():
+    """WhatsApp 二维码扫码页面（云端用）"""
+    return """<!DOCTYPE html><html lang=zh><head>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>WhatsApp 登录</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:20px}
+h2{color:#00e676}
+#qrBox{background:#fff;border-radius:16px;padding:16px;display:flex;align-items:center;justify-content:center;max-width:90vw;min-height:300px}
+#qrBox img{max-width:100%;max-height:70vh;height:auto;display:block;object-fit:contain;border-radius:8px}
+#qrBox .loading{color:#666;font-size:14px}
+.status{font-size:14px;color:#aaa}
+.btn{background:#00e676;color:#000;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer}
+.btn:hover{background:#00c853}
+.hint{font-size:13px;color:#888;text-align:center;max-width:400px;line-height:1.6}
+</style></head><body>
+<h2>🔐 WhatsApp Web 登录</h2>
+<div id=qrBox><div class=loading>正在加载二维码...</div></div>
+<div class=status id=status>等待扫码...</div>
+<button class=btn onclick=refreshQR()>刷新二维码</button>
+<div class=hint>请用手机 WhatsApp 扫描上方二维码<br>二维码每30秒自动刷新</div>
+<script>
+let lastQR=""
+async function refreshQR(){
+  try{
+    const r=await fetch('/api/whatsapp-qr')
+    const d=await r.json()
+    if(d.logged_in){
+      document.getElementById('qrBox').innerHTML='<div class=loading>✅ 已登录</div>'
+      document.getElementById('status').textContent='✅ 已登录'
+      document.getElementById('status').style.color='#00e676'
+      lastQR=""
+      return
+    }
+    if(d.qr){
+      document.getElementById('qrBox').innerHTML='<img src="data:image/png;base64,'+d.qr+'">'
+      document.getElementById('status').textContent='📱 请用手机扫描二维码'
+      lastQR=d.qr
+    }else if(!lastQR){
+      document.getElementById('qrBox').innerHTML='<div class=loading>等待 WhatsApp 生成二维码...</div>'
+    }
+  }catch(e){
+    document.getElementById('status').textContent='❌ 连接失败: '+e.message
+  }
+}
+refreshQR()
+setInterval(refreshQR,5000)
+</script></body></html>"""
 
 
 # ========= WhatsApp 24×7自动监控 =========
@@ -3868,6 +3940,18 @@ def api_reload_knowledge_base():
     """重新加载销售知识库"""
     clear_knowledge_base_cache()
     return jsonify({"ok": True, "message": "知识库已重新加载"})
+
+
+@app.route("/api/regenerate-catalog", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_regenerate_catalog():
+    """从数据库重新生成产品目录 → knowledge/prod_产品目录.txt"""
+    try:
+        path = generate_product_catalog()
+        return jsonify({"ok": True, "path": path, "message": "产品目录已重新生成"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/ai/greeting", methods=["POST"])

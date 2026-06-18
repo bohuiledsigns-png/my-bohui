@@ -5,6 +5,7 @@
 """
 import os
 import re
+import sys
 import uuid
 import time
 import random
@@ -441,22 +442,20 @@ async def _engine_main_launch():
     from playwright.async_api import async_playwright
 
     while _running.is_set():
-        # 清掉上次残留的配置（如果有）
-        try:
-            import shutil
-            if os.path.exists(PROFILE_DIR):
-                shutil.rmtree(PROFILE_DIR, ignore_errors=True)
-        except:
-            pass
+        # 只在首次启动时创建目录，不删除已有 profile（保持登录状态）
         os.makedirs(PROFILE_DIR, exist_ok=True)
         _log(f"[Engine] 启动 Chrome (launch_persistent_context, profile={PROFILE_DIR})")
+
+        # 重置就绪信号 — 直到新 page 可用前，get_qr_base64 会等待
+        _page_ready.clear()
+        _page = None
 
         try:
             async with async_playwright() as p:
                 context = await p.chromium.launch_persistent_context(
                     PROFILE_DIR,
-                    headless=False,
-                    channel="chrome",
+                    headless=sys.platform.startswith("linux"),
+                    channel="chromium",
                     no_viewport=True,
                     args=[
                         "--start-maximized",
@@ -847,3 +846,84 @@ def paste_text(text):
 
 def find_input_box():
     return (0, 0)
+
+
+# ========= QR Code screenshot for cloud login =========
+import base64
+
+
+async def _capture_qr():
+    """截取 WhatsApp 页面中的二维码区域（全屏截图，由调用方保证 page 就绪）"""
+    if _page is None:
+        return None
+    try:
+        # 确保有合理的视口大小，让 QR 码居中显示
+        await _page.set_viewport_size({"width": 700, "height": 900})
+
+        # 等一小会让 QR 渲染
+        await asyncio.sleep(3)
+
+        # 先尝试用 JS 精确定位 QR 码 canvas
+        info = await _page.evaluate("""
+            () => {
+                const canvases = document.querySelectorAll('canvas');
+                for (const c of canvases) {
+                    if (c.width > 100 && c.height > 100) {
+                        const r = c.getBoundingClientRect();
+                        if (r.width > 100 && r.height > 100) {
+                            return {x: r.x, y: r.y, w: r.width, h: r.height};
+                        }
+                    }
+                }
+                return null;
+            }
+        """)
+
+        if info and info["w"] > 50:
+            pad = 20
+            clip = {
+                "x": max(0, info["x"] - pad),
+                "y": max(0, info["y"] - pad),
+                "width": info["w"] + pad * 2,
+                "height": info["h"] + pad * 2,
+            }
+            shot = await _page.screenshot(clip=clip, type='png')
+            _log(f"[QR] 截取二维码区域 ({info['w']}x{info['h']})")
+            return base64.b64encode(shot).decode()
+
+        # 没找到 QR canvas → 全屏截图（headless 下 QR 一般在中央）
+        shot = await _page.screenshot(type='png', full_page=False)
+        _log(f"[QR] 未找到canvas，全屏截图 ({len(shot)} bytes)")
+        return base64.b64encode(shot).decode()
+    except Exception as e:
+        _log(f"[QR] Capture error: {e}")
+        return None
+
+
+def get_qr_base64():
+    """同步获取 QR 码截图（Flask 调用）"""
+    if _is_remote():
+        try:
+            return _remote_get("qr", timeout=15).get("qr")
+        except:
+            return None
+    if not _running.is_set():
+        return None
+    # 等待页面就绪（最多 45 秒，覆盖引擎首次启动 + 重启）
+    if not _page_ready.wait(timeout=45):
+        _log("[QR] 等待 page_ready 超时")
+        return None
+    if _page is None:
+        _log("[QR] page_ready 已触发但 _page 仍为 None")
+        return None
+    import asyncio
+    try:
+        loop = _loop
+        if loop is None or not loop.is_running():
+            _log("[QR] 事件循环不可用")
+            return None
+        future = asyncio.run_coroutine_threadsafe(_capture_qr(), loop)
+        return future.result(timeout=15)
+    except Exception as e:
+        print(f"[QR] get_qr_base64 error: {e}")
+        return None

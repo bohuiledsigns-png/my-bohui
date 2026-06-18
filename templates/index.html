@@ -185,6 +185,10 @@ td .status{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11
 .fa-lg{font-size:18px}
 .fa-sm{font-size:11px}
 .nav-item .fas{width:20px;text-align:center;font-size:15px}
+
+.nav{overflow-y:auto;overflow-x:hidden;padding:6px 0}
+.nav::-webkit-scrollbar{width:3px}
+.nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .btn .fas{font-size:13px}
 .btn-sm .fas{font-size:11px}
 .stat-card .fas{font-size:16px;color:var(--cyan);margin-right:4px}
@@ -868,10 +872,11 @@ function detailNewQuote() {
     <div class="nav-item" data-page="chat"><i class="fas fa-comment-dots"></i> 消息中心</div>
     <div class="nav-item" data-page="media"><i class="fas fa-folder"></i> 文件库</div>
     <div class="nav-item" data-page="products"><i class="fas fa-cube"></i> 产品</div>
+    <div class="nav-item" data-page="catalog"><i class="fas fa-book"></i> 产品目录</div>
     <div class="nav-item" data-page="calc"><i class="fas fa-calculator"></i> 报价计算</div>
     <div class="nav-item" data-page="quotes"><i class="fas fa-file-invoice-dollar"></i> 报价管理</div>
     <div class="nav-item" data-page="orders"><i class="fas fa-box"></i> 订单管理</div>
-<div class="nav-item" data-page="order-stats"><i class="fas fa-chart-bar"></i> 订单统计</div>
+    <div class="nav-item" data-page="order-stats"><i class="fas fa-chart-bar"></i> 订单统计</div>
     <div class="nav-item" data-page="lead-analytics"><i class="fas fa-bullseye"></i> 获客分析</div>
     <div class="nav-item" data-page="ar-dashboard"><i class="fas fa-hand-holding-usd"></i> 应收账款</div>
     <div class="nav-item" data-page="commission"><i class="fas fa-percent"></i> 销售提成</div>
@@ -879,7 +884,6 @@ function detailNewQuote() {
     <div class="nav-item" data-page="inventory"><i class="fas fa-warehouse"></i> 库存管理</div>
     <div class="nav-item" data-page="partners"><i class="fas fa-handshake"></i> 合作方</div>
     <div class="nav-item" data-page="purchase-orders"><i class="fas fa-clipboard-list"></i> 采购订单</div>
-    <div class="nav-item" data-page="catalog"><i class="fas fa-book"></i> 产品目录</div>
     <div class="nav-item" data-page="email"><i class="fas fa-envelope"></i> 邮件</div>
     <div class="nav-item" data-page="ai"><i class="fas fa-robot"></i> AI工具</div>
     <div class="nav-item" data-page="prompts"><i class="fas fa-book"></i> 提示词库</div>
@@ -8156,7 +8160,7 @@ async function loadMediaTags() {
     if (filterBar) {
       filterBar.innerHTML = '<button class="btn btn-xs" style="border-color:var(--cyan);color:var(--cyan)" onclick="filterMediaByTag(\'\',this)" data-tag="">全部</button>' +
         tags.map(function(t) {
-          return '<button class="btn btn-xs" style="border-color:' + (t.color || "#00f2ff") + ";color:" + (t.color || "#00f2ff") + "" onclick=\"filterMediaByTag(" + t.id + ",this)\" data-tag=\"" + t.id + "\">" + esc(t.name) + "</button>";
+          return '<button class="btn btn-xs" style="border-color:' + (t.color || "#00f2ff") + ";color:" + (t.color || "#00f2ff") + '" onclick="filterMediaByTag(' + t.id + ',this)" data-tag="' + t.id + '">' + esc(t.name) + '</button>';
         }).join("");
     }
     // Upload tag selection
@@ -10930,6 +10934,7 @@ calcInit();
 <!-- WhatsApp活动通知容器 -->
 <div class="wa-toast-container" id="waToastContainer"></div>
 
+<script>
 // ================= 跟进提醒 (Follow-up Reminder) =================
 var _fuModalCid = null;
 var _fuModalType = null;
@@ -11516,7 +11521,7 @@ async function loadActivityLogs() {
 }
 
 // (activity-logs nav handled by the generic nav click handler above)
-});
+</script>
 
 </body>
 </html>
