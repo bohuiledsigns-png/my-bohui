@@ -16,6 +16,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .sidebar .logo{padding:0 20px 20px;font-weight:700;font-size:16px;color:var(--cyan);border-bottom:1px solid var(--border);text-shadow:0 0 20px var(--cyan-glow)}
 .sidebar .logo small{display:block;font-size:10px;color:var(--gold);font-weight:400;text-shadow:none}
 .nav{padding:10px 0;flex:1}
+.nav-section{padding:14px 20px 2px;font-size:10px;text-transform:uppercase;color:var(--gold);font-weight:700;letter-spacing:1.5px;border-top:1px solid rgba(212,175,55,0.15);margin-top:6px}
 .nav-item{padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);transition:all 0.25s ease;border-left:3px solid transparent;position:relative}
 .nav-item:hover{color:var(--text-bright);background:rgba(255,255,255,0.04);border-left-color:rgba(0,242,255,0.3)}
 .nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:rgba(0,242,255,0.06);text-shadow:0 0 12px var(--cyan-glow)}
@@ -48,6 +49,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .btn:active{transform:scale(0.95)}
 .btn-primary{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000;box-shadow:0 2px 8px rgba(0,242,255,0.15)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,242,255,0.3)}
+.btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.2)}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(34,197,94,0.3)}
 .btn-xs{padding:4px 10px;font-size:11px;border-radius:6px}
 .data-table{border-collapse:collapse}
 .data-table th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap}
@@ -879,20 +882,36 @@ function detailNewQuote() {
     <div class="nav-item" data-page="order-stats"><i class="fas fa-chart-bar"></i> 订单统计</div>
     <div class="nav-item" data-page="lead-analytics"><i class="fas fa-bullseye"></i> 获客分析</div>
     <div class="nav-item" data-page="campaigns"><i class="fas fa-bullhorn"></i> 活动管理</div>
-    <div style="padding:8px 20px 2px;font-size:9px;text-transform:uppercase;color:var(--cyan);font-weight:700;letter-spacing:1px">V5 全球收入OS</div>
+    <div class="nav-section">V5 全球收入OS</div>
     <div class="nav-item" data-page="v5-regions"><i class="fas fa-globe"></i> 区域概览</div>
     <div class="nav-item" data-page="v5-agents"><i class="fas fa-users-gear"></i> 销售团队</div>
     <div class="nav-item" data-page="v5-factories"><i class="fas fa-industry"></i> 工厂管理</div>
     <div class="nav-item" data-page="v5-pricing"><i class="fas fa-tags"></i> 市场定价</div>
     <div class="nav-item" data-page="v5-leads"><i class="fas fa-route"></i> 全球路由</div>
     <div class="nav-item" data-page="v5-dashboard"><i class="fas fa-chart-line"></i> 全球仪表盘</div>
-    <div style="padding:8px 20px 2px;font-size:9px;text-transform:uppercase;color:var(--gold);font-weight:700;letter-spacing:1px">V6 财务智能OS</div>
+    <div class="nav-section">V6 财务智能OS</div>
     <div class="nav-item" data-page="v6-pl"><i class="fas fa-file-invoice-dollar"></i> 损益表</div>
     <div class="nav-item" data-page="v6-invoices"><i class="fas fa-receipt"></i> 发票管理</div>
     <div class="nav-item" data-page="v6-expenses"><i class="fas fa-money-bill-wave"></i> 费用管理</div>
     <div class="nav-item" data-page="v6-budgets"><i class="fas fa-chart-pie"></i> 预算控制</div>
     <div class="nav-item" data-page="v6-cashflow"><i class="fas fa-water"></i> 现金流</div>
     <div class="nav-item" data-page="v6-exec"><i class="fas fa-gauge-high"></i> CEO仪表盘</div>
+    <div class="nav-section">V7 AI 进化</div>
+    <div class="nav-item" data-page="v7-testcenter"><i class="fas fa-flask"></i> AI 测试中心</div>
+    <div class="nav-item" data-page="v7-evolution"><i class="fas fa-brain"></i> AI 进化管理</div>
+    <div class="nav-section">📹 视频发布管理</div>
+    <div class="nav-item" data-page="pub-dashboard"><i class="fas fa-chart-simple"></i> 发布仪表盘</div>
+    <div class="nav-item" data-page="pub-accounts"><i class="fas fa-link"></i> 平台账号</div>
+    <div class="nav-item" data-page="pub-schedule"><i class="fas fa-calendar-days"></i> 发布计划</div>
+    <div class="nav-item" data-page="pub-content"><i class="fas fa-video"></i> 内容管理</div>
+    <div class="nav-item" data-page="pub-analytics"><i class="fas fa-chart-line"></i> 数据分析</div>
+    <div class="nav-item" data-page="pub-comments"><i class="fas fa-comments"></i> 评论管理</div>
+    <div class="nav-item" data-page="pub-reports"><i class="fas fa-file-lines"></i> 报告</div>
+    <div class="nav-section">V3 自优化销售</div>
+    <div class="nav-item" data-page="v3-dashboard"><i class="fas fa-chart-simple"></i> 优化仪表盘</div>
+    <div class="nav-item" data-page="v3-abtest"><i class="fas fa-flask"></i> A/B 测试</div>
+    <div class="nav-item" data-page="v3-price"><i class="fas fa-tag"></i> 价格优化</div>
+    <div class="nav-item" data-page="v3-deal"><i class="fas fa-search-plus"></i> 成交分析</div>
     <div class="nav-item" data-page="ar-dashboard"><i class="fas fa-hand-holding-usd"></i> 应收账款</div>
     <div class="nav-item" data-page="commission"><i class="fas fa-percent"></i> 销售提成</div>
     <div class="nav-item" data-page="production"><i class="fas fa-industry"></i> 生产排期</div>
@@ -1076,8 +1095,21 @@ function detailNewQuote() {
           <div class="chat-header" id="chatHeader">选择一位客户开始沟通</div>
           <div class="chat-msgs" id="chatMsgList"></div>
           <div class="chat-input-wrap" id="chatInputArea" style="display:none">
-            <div id="chatHelpBar" style="font-size:11px;color:var(--muted);padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(0,242,255,0.03);display:flex;align-items:center;gap:6px">
-              <i class="fas fa-info-circle" style="color:var(--cyan)"></i> 打中文 → 自动翻译成英文发送给客户 · 客户英文消息自动显示中文翻译
+            <div id="chatLangBar" style="display:flex;align-items:center;gap:6px;padding:4px 12px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.15)">
+              <i class="fas fa-globe" style="color:var(--cyan);font-size:13px"></i>
+              <select id="chatLang" style="background:#090b14;border:1px solid var(--border);border-radius:6px;color:#e8e8ed;padding:3px 8px;font-size:12px;outline:none;cursor:pointer">
+                <option value="English">英文</option>
+                <option value="Arabic">阿拉伯语</option>
+                <option value="French">法语</option>
+                <option value="German">德语</option>
+                <option value="Spanish">西班牙语</option>
+                <option value="Portuguese">葡萄牙语</option>
+                <option value="Russian">俄语</option>
+                <option value="Japanese">日语</option>
+                <option value="Korean">韩语</option>
+                <option value="Italian">意大利语</option>
+              </select>
+              <span style="font-size:11px;color:var(--muted)"><i class="far fa-keyboard"></i> 输入中文 → 自动翻译</span>
             </div>
             <textarea id="chatInput" placeholder="在此输入中文，系统自动翻译成英文发送..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doChatSend()}"></textarea>
             <div id="chatPreview" style="display:none;flex:1;background:#000;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--gold);overflow-y:auto;max-height:40px"></div>
@@ -1095,11 +1127,17 @@ function detailNewQuote() {
           <button class="btn btn-primary" onclick="showUploadDialog()"><i class="fas fa-cloud-arrow-up"></i> 上传</button>
         </div>
       </div>
-      <div class="media-tab-bar">
-        <button class="active" onclick="switchMediaTab('all',this)">全部</button>
-        <button onclick="switchMediaTab('image',this)"><i class="fas fa-image"></i> 图片</button>
-        <button onclick="switchMediaTab('video',this)"><i class="fas fa-video"></i> 视频</button>
-        <button onclick="switchMediaTab('document',this)"><i class="fas fa-file-lines"></i> 文档</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="position:relative;flex:1;min-width:200px;max-width:360px">
+          <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none"></i>
+          <input id="mediaSearchInput" placeholder="搜索文件名、描述..." oninput="filterMedia()" style="width:100%;padding:7px 12px 7px 30px;background:#090b14;border:1px solid var(--border);border-radius:8px;color:#e8e8ed;font-size:12px;outline:none">
+        </div>
+        <div class="media-tab-bar" style="margin-bottom:0">
+          <button class="active" onclick="switchMediaTab('all',this)">全部</button>
+          <button onclick="switchMediaTab('image',this)"><i class="fas fa-image"></i> 图片</button>
+          <button onclick="switchMediaTab('video',this)"><i class="fas fa-video"></i> 视频</button>
+          <button onclick="switchMediaTab('document',this)"><i class="fas fa-file-lines"></i> 文档</button>
+        </div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;margin-bottom:8px" id="mediaTagFilter"></div>
       <div class="media-grid" id="mediaGrid"></div>
@@ -1886,6 +1924,97 @@ function detailNewQuote() {
           <button class="btn btn-ghost" id="promptTabVideo" onclick="switchPromptTab('video')"><i class="fas fa-video"></i> 视频提示词</button>
         </div>
 
+        <!-- AI 从客户需求生成提示词 -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:13px;font-weight:600;color:var(--gold)"><i class="fas fa-wand-magic-sparkles"></i> 从客户需求生成提示词</span>
+            <span style="font-size:11px;color:var(--muted)">输入客户信息 → AI生成招牌效果图提示词</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">客户行业</label>
+              <input id="req_industry" placeholder="如：餐厅、奶茶店、美容院" style="width:100%;padding:7px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">招牌文字 <span style="color:var(--pink)">*</span></label>
+              <input id="req_sign_text" placeholder="如：WARM & COZY" style="width:100%;padding:7px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px">
+            </div>
+            <div style="grid-column:1/2">
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">材质偏好</label>
+              <select id="req_material" style="width:100%;padding:7px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px">
+                <option value="">自动推荐</option>
+                <option value="不锈钢烤漆发光字">不锈钢烤漆发光字</option>
+                <option value="亚克力发光字">亚克力发光字</option>
+                <option value="炫彩发光字">炫彩发光字 (GLOWFORGE)</option>
+                <option value="铝板烤漆发光字">铝板烤漆发光字</option>
+                <option value="铁皮烤漆发光字">铁皮烤漆发光字</option>
+                <option value="迷你发光字">迷你发光字</option>
+              </select>
+            </div>
+            <div style="grid-column:2/3">
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">场景类型</label>
+              <select id="req_scene" style="width:100%;padding:7px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px">
+                <option value="studio">工作室白底</option>
+                <option value="storefront_night">门头实景 · 夜晚</option>
+                <option value="storefront_day">门头实景 · 白天</option>
+                <option value="indoor">室内效果</option>
+                <option value="street">街景远景</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">参考描述（可选）</label>
+              <textarea id="req_reference" placeholder="风格说明、图案描述、参考图内容……" style="width:100%;padding:7px 10px;background:#000;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;min-height:70px;resize:vertical"></textarea>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">上传图片/矢量图（可选）</label>
+              <div id="fileDropZone" style="border:1px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:0.2s;height:70px;display:flex;flex-direction:column;justify-content:center;align-items:center" onclick="document.getElementById('reqFileInput').click()"
+                   ondragover="this.style.borderColor='var(--cyan)';event.preventDefault()"
+                   ondragleave="this.style.borderColor='var(--border)'"
+                   ondrop="handleFileDrop(event)">
+                <i class="fas fa-cloud-upload-alt" style="font-size:18px;color:var(--muted);margin-bottom:4px"></i>
+                <span id="fileDropText" style="font-size:11px;color:var(--muted)">点击或拖入图片 / AI / SVG 矢量图</span>
+              </div>
+              <input id="reqFileInput" type="file" accept="image/*,.svg,.ai,.eps" style="display:none" onchange="handleFileSelect(event)">
+              <div id="filePreview" style="display:none;margin-top:6px;position:relative">
+                <img id="filePreviewImg" style="max-height:60px;border-radius:6px;border:1px solid var(--border)">
+                <span id="filePreviewName" style="font-size:10px;color:var(--muted);margin-left:6px"></span>
+                <button style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--pink);color:#fff;font-size:10px;cursor:pointer;line-height:18px;text-align:center" onclick="clearFileInput()">×</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-primary" onclick="generateFromRequirements()"><i class="fas fa-wand-magic-sparkles"></i> AI 生成提示词</button>
+            <button class="btn btn-ghost" onclick="generateFromRequirements(true)" style="font-size:12px"><i class="fas fa-image"></i> 生成 + 出图预览</button>
+            <span id="genStatus" style="font-size:11px;color:var(--muted);margin-left:8px"></span>
+          </div>
+          <!-- 生成结果 -->
+          <div id="genResult" style="display:none;margin-top:12px;padding:12px;background:#000;border:1px solid var(--border);border-radius:8px">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+              <div>
+                <span id="genTitle" style="font-weight:600;font-size:13px;color:var(--cyan)"></span>
+                <span id="genMaterial" style="font-size:11px;color:var(--gold);margin-left:8px"></span>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-sm btn-ghost" onclick="copyGenResult()"><i class="fas fa-copy"></i> 复制</button>
+                <button class="btn btn-sm btn-primary" onclick="saveGeneratedPrompt()"><i class="fas fa-save"></i> 保存到提示词库</button>
+                <button class="btn btn-sm btn-success" id="saveProductBtn" style="display:none" onclick="saveToProductLibrary()"><i class="fas fa-box"></i> 保存到产品库</button>
+              </div>
+            </div>
+            <div id="genPromptText" style="font-size:12px;color:#ccc;line-height:1.7;white-space:pre-wrap"></div>
+            <div id="genVariants" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">变体方案：</div>
+              <div id="genVariantsList" style="font-size:12px;color:#aaa;line-height:1.6"></div>
+            </div>
+            <!-- 出图预览 -->
+            <div id="genImagePreview" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+              <img id="genImageTag" style="max-width:100%;max-height:400px;border-radius:8px;border:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--muted);margin-top:4px">AI 效果预览（豆包Seedream生成）</div>
+            </div>
+          </div>
+        </div>
+
         <div style="display:flex;gap:12px;flex-wrap:wrap" id="promptGrid"></div>
         <div id="promptEmpty" style="display:none;text-align:center;padding:40px;color:var(--muted)">暂无提示词，点击「新建提示词」创建</div>
       </div>
@@ -2082,6 +2211,12 @@ function detailNewQuote() {
           <button data-qstatus="accepted" onclick="switchQuoteTab('accepted',this)">已接受</button>
           <button data-qstatus="rejected" onclick="switchQuoteTab('rejected',this)">已拒绝</button>
           <button data-qstatus="expired" onclick="switchQuoteTab('expired',this)">已过期</button>
+        </div>
+
+        <!-- 用户筛选 -->
+        <div id="quoteUserFilter" style="display:none;margin-bottom:12px">
+          <button class="btn btn-sm active" id="quoteFilterMine" onclick="setQuoteUserFilter('mine')" style="background:var(--cyan);color:#000;border:none;padding:4px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">我的报价</button>
+          <button class="btn btn-sm" id="quoteFilterAll" onclick="setQuoteUserFilter('all')" style="background:rgba(255,255,255,0.08);color:var(--text);border:1px solid rgba(255,255,255,0.15);padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer">全部报价</button>
         </div>
 
         <!-- 报价列表 -->
@@ -2630,8 +2765,36 @@ function detailNewQuote() {
     <!-- Stats Cards -->
     <div class="stats-grid" style="margin-bottom:24px">
       <div class="stat-card"><div class="num" id="laMonthNew">0</div><div class="label"><i class="fas fa-calendar-plus"></i> 本月新增</div></div>
-      <div class="stat-card"><div class="num" id="laSourceCount">0</div>
+      <div class="stat-card"><div class="num" id="laSourceCount">0</div><div class="label"><i class="fas fa-rss"></i> 来源渠道数</div></div>
+      <div class="stat-card"><div class="num" id="laConversionRate">0%</div><div class="label"><i class="fas fa-funnel-dollar"></i> 成交转化率</div></div>
+      <div class="stat-card"><div class="num" id="laUnassigned">0</div><div class="label"><i class="fas fa-user-slash"></i> 待分配</div></div>
+    </div>
 
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-chart-pie" style="color:var(--gold)"></i> 来源分布</h4>
+        <canvas id="chartLeadSource" height="200"></canvas>
+      </div>
+      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-funnel" style="color:var(--cyan)"></i> 潜客漏斗</h4>
+        <canvas id="chartLeadFunnel" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Country Distribution -->
+    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
+      <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-globe" style="color:var(--pink)"></i> 国家分布</h4>
+      <div style="overflow-x:auto">
+        <table class="data-table" style="width:100%;font-size:12px" id="laCountryTable">
+          <thead><tr><th>国家</th><th>潜客数</th><th>占比</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
 <!-- ======== 跟进提醒 ======== -->
 <div class="page" id="page-lead-followup">
   <div style="max-width:1300px;margin:0 auto">
@@ -2678,7 +2841,6 @@ function detailNewQuote() {
 
   </div>
 </div>
-
 <!-- 跟进消息弹窗 -->
 <div class="modal" id="fuMsgModal" style="display:none">
   <div class="modal-bg" onclick="closeModal('fuMsgModal')"></div>
@@ -2701,36 +2863,7 @@ function detailNewQuote() {
     </div>
   </div>
 </div>
-<div class="label"><i class="fas fa-rss"></i> 来源渠道数</div></div>
-      <div class="stat-card"><div class="num" id="laConversionRate">0%</div><div class="label"><i class="fas fa-funnel-dollar"></i> 成交转化率</div></div>
-      <div class="stat-card"><div class="num" id="laUnassigned">0</div><div class="label"><i class="fas fa-user-slash"></i> 待分配</div></div>
-    </div>
 
-    <!-- Charts Row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
-        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-chart-pie" style="color:var(--gold)"></i> 来源分布</h4>
-        <canvas id="chartLeadSource" height="200"></canvas>
-      </div>
-      <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
-        <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-funnel" style="color:var(--cyan)"></i> 潜客漏斗</h4>
-        <canvas id="chartLeadFunnel" height="200"></canvas>
-      </div>
-    </div>
-
-    <!-- Country Distribution -->
-    <div class="chart-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px">
-      <h4 style="font-size:14px;margin-bottom:12px;color:var(--text-bright)"><i class="fas fa-globe" style="color:var(--pink)"></i> 国家分布</h4>
-      <div style="overflow-x:auto">
-        <table class="data-table" style="width:100%;font-size:12px" id="laCountryTable">
-          <thead><tr><th>国家</th><th>潜客数</th><th>占比</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</div>
 
 <!-- ======== 活动管理 (V4) ======== -->
 <div class="page" id="page-campaigns">
@@ -3642,8 +3775,12 @@ function detailNewQuote() {
   <div class="modal-box">
     <h3><i class="fas fa-paper-plane"></i> 发送文件给客户</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px" id="sendFileInfo"></p>
-    <div class="form-group"><label>选择客户</label>
-      <select id="sendFileCustomer" style="width:100%;padding:8px 12px;background:#000;border:1px solid var(--border);border-radius:10px;color:#fff"></select>
+    <div class="form-group"><label>搜索客户</label>
+      <div style="position:relative">
+        <input id="sendFileCustomerInput" placeholder="输入客户名称搜索..." oninput="searchSendCustomers()" style="width:100%;padding:8px 12px;background:#000;border:1px solid var(--border);border-radius:10px;color:#fff;font-size:13px;outline:none">
+        <div id="sendFileCustomerResults" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a24;border:1px solid var(--border);border-radius:10px;max-height:200px;overflow-y:auto;z-index:50;margin-top:4px"></div>
+      </div>
+      <div id="sendFileSelected" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;font-size:12px;color:#22c55e"><i class="fas fa-check-circle"></i> 已选择: <span id="sendFileSelectedName"></span></div>
     </div>
     <div class="flex" style="justify-content:end">
       <button class="btn btn-ghost" onclick="closeModal('sendFileModal')">取消</button>
@@ -3947,6 +4084,90 @@ A premium illuminated channel letter sign..."></textarea>
   </div>
 </div>
 
+<!-- ======== V7: AI 测试中心 ======== -->
+<div class="page" id="page-v7-testcenter">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-flask"></i> V7 AI 测试中心</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV7TestCenter()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v7TestCenterContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V7: AI 进化管理 ======== -->
+<div class="page" id="page-v7-evolution">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-brain"></i> V7 AI 进化管理</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV7Evolution()"><i class="fas fa-sync"></i> 刷新</button>
+      </div>
+    </div>
+    <div id="v7EvolutionContent">
+      <div style="color:var(--muted);text-align:center;padding:40px">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== V3: 优化仪表盘 ======== -->
+<div class="page" id="page-v3-dashboard">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-chart-simple"></i> V3 自优化销售仪表盘</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV3Dashboard()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="runV3FullOptimize()"><i class="fas fa-rocket"></i> 运行完整优化</button>
+      </div>
+    </div>
+    <div id="v3DashboardContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V3: A/B 测试 ======== -->
+<div class="page" id="page-v3-abtest">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-flask"></i> V3 A/B 测试管理</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV3ABTest()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="runV3ABOptimize()"><i class="fas fa-chart-line"></i> 运行 A/B 优化</button>
+      </div>
+    </div>
+    <div id="v3ABTestContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V3: 价格优化 ======== -->
+<div class="page" id="page-v3-price">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-tag"></i> V3 价格优化</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV3Price()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="runV3PriceOptimize()"><i class="fas fa-calculator"></i> 运行价格优化</button>
+      </div>
+    </div>
+    <div id="v3PriceContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
+<!-- ======== V3: 成交分析 ======== -->
+<div class="page" id="page-v3-deal">
+  <div style="max-width:1300px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;color:var(--gold)"><i class="fas fa-search-plus"></i> V3 成交分析</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="loadV3DealAnalysis()"><i class="fas fa-sync"></i> 刷新</button>
+        <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="runV3BatchAnalysis()"><i class="fas fa-chart-bar"></i> 运行批量分析</button>
+      </div>
+    </div>
+    <div id="v3DealContent"><div style="color:var(--muted);text-align:center;padding:40px">加载中...</div></div>
+  </div>
+</div>
+
 <script>
 // ================= 数据 =================
 let customers = [];
@@ -3955,6 +4176,7 @@ let mediaFiles = [];
 let selectedCustomer = null;
 let lastAiImage = null;
 let selectedSendFile = null;
+let _sendFileCid = null;
 let _videoPollStart = 0;
 
 // ================= 页面切换 =================
@@ -3967,13 +4189,15 @@ document.querySelectorAll('.nav-item').forEach(item => {
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
               'cases-admin','qc-templates','users','reports','activity-logs',
-              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec'],
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec',
+              'pub-dashboard','pub-accounts','pub-schedule','pub-content','pub-analytics','pub-comments','pub-reports'],
       sales: ['dashboard','customers','leads','lead-followup','chat','media','products',
               'calc','quotes','orders','order-stats','lead-analytics','ar-dashboard',
               'commission','production','inventory','partners','purchase-orders',
               'catalog','email','ai','prompts','knowledge','scripts','countries',
               'reports','activity-logs',
-              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec'],
+              'v5-regions','v5-agents','v5-factories','v5-pricing','v5-leads','v5-dashboard','v6-pl','v6-invoices','v6-expenses','v6-budgets','v6-cashflow','v6-exec',
+              'pub-dashboard','pub-accounts','pub-schedule','pub-content','pub-analytics','pub-comments','pub-reports'],
       production: ['dashboard','orders','products','production','inventory',
               'activity-logs']
     };
@@ -4021,6 +4245,26 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'v6-budgets') loadV6Budgets();
     if (page === 'v6-cashflow') loadV6Cashflow();
     if (page === 'v6-exec') loadV6Exec();
+    if (page === 'v7-evolution') loadV7Evolution();
+    if (page === 'v7-testcenter') loadV7TestCenter();
+	    if (page === 'v3-dashboard') loadV3Dashboard();
+	    if (page === 'v3-abtest') loadV3ABTest();
+	    if (page === 'v3-price') loadV3Price();
+	    if (page === 'v3-deal') loadV3DealAnalysis();
+    // Publishing pages redirect to external Blueprint URLs
+    if (page.startsWith('pub-')) {
+      const pubPages = {
+        'pub-dashboard': '/publishing/dashboard',
+        'pub-accounts': '/publishing/accounts',
+        'pub-schedule': '/publishing/schedule',
+        'pub-content': '/publishing/content',
+        'pub-analytics': '/publishing/analytics',
+        'pub-comments': '/publishing/comments',
+        'pub-reports': '/publishing/reports'
+      };
+      window.location.href = pubPages[page] || '/publishing/dashboard';
+      return;
+    }
     if (page === 'chat') loadChat();
     if (page === 'media') { loadMedia('all'); loadMediaTags(); }
     if (page === 'products') loadProducts();
@@ -4084,6 +4328,8 @@ async function checkAuth() {
     _currentUser = user;
     document.getElementById('sidebarUser').textContent = user.display_name || user.username;
     document.getElementById('sidebarRole').textContent = ({admin:'管理员',sales:'销售',production:'生产'}[user.role] || user.role);
+    // 管理员显示报价用户筛选
+    document.getElementById('quoteUserFilter').style.display = user.role === 'admin' ? '' : 'none';
     hideLogin();
     // Role-based nav visibility (whitelist)
     var rolePages = {
@@ -4614,7 +4860,7 @@ async function doChatTranslate() {
   if (!text) return;
   document.getElementById('chatSendBtn').disabled = true;
   document.getElementById('chatSendBtn').innerHTML = '⏳';
-  const lang = customers.find(x => x.id === selectedCustomer)?.language || 'English';
+  const lang = document.getElementById('chatLang').value;
   const r = await api('/api/translate', {method:'POST', body:JSON.stringify({text, language: lang})});
   document.getElementById('chatSendBtn').disabled = false;
   document.getElementById('chatSendBtn').innerHTML = '<i class="fas fa-paper-plane"></i> 发送';
@@ -4664,6 +4910,32 @@ async function doChatSend() {
 }
 
 // ================= 文件库 =================
+function filterMedia() {
+  const q = document.getElementById('mediaSearchInput').value.toLowerCase().trim();
+  const grid = document.getElementById('mediaGrid');
+  const cards = grid.querySelectorAll('.media-card');
+  let shown = 0;
+  cards.forEach(card => {
+    const match = !q || card.textContent.toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) shown++;
+  });
+  const emptyMsg = grid.querySelector('.media-empty-search');
+  if (!q) {
+    if (emptyMsg) emptyMsg.remove();
+  } else if (shown === 0 && cards.length > 0) {
+    if (!emptyMsg) {
+      const msg = document.createElement('div');
+      msg.className = 'media-empty-search';
+      msg.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px';
+      msg.innerHTML = '<i class="fas fa-search"></i> 没有匹配的文件';
+      grid.appendChild(msg);
+    }
+  } else if (emptyMsg) {
+    emptyMsg.remove();
+  }
+}
+
 async function loadMedia(type) {
   _mediaTabType = type || _mediaTabType || 'all';
   const url = _mediaTabType === 'all' ? '/api/media' : `/api/media?type=${_mediaTabType}`;
@@ -4902,19 +5174,46 @@ function resetVideoSection() {
 
 
 // ================= 文件库 =================
+function searchSendCustomers() {
+  const q = document.getElementById('sendFileCustomerInput').value.toLowerCase().trim();
+  const results = document.getElementById('sendFileCustomerResults');
+  const match = customers.filter(c => (c.name || '').toLowerCase().includes(q) || (c.company || '').toLowerCase().includes(q));
+  if (!q || !match.length) {
+    results.style.display = 'none';
+    return;
+  }
+  results.style.display = 'block';
+  results.innerHTML = match.slice(0, 10).map(c =>
+    `<div onclick="selectSendCustomer(${c.id},'${escAttr(c.name)}${c.company ? ' (' + escAttr(c.company) + ')' : ''}')" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px;transition:0.1s" onmouseover="this.style.background='rgba(0,242,255,0.06)'" onmouseout="this.style.background=''">
+      <div style="font-weight:500;color:#e8e8ed">${esc(c.name)}</div>
+      <div style="font-size:11px;color:var(--muted)">${c.company || ''}${c.country ? ' · ' + esc(c.country) : ''}</div>
+    </div>`
+  ).join('');
+}
+
+function selectSendCustomer(cid, label) {
+  _sendFileCid = cid;
+  document.getElementById('sendFileCustomerInput').value = '';
+  document.getElementById('sendFileCustomerResults').style.display = 'none';
+  document.getElementById('sendFileSelected').style.display = 'block';
+  document.getElementById('sendFileSelectedName').textContent = label;
+}
+
 async function sendFileToCustomer(mid) {
   const f = mediaFiles.find(x => x.id === mid);
   if (!f) return;
+  _sendFileCid = null;
   selectedSendFile = f;
   document.getElementById('sendFileInfo').innerHTML = `文件: ${f.filename.replace(/^.{9}/,'')}`;
-  const sel = document.getElementById('sendFileCustomer');
-  sel.innerHTML = customers.map(c => `<option value="${c.id}">${c.name} (${c.company})</option>`).join('');
+  document.getElementById('sendFileCustomerInput').value = '';
+  document.getElementById('sendFileSelected').style.display = 'none';
+  document.getElementById('sendFileCustomerResults').style.display = 'none';
   document.getElementById('sendFileModal').classList.add('show');
 }
 
 async function doSendFileWhatsApp() {
-  const cid = document.getElementById('sendFileCustomer').value;
-  if (!cid) { alert('请选择客户'); return; }
+  const cid = _sendFileCid;
+  if (!cid) { alert('请先搜索并选择要发送的客户'); return; }
   const f = selectedSendFile;
   if (!f) return;
 
@@ -5425,6 +5724,233 @@ function copyPromptContent() {
   });
 }
 
+let _lastGenResult = null;
+let _lastGenImageUrl = '';
+let _uploadedFileData = null;
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+
+function handleFileDrop(e) {
+  e.preventDefault();
+  document.getElementById('fileDropZone').style.borderColor = 'var(--border)';
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    alert('文件太大，请压缩到 10MB 以内');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    _uploadedFileData = e.target.result; // data:... base64
+    document.getElementById('filePreview').style.display = 'flex';
+    document.getElementById('filePreviewImg').src = _uploadedFileData;
+    document.getElementById('filePreviewName').textContent = file.name;
+    document.getElementById('fileDropText').textContent = '已选择: ' + file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFileInput() {
+  _uploadedFileData = null;
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('reqFileInput').value = '';
+  document.getElementById('fileDropText').innerHTML = '<i class="fas fa-cloud-upload-alt" style="font-size:18px;color:var(--muted);margin-bottom:4px"></i><br><span style="font-size:11px;color:var(--muted)">点击或拖入图片 / AI / SVG 矢量图</span>';
+}
+
+async function generateFromRequirements(withPreview) {
+  const industry = document.getElementById('req_industry').value.trim();
+  const signText = document.getElementById('req_sign_text').value.trim();
+  const reference = document.getElementById('req_reference').value.trim();
+  const material = document.getElementById('req_material').value;
+  const scene = document.getElementById('req_scene').value;
+  const statusEl = document.getElementById('genStatus');
+  const resultEl = document.getElementById('genResult');
+
+  if (!signText && !reference && !_uploadedFileData) {
+    statusEl.textContent = '⚠️ 请至少提供招牌文字、参考描述或上传图片';
+    statusEl.style.color = 'var(--pink)';
+    return;
+  }
+
+  statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI 分析中...';
+  statusEl.style.color = 'var(--muted)';
+  resultEl.style.display = 'none';
+  _lastGenResult = null;
+
+  try {
+    const body = { industry, sign_text:signText, reference, material, scene, preview:!!withPreview, image_engine:'volc' };
+    if (_uploadedFileData) {
+      body.image_data = _uploadedFileData;
+    }
+    const r = await api('/api/prompts/generate-from-requirements', {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    if (r.error) { statusEl.textContent = '❌ ' + r.error; statusEl.style.color = 'var(--pink)'; return; }
+
+    const data = r.result;
+    _lastGenResult = data;
+    statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e"></i> 生成完成';
+    statusEl.style.color = 'var(--muted)';
+
+    document.getElementById('genTitle').textContent = data.title || '招牌效果图提示词';
+    document.getElementById('genMaterial').textContent = data.suggested_material || '';
+    document.getElementById('genPromptText').textContent = data.prompt || '';
+
+    if (data.variants && data.variants.length > 0) {
+      document.getElementById('genVariants').style.display = 'block';
+      document.getElementById('genVariantsList').innerHTML = data.variants.map((v,i) =>
+        `<div style="margin-bottom:4px"><span style="color:var(--gold)">变体${i+1}:</span> ${v}</div>`
+      ).join('');
+    } else {
+      document.getElementById('genVariants').style.display = 'none';
+    }
+
+    const previewEl = document.getElementById('genImagePreview');
+    const imgTag = document.getElementById('genImageTag');
+    _lastGenImageUrl = r.image_url || '';
+    if (r.image_url) {
+      previewEl.style.display = 'block';
+      imgTag.src = r.image_url;
+      document.getElementById('saveProductBtn').style.display = 'inline-flex';
+    } else {
+      previewEl.style.display = 'none';
+      document.getElementById('saveProductBtn').style.display = 'none';
+    }
+
+    resultEl.style.display = 'block';
+  } catch(e) {
+    statusEl.textContent = '❌ 生成失败: ' + e.message;
+    statusEl.style.color = 'var(--pink)';
+  }
+}
+
+function copyGenResult() {
+  const text = document.getElementById('genPromptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('<i class="fas fa-check-circle" style="color:#22c55e"></i> 提示词已复制');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('提示词已复制');
+  });
+}
+
+async function saveGeneratedPrompt() {
+  if (!_lastGenResult) { alert('没有可保存的提示词'); return; }
+  const title = _lastGenResult.title || 'AI生成招牌提示词';
+  const prompt = _lastGenResult.prompt || '';
+  const variants = (_lastGenResult.variants || []).join('\n---\n');
+  const material = _lastGenResult.suggested_material || '';
+  const name = title.replace(/[^a-zA-Z0-9一-鿿_-]/g, '_').substring(0, 40) + '.txt';
+  const content = title + '\n' +
+    (material ? '类别: ' + material + '\n' : '') +
+    '来源: AI生成\n\n' +
+    prompt +
+    (variants ? '\n\n--- 变体 ---\n' + variants : '');
+
+  try {
+    const r = await api('/api/prompts', {
+      method: 'POST',
+      body: JSON.stringify({ name, type: 'image', content })
+    });
+    if (r.error) { alert(r.error); return; }
+    alert('<i class="fas fa-check-circle" style="color:#22c55e"></i> 已保存到提示词库');
+    loadPrompts('image');
+  } catch(e) {
+    alert('保存失败: ' + e.message);
+  }
+}
+
+async function saveToProductLibrary() {
+  if (!_lastGenResult) { alert('没有可保存的内容'); return; }
+  const title = _lastGenResult.title || 'AI生成招牌';
+  const promptText = _lastGenResult.prompt || '';
+  const material = _lastGenResult.suggested_material || '';
+  const tags = (_lastGenResult.style_tags || []).join(',');
+  const name = prompt('产品名称:', title);
+  if (!name) return;
+
+  try {
+    const r = await fetch('/api/products', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: name,
+        category: material || 'AI生成',
+        description: promptText,
+        images: _lastGenImageUrl ? JSON.stringify([{url: _lastGenImageUrl}]) : '[]',
+        specs: JSON.stringify({
+          generated_from: 'AI需求生成',
+          industry: document.getElementById('req_industry').value.trim(),
+          sign_text: document.getElementById('req_sign_text').value.trim(),
+          material: material,
+          scene: document.getElementById('req_scene').value,
+          tags: tags,
+          variants: _lastGenResult.variants || []
+        }),
+        status: 'active'
+      })
+    });
+    const data = await r.json();
+    if (data.error) { alert(data.error); return; }
+    alert('<i class="fas fa-check-circle" style="color:#22c55e"></i> 已保存到产品库！可在「产品目录」中查看和使用');
+    document.getElementById('saveProductBtn').innerHTML = '<i class="fas fa-check"></i> 已保存';
+  } catch(e) {
+    alert('保存失败: ' + e.message);
+  }
+}
+
+// ================= 产品 → 宣传视频生成 =================
+let _promoVideoProductId = null;
+
+async function generatePromoVideo(productId, productName) {
+  _promoVideoProductId = productId;
+  const bizName = prompt('客户店面名称:', productName || '');
+  if (!bizName) return;
+  const signText = prompt('招牌文字内容（如: GLOWFORGE）:', bizName);
+  if (!signText) return;
+
+  const statusEl = document.createElement('div');
+  statusEl.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a1a24;border:1px solid var(--border);border-radius:12px;padding:16px;z-index:999;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+  statusEl.id = 'promoVideoStatus';
+  statusEl.innerHTML = '<div style="font-size:13px;font-weight:600;color:var(--cyan);margin-bottom:8px"><i class="fas fa-video"></i> 生成宣传视频中...</div>'
+    + '<div style="font-size:12px;color:#aaa;margin-bottom:6px">店铺: ' + esc(bizName) + '</div>'
+    + '<div style="font-size:11px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> AI 正在生成视频（约1-3分钟）...</div>';
+  document.body.appendChild(statusEl);
+
+  try {
+    const r = await api('/api/products/generate-promo-video', {
+      method: 'POST',
+      body: JSON.stringify({ product_id: productId, biz_name: bizName, sign_text: signText })
+    });
+    if (r.error) {
+      statusEl.innerHTML = '<div style="color:var(--pink);font-size:13px">❌ ' + r.error + '</div>';
+      setTimeout(() => statusEl.remove(), 5000);
+      return;
+    }
+    statusEl.innerHTML = '<div style="font-size:13px;color:#22c55e;margin-bottom:6px"><i class="fas fa-check-circle"></i> 视频生成完成！</div>'
+      + '<div style="font-size:12px;color:#aaa;margin-bottom:8px">' + esc(bizName) + ' 宣传视频</div>'
+      + '<a href="' + r.video_url + '" target="_blank" style="display:inline-block;padding:8px 16px;background:var(--cyan);color:#000;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600"><i class="fas fa-play"></i> 查看视频</a>'
+      + '<button style="margin-left:6px;padding:8px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:#aaa;cursor:pointer;font-size:11px" onclick="this.parentElement.remove()">关闭</button>';
+    setTimeout(() => { const el = document.getElementById('promoVideoStatus'); if (el) el.remove(); }, 60000);
+  } catch(e) {
+    statusEl.innerHTML = '<div style="color:var(--pink);font-size:13px">❌ 生成失败: ' + e.message + '</div>';
+    setTimeout(() => statusEl.remove(), 5000);
+  }
+}
+
 function usePromptInGenerator() {
   const content = document.getElementById('promptViewContent').value;
   closeModal('promptViewModal');
@@ -5515,12 +6041,12 @@ function sendGenToCustomer(gid) {
   if (!g) return;
   const f = g.result_filename || '';
   const src = g.result_url || '/uploads/' + f;
+  _sendFileCid = null;
   selectedSendFile = {id: null, filename: f, description: g.prompt || '', url: src, filepath: src};
   document.getElementById('sendFileInfo').innerHTML = g.type === 'image' ? '<i class="fas fa-image"></i> AI生成图片' : '<i class="fas fa-video"></i> AI生成视频';
-  const sel = document.getElementById('sendFileCustomer');
-  if (sel && typeof customers !== 'undefined') {
-    sel.innerHTML = (customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + (c.company ? ' (' + esc(c.company) + ')' : '') + '</option>').join('');
-  }
+  document.getElementById('sendFileCustomerInput').value = '';
+  document.getElementById('sendFileSelected').style.display = 'none';
+  document.getElementById('sendFileCustomerResults').style.display = 'none';
   document.getElementById('sendFileModal').classList.add('show');
 }
 
@@ -5553,24 +6079,24 @@ function doSaveToLibrary() {
 function sendLastImageToCustomer() {
   if (!lastAiImage) return;
   const f = lastAiImage.saved || '';
+  _sendFileCid = null;
   selectedSendFile = {id: null, filename: f, description: _aiPrompt || '', url: lastAiImage.url, filepath: '/uploads/' + f};
   document.getElementById('sendFileInfo').innerHTML = '<i class="fas fa-image"></i> AI效果图: ' + (_aiPrompt || '').slice(0, 40);
-  const sel = document.getElementById('sendFileCustomer');
-  if (sel && typeof customers !== 'undefined') {
-    sel.innerHTML = (customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + (c.company ? ' (' + esc(c.company) + ')' : '') + '</option>').join('');
-  }
+  document.getElementById('sendFileCustomerInput').value = '';
+  document.getElementById('sendFileSelected').style.display = 'none';
+  document.getElementById('sendFileCustomerResults').style.display = 'none';
   document.getElementById('sendFileModal').classList.add('show');
 }
 
 function sendLastVideoToCustomer() {
   if (!_lastVideoResult) return;
   const f = _lastVideoResult.saved || '';
+  _sendFileCid = null;
   selectedSendFile = {id: null, filename: f, description: 'AI生成视频', url: '/uploads/' + f, filepath: '/uploads/' + f};
   document.getElementById('sendFileInfo').innerHTML = '<i class="fas fa-video"></i> AI宣传视频';
-  const sel = document.getElementById('sendFileCustomer');
-  if (sel && typeof customers !== 'undefined') {
-    sel.innerHTML = (customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + (c.company ? ' (' + esc(c.company) + ')' : '') + '</option>').join('');
-  }
+  document.getElementById('sendFileCustomerInput').value = '';
+  document.getElementById('sendFileSelected').style.display = 'none';
+  document.getElementById('sendFileCustomerResults').style.display = 'none';
   document.getElementById('sendFileModal').classList.add('show');
 }
 
@@ -5815,6 +6341,7 @@ function renderProducts(products) {
     return '<div class="product-card" onclick="openProductModal(' + p.id + ')">'
       + (imgSrc ? '<img class="thumb" src="' + imgSrc + '" loading="lazy">' : '<div class="no-img"><i class="fas fa-cube"></i></div>')
       + '<div class="actions">'
+      + '<button class="btn btn-sm" style="background:#7c3aed;color:#fff;border:1px solid #7c3aed" onclick="event.stopPropagation();generatePromoVideo(' + p.id + ',\'' + esc(p.name) + '\')" title="生成客户宣传视频"><i class="fas fa-video"></i></button>'
       + '<button class="btn btn-sm" onclick="event.stopPropagation();generateQuote(' + p.id + ')"><i class="fas fa-file-pdf"></i></button>'
       + '<button class="btn btn-sm" onclick="event.stopPropagation();openProductModal(' + p.id + ')"><i class="fas fa-pen-to-square"></i></button>'
       + '<button class="btn btn-sm" onclick="event.stopPropagation();deleteProduct(' + p.id + ')"><i class="fas fa-trash-can"></i></button>'
@@ -7203,11 +7730,13 @@ loadProfile();
 // ================= 报价管理 =================
 let _quotesData = [];
 let _quoteFilter = '__all__';
+let _quoteShowAll = false;
 let _quoteItems = [];
 
 async function loadQuotes() {
   try {
-    const q = await api('/api/quotes');
+    const url = _quoteShowAll ? '/api/quotes?all=1' : '/api/quotes';
+    const q = await api(url);
     _quotesData = q || [];
     renderQuotes();
   } catch(e) {
@@ -7238,7 +7767,7 @@ function renderQuotes() {
     'expired': '<span class="status" style="background:rgba(255,255,255,0.05);color:#667">已过期</span>'
   };
   let html = '<table><thead><tr>'
-    + '<th>报价单号</th><th>客户</th><th>金额</th><th>状态</th><th>有效期</th><th>创建时间</th><th style="width:100px">操作</th>'
+    + '<th>报价单号</th><th>客户</th><th>创建人</th><th>金额</th><th>状态</th><th>有效期</th><th>创建时间</th><th style="width:180px">操作</th>'
     + '</tr></thead><tbody>';
   items.forEach(q => {
     const custName = q.customer_name || '-';
@@ -7246,16 +7775,19 @@ function renderQuotes() {
     const cur = q.currency || 'USD';
     const validDate = q.valid_until || '-';
     const createdAt = (q.created_at || '').substring(0,10);
+    const pdfUrl = '/uploads/quotes/FORMAL_QUOTE_' + esc(q.quote_no || 'Q-' + q.id).replace(/\//g,'-').replace(/\\\\/g,'-').replace(/%20/g,'') + '.pdf';
     html += '<tr>'
       + '<td style="font-weight:600;color:var(--gold)">' + esc(q.quote_no || '-') + '</td>'
       + '<td>' + esc(custName) + '</td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + esc(q.created_by_name || '-') + '</td>'
       + '<td style="color:var(--cyan);font-weight:600">' + cur + ' ' + total + '</td>'
       + '<td>' + (statusMap[q.status] || esc(q.status)) + '</td>'
       + '<td style="font-size:12px;color:var(--muted)">' + (validDate !== '-' ? validDate : '-') + '</td>'
       + '<td style="font-size:12px;color:var(--muted)">' + createdAt + '</td>'
-      + '<td><div class="flex" style="gap:3px">'
+      + '<td><div class="flex" style="gap:4px;flex-wrap:wrap">'
       + '<button class="btn btn-sm" onclick="event.stopPropagation();openQuoteModal(' + q.id + ')" title="编辑"><i class="fas fa-pen-to-square"></i></button>'
-      + '<button class="btn btn-sm" onclick="event.stopPropagation();aiGenerateQuoteFromSaved(' + q.id + ')" title="AI生成正式报价" style="color:#8b5cf6"><i class="fas fa-wand-magic-sparkles"></i></button>'
+      + '<button class="btn btn-sm" onclick="event.stopPropagation();aiGenerateQuoteFromSaved(' + q.id + ')" title="生成PDF报价单" style="color:#8b5cf6"><i class="fas fa-wand-magic-sparkles"></i> 生成PDF</button>'
+      + '<a class="btn btn-sm" href="' + pdfUrl + '" target="_blank" title="打开PDF" style="color:white;background:#16a34a;border-color:#16a34a;text-decoration:none;display:inline-flex;align-items:center;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;gap:4px" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> PDF</a>'
       + (q.status === 'accepted' ? '<button class="btn btn-sm" onclick="event.stopPropagation();convertQuoteToOrder(' + q.id + ')" title="转订单" style="color:var(--gold)"><i class="fas fa-box"></i></button>' : '')
       + (q.status === 'draft' ? '<button class="btn btn-sm" onclick="event.stopPropagation();sendQuote(' + q.id + ')" title="发送" style="color:var(--cyan)"><i class="fas fa-paper-plane"></i></button>' : '')
       + '<button class="btn btn-sm" style="color:var(--pink)" onclick="event.stopPropagation();deleteQuote(' + q.id + ')" title="删除"><i class="fas fa-trash-can"></i></button>'
@@ -7272,6 +7804,13 @@ function switchQuoteTab(status, btn) {
     b.className = b.dataset.qstatus === status ? 'active' : '';
   });
   renderQuotes();
+}
+
+function setQuoteUserFilter(mode) {
+  _quoteShowAll = mode === 'all';
+  document.getElementById('quoteFilterMine').className = mode === 'mine' ? 'btn btn-sm active' : 'btn btn-sm';
+  document.getElementById('quoteFilterAll').className = mode === 'all' ? 'btn btn-sm active' : 'btn btn-sm';
+  loadQuotes();
 }
 
 async function loadQuoteCustomers() {
@@ -9857,21 +10396,19 @@ async function submitPayment() {
 }
 
 
-async function aiGenerateQuoteFromSaved(id) {
+async function aiGenerateQuoteFromSaved(id, skipRedirect) {
   try {
     const btn = event && event.target ? event.target.closest('button') : null;
     if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
 
     const r = await api('/api/quotes/' + id + '/ai-quote', { method: 'POST', body: JSON.stringify({}) });
     if (r.ok && r.url) {
-      // Download the generated PDF
-      const a = document.createElement('a');
-      a.href = r.url;
-      a.download = r.filename || 'FORMAL_QUOTE.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast('正式报价单已生成并下载');
+      // Open PDF in new tab
+      var pdfWin = window.open(r.url, '_blank');
+      if (!pdfWin) {
+        // Popup blocked - navigate current page
+        window.location.href = r.url;
+      }
     } else {
       alert('AI生成报价失败: ' + (r.error || '未知错误'));
     }
@@ -11056,25 +11593,23 @@ function calcAIGenerateQuote() {
   })
   .then(resp => {
     if (!resp.ok) throw new Error('Server returned ' + resp.status);
-    return resp.blob();
-  })
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'FORMAL_QUOTE_' + qno.replace(/[/\\]/g, '-') + '.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    // Also save to quotes
-    if (clientId) {
-      fetch('/api/calc/save-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(e => console.log('Auto-save quote:', e));
-    }
+    // First consume the response to ensure the server finishes
+    return resp.blob().then(function(blob) {
+      var pdfUrl = '/uploads/quotes/FORMAL_QUOTE_' + qno.replace(/[/\\]/g, '-') + '.pdf';
+      var pdfWin = window.open(pdfUrl, '_blank');
+      if (!pdfWin) {
+        // Popup blocked - download via blob
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'FORMAL_QUOTE_' + qno.replace(/[/\\]/g, '-') + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+        alert(calcLang === 'zh' ? 'PDF已下载到本地文件夹' : 'PDF downloaded');
+      }
+    });
   })
   .catch(err => {
     alert(calcLang === 'zh' ? 'AI生成报价失败: ' + err.message : 'AI quotation failed: ' + err.message);
@@ -12553,6 +13088,588 @@ async function loadV6Exec() {
   } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
 }
 
+// =============== V7: AI 测试中心 ===============
+async function loadV7TestCenter() {
+  const el = document.getElementById('v7TestCenterContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const [personas, results] = await Promise.all([
+      api('/api/v7/ai-test/personas'),
+      api('/api/v7/ai-test/results?limit=10'),
+    ]);
+
+    let html = '';
+
+    // --- 左：场景配置 ---
+    html += '<div style="display:flex;gap:16px;flex-wrap:wrap">';
+    html += '<div style="flex:1;min-width:320px;padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+    html += '<h4 style="margin:0 0 12px;color:var(--text-bright);font-size:13px"><i class="fas fa-user-cog"></i> 测试场景配置</h4>';
+
+    // 客户画像选择
+    html += '<label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">AI 客户画像</label>';
+    html += '<select id="tcPersona" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text-bright);margin-bottom:10px;font-size:12px">';
+    if (personas && personas.length) {
+      for (const p of personas) {
+        html += '<option value="' + p.id + '">' + p.name + ' — ' + p.company + ' (' + p.country + ')</option>';
+      }
+    }
+    html += '</select>';
+    html += '<div id="tcPersonaDesc" style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:6px">选择客户画像查看描述</div>';
+
+    // 对话轮数
+    html += '<label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">对话轮数</label>';
+    html += '<select id="tcRounds" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text-bright);margin-bottom:12px;font-size:12px">';
+    html += '<option value="2">2 轮（快速测试）</option><option value="4" selected>4 轮（标准测试）</option><option value="6">6 轮（深度测试）</option>';
+    html += '</select>';
+
+    // 开始按钮
+    html += '<button class="btn" style="width:100%;background:var(--gold);color:#000;padding:10px" onclick="runV7Test()"><i class="fas fa-play"></i> 开始测试</button>';
+    html += '<div id="tcRunning" style="display:none;text-align:center;padding:20px;color:var(--gold)"><i class="fas fa-spinner fa-spin"></i> AI 对话进行中...</div>';
+    html += '</div>';
+
+    // --- 右：评分概要 ---
+    html += '<div style="flex:2;min-width:480px">';
+
+    // 测试历史
+    html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+    html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-history"></i> 测试历史</h4>';
+    html += '<div style="overflow-x:auto"><table class="tbl"><thead><tr>';
+    html += '<th>ID</th><th>客户</th><th>评分</th><th>B2B</th><th>异议</th><th>话术</th><th>区域</th><th>规则</th><th>时间</th><th>操作</th></tr></thead><tbody>';
+    if (results && results.length) {
+      for (const r of results) {
+        const sc = r.scores || {};
+        const overall = sc.overall || '-';
+        const b2b = sc.b2b_score || '-';
+        const obj = sc.objection_score || '-';
+        const sales = sc.sales_score || '-';
+        const reg = sc.regional_score || '-';
+        const overallColor = overall >= 7 ? 'var(--green)' : overall >= 5 ? 'var(--gold)' : 'var(--pink)';
+        html += '<tr>';
+        html += '<td style="color:var(--muted)">#' + r.id + '</td>';
+        html += '<td>' + (r.persona_name || r.persona_id) + '</td>';
+        html += '<td style="color:' + overallColor + ';font-weight:700">' + overall + '</td>';
+        html += '<td>' + b2b + '</td><td>' + obj + '</td><td>' + sales + '</td><td>' + reg + '</td>';
+        html += '<td>' + (r.generated_rules || 0) + '</td>';
+        html += '<td style="font-size:10px;color:var(--muted)">' + (r.created_at || '').slice(5, 16) + '</td>';
+        html += '<td><button class="btn btn-ghost btn-xs" onclick="viewV7Test(' + r.id + ')" title="查看详情"><i class="fas fa-eye"></i></button></td>';
+        html += '</tr>';
+      }
+    } else {
+      html += '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">暂无测试记录</td></tr>';
+    }
+    html += '</tbody></table></div></div>';
+
+    // 当前测试结果容器（初始隐藏）
+    html += '<div id="tcResult" style="display:none"></div>';
+    html += '</div></div>';
+
+    el.innerHTML = html;
+
+    // 画像切换显示描述
+    const sel = document.getElementById('tcPersona');
+    if (sel && personas) {
+      sel.addEventListener('change', function() {
+        const pid = this.value;
+        const p = personas.find(x => x.id === pid);
+        if (p) document.getElementById('tcPersonaDesc').textContent = p.description || '';
+      });
+      // 触发初始
+      sel.dispatchEvent(new Event('change'));
+    }
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>'; }
+}
+
+async function runV7Test() {
+  const btn = document.querySelector('#tcRunning');
+  btn.style.display = 'block';
+  const resultDiv = document.getElementById('tcResult');
+  resultDiv.style.display = 'none';
+
+  try {
+    const personaId = document.getElementById('tcPersona').value;
+    const rounds = parseInt(document.getElementById('tcRounds').value) || 4;
+    const res = await api('/api/v7/ai-test/run', 'POST', {persona_id: personaId, max_rounds: rounds});
+    btn.style.display = 'none';
+    renderV7TestResult(res);
+  } catch(e) {
+    btn.style.display = 'none';
+    alert('测试失败: ' + e.message);
+  }
+}
+
+function renderV7TestResult(data) {
+  const el = document.getElementById('tcResult');
+  el.style.display = 'block';
+
+  const scores = data.scores || {};
+  const conv = data.conversation || [];
+  const overall = scores.overall || 0;
+  const overallColor = overall >= 7 ? 'var(--green)' : overall >= 5 ? 'var(--gold)' : 'var(--pink)';
+
+  let html = '';
+
+  // 评分面板
+  html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border);margin-bottom:12px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+  html += '<h4 style="margin:0;color:var(--text-bright);font-size:13px"><i class="fas fa-chart-line"></i> 测试结果 — ' + data.persona + '</h4>';
+  html += '<div><button class="btn btn-ghost btn-xs" onclick="generateV7Rules(' + data.test_id + ')" title="从本测试生成改进规则"><i class="fas fa-magic"></i> 生成规则</button></div>';
+  html += '</div>';
+  html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+
+  const scoreItems = [
+    {label: '综合评分', val: overall + '/10', color: overallColor},
+    {label: 'B2B思维', val: (scores.b2b_score||0) + '/10', color: scores.b2b_score >= 7 ? 'var(--green)' : 'var(--gold)'},
+    {label: '异议处理', val: (scores.objection_score||0) + '/10', color: scores.objection_score >= 7 ? 'var(--green)' : 'var(--gold)'},
+    {label: '话术自然度', val: (scores.sales_score||0) + '/10', color: scores.sales_score >= 7 ? 'var(--green)' : scores.sales_score >= 4 ? 'var(--gold)' : 'var(--pink)'},
+    {label: '区域适配', val: (scores.regional_score||0) + '/10', color: scores.regional_score >= 7 ? 'var(--green)' : 'var(--gold)'},
+    {label: 'ABC违规', val: (scores.abc_count||0) + '次', color: scores.abc_count > 0 ? 'var(--pink)' : 'var(--green)'},
+    {label: '生成规则', val: (data.generated_rules||0) + '条', color: data.generated_rules > 0 ? 'var(--gold)' : 'var(--muted)'},
+  ];
+  for (const si of scoreItems) {
+    html += '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;text-align:center;min-width:80px">';
+    html += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">' + si.label + '</div>';
+    html += '<div style="font-size:16px;font-weight:700;color:' + si.color + '">' + si.val + '</div></div>';
+  }
+  html += '</div></div>';
+
+  // 对话记录
+  html += '<div style="padding:16px;background:#0a0c18;border-radius:12px;border:1px solid var(--border)">';
+  html += '<h4 style="margin:0 0 10px;color:var(--text-bright);font-size:13px"><i class="fas fa-comments"></i> 对话记录</h4>';
+  for (const m of conv) {
+    const isCustomer = m.role === 'customer';
+    const align = isCustomer ? 'left' : 'right';
+    const bg = isCustomer ? '#1a1d2e' : '#1a2e1a';
+    const border = isCustomer ? '1px solid var(--border)' : '1px solid rgba(0,212,170,0.2)';
+    const label = isCustomer ? (m.persona || '客户') : '🤖 AI 销售';
+    html += '<div style="margin-bottom:8px;display:flex;justify-content:' + align + '">';
+    html += '<div style="max-width:80%;padding:10px 14px;background:' + bg + ';border-radius:10px;border:' + border + '">';
+    html += '<div style="font-size:9px;color:var(--muted);margin-bottom:4px;text-align:' + align + '">' + label + ' · 第' + m.round + '轮</div>';
+    html += '<div style="font-size:12px;color:var(--text-bright);line-height:1.5;white-space:pre-wrap">' + escHtml(m.content) + '</div>';
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  el.innerHTML = html;
+  el.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+async function viewV7Test(testId) {
+  try {
+    const data = await api('/api/v7/ai-test/results/' + testId);
+    renderV7TestResult({
+      test_id: data.id,
+      persona: data.persona_name,
+      scores: data.scores,
+      conversation: data.conversation,
+      generated_rules: data.generated_rules,
+    });
+  } catch(e) {
+    alert('加载失败: ' + e.message);
+  }
+}
+
+async function generateV7Rules(testId) {
+  if (!confirm('从本次测试的失败点生成改进规则？')) return;
+  try {
+    const res = await api('/api/v7/ai-test/generate-rules/' + testId, 'POST');
+    alert('已生成 ' + (res.generated || 0) + ' 条规则');
+    loadV7Evolution();
+  } catch(e) {
+    alert('生成失败: ' + e.message);
+  }
+}
+
+// =============== V7: AI 进化管理 ===============
+async function loadV7Evolution() {
+  const el = document.getElementById('v7EvolutionContent');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+  try {
+    const [rules, categories] = await Promise.all([
+      api('/api/v7/ai-feedback/rules'),
+      api('/api/v7/ai-feedback/categories'),
+    ]);
+
+    let html = '';
+
+    // 分类筛选按钮
+    if (categories && categories.length) {
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">';
+      html += '<button class="btn btn-ghost btn-sm active" style="font-size:10px" onclick="loadV7Evolution()">全部</button>';
+      for (const cat of categories) {
+        const count = (rules||[]).filter(r => r.category === cat.key).length;
+        html += '<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="filterV7Rules(\'' + cat.key + '\')" data-cat="' + cat.key + '">';
+        html += '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + cat.color + ';margin-right:4px"></span>';
+        html += cat.label + ' (' + count + ')</button>';
+      }
+      // 添加规则按钮
+      html += '<button class="btn btn-sm" style="background:var(--gold);color:#000;font-size:10px;margin-left:auto" onclick="showAddV7Rule()"><i class="fas fa-plus"></i> 添加规则</button>';
+      // 自动改进按钮
+      html += '<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="autoImproveV7()"><i class="fas fa-magic"></i> 从评估自动生成</button>';
+      html += '</div>';
+    }
+
+    // 统计卡片
+    const hardRules = (rules||[]).filter(r => r.severity === 'hard_rule');
+    const suggestionRules = (rules||[]).filter(r => r.severity === 'suggestion');
+    const activeCount = (rules||[]).filter(r => r.is_active === 1).length;
+    html += '<div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">';
+    html += '<div style="padding:10px 16px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);flex:1;min-width:120px;text-align:center">';
+    html += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">总规则</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:var(--text-bright)">' + (rules||[]).length + '</div></div>';
+    html += '<div style="padding:10px 16px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);flex:1;min-width:120px;text-align:center">';
+    html += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">生效中</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:var(--green)">' + activeCount + '</div></div>';
+    html += '<div style="padding:10px 16px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);flex:1;min-width:120px;text-align:center">';
+    html += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">硬性规则</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:#e74c3c">' + hardRules.length + '</div></div>';
+    html += '<div style="padding:10px 16px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);flex:1;min-width:120px;text-align:center">';
+    html += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">建议</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:#3498db">' + suggestionRules.length + '</div></div>';
+    html += '</div>';
+
+    // 规则表格
+    html += '<div style="overflow-x:auto">';
+    html += '<table class="tbl"><thead><tr>';
+    html += '<th>ID</th><th>分类</th><th>触发条件</th><th>行为规则</th><th>类型</th><th>状态</th><th>来源</th><th>操作</th>';
+    html += '</tr></thead><tbody>';
+    if (rules && rules.length) {
+      for (const r of rules) {
+        const catInfo = (categories||[]).find(c => c.key === r.category);
+        const dotColor = (catInfo&&catInfo.color) || '#95a5a6';
+        html += '<tr>';
+        html += '<td style="color:var(--muted)">#' + r.id + '</td>';
+        html += '<td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + dotColor + ';margin-right:4px"></span>' + (catInfo?catInfo.label:r.category) + '</td>';
+        html += '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.trigger_condition||'-') + '</td>';
+        const ruleText = r.action_rule || '';
+        html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escHtml(ruleText) + '">' + escHtml(ruleText.substring(0, 60)) + (ruleText.length > 60 ? '...' : '') + '</td>';
+        html += '<td><span class="badge ' + (r.severity === 'hard_rule' ? 'badge-red' : 'badge-blue') + '">' + (r.severity === 'hard_rule' ? '硬性' : '建议') + '</span></td>';
+        html += '<td><span class="badge ' + (r.is_active ? 'badge-green' : 'badge-gray') + '" style="cursor:pointer" onclick="toggleV7Rule(' + r.id + ', ' + r.is_active + ')">' + (r.is_active ? '生效' : '禁用') + '</span></td>';
+        html += '<td style="color:var(--muted);font-size:11px">' + ((r.source_scenario||'') === 'system_eval' ? '系统评估' : (r.source_scenario||'手动')) + '</td>';
+        html += '<td>';
+        html += '<button class="btn btn-ghost btn-xs" onclick="editV7Rule(' + r.id + ')" title="编辑"><i class="fas fa-edit"></i></button> ';
+        html += '<button class="btn btn-ghost btn-xs" onclick="deleteV7Rule(' + r.id + ')" title="删除" style="color:var(--pink)"><i class="fas fa-trash"></i></button>';
+        html += '</td></tr>';
+      }
+    } else {
+      html += '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">暂无规则，点击"添加规则"或"从评估自动生成"开始</td></tr>';
+    }
+    html += '</tbody></table></div>';
+
+    // 规则说明
+    html += '<div style="margin-top:16px;padding:12px;background:#0a0c18;border-radius:10px;border:1px solid var(--border);font-size:11px;color:var(--muted)">';
+    html += '<strong style="color:var(--text-bright)">📌 工作原理</strong><br>';
+    html += '每条规则包含：<strong>触发条件</strong>（客户消息中的关键词）→ <strong>行为规则</strong>（AI 必须执行的销售策略）。<br>';
+    html += '硬性规则(<span class="badge badge-red">硬性</span>)不可绕过，建议(<span class="badge badge-blue">建议</span>)供 AI 参考。<br>';
+    html += '规则在 AI 回复客户时自动加载并注入策略。增删改规则后清除缓存即时生效。';
+    html += '</div>';
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败: ' + escHtml(e.message) + '</div>'; }
+}
+
+// 分类筛选
+function filterV7Rules(category) {
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('[data-cat="' + category + '"]');
+  btns.forEach(b => b.classList.add('active'));
+  api('/api/v7/ai-feedback/rules?category=' + category).then(rules => {
+    const el = document.getElementById('v7EvolutionContent');
+    // 找到table部分替换tbody
+    const oldTbody = el.querySelector('tbody');
+    if (!oldTbody) return;
+    let tbodyHtml = '';
+    if (rules && rules.length) {
+      for (const r of rules) {
+        tbodyHtml += '<tr>';
+        tbodyHtml += '<td style="color:var(--muted)">#' + r.id + '</td>';
+        tbodyHtml += '<td>' + (r.category) + '</td>';
+        tbodyHtml += '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.trigger_condition||'-') + '</td>';
+        const ruleText = r.action_rule || '';
+        tbodyHtml += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escHtml(ruleText) + '">' + escHtml(ruleText.substring(0, 60)) + (ruleText.length > 60 ? '...' : '') + '</td>';
+        tbodyHtml += '<td><span class="badge ' + (r.severity === 'hard_rule' ? 'badge-red' : 'badge-blue') + '">' + (r.severity === 'hard_rule' ? '硬性' : '建议') + '</span></td>';
+        tbodyHtml += '<td><span class="badge ' + (r.is_active ? 'badge-green' : 'badge-gray') + '" style="cursor:pointer" onclick="toggleV7Rule(' + r.id + ', ' + r.is_active + ')">' + (r.is_active ? '生效' : '禁用') + '</span></td>';
+        tbodyHtml += '<td style="color:var(--muted);font-size:11px">' + ((r.source_scenario||'') === 'system_eval' ? '系统评估' : (r.source_scenario||'手动')) + '</td>';
+        tbodyHtml += '<td><button class="btn btn-ghost btn-xs" onclick="editV7Rule(' + r.id + ')"><i class="fas fa-edit"></i></button> <button class="btn btn-ghost btn-xs" onclick="deleteV7Rule(' + r.id + ')" style="color:var(--pink)"><i class="fas fa-trash"></i></button></td></tr>';
+      }
+    } else {
+      tbodyHtml += '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">该分类下暂无规则</td></tr>';
+    }
+    oldTbody.innerHTML = tbodyHtml;
+  });
+}
+
+// 切换规则状态
+async function toggleV7Rule(id, current) {
+  await api('/api/v7/ai-feedback/rules/' + id, 'PUT', {is_active: current ? 0 : 1});
+  loadV7Evolution();
+}
+
+// 删除规则
+async function deleteV7Rule(id) {
+  if (!confirm('确定删除这条规则？')) return;
+  await api('/api/v7/ai-feedback/rules/' + id, 'DELETE');
+  loadV7Evolution();
+}
+
+// 编辑规则弹窗
+function editV7Rule(id) {
+  // 从当前页面数据中找到该规则
+  const row = document.querySelector('#v7EvolutionContent table tbody tr:nth-child(' + (id) + ')');
+  // 简单实现：弹窗提示修改（完整版应该用弹窗表单）
+  const newRule = prompt('输入新的行为规则：');
+  if (newRule) {
+    api('/api/v7/ai-feedback/rules/' + id, 'PUT', {action_rule: newRule}).then(() => loadV7Evolution());
+  }
+}
+
+// 添加规则弹窗
+function showAddV7Rule() {
+  const html = `
+    <div id="v7RuleModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center">
+      <div style="background:#0e1120;border-radius:12px;border:1px solid var(--border);padding:24px;width:520px;max-width:90vw">
+        <h4 style="margin:0 0 16px;color:var(--gold)"><i class="fas fa-plus-circle"></i> 添加 AI 进化规则</h4>
+        <div style="margin-bottom:10px">
+          <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">分类</label>
+          <select id="v7RuleCat" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:#0a0c18;color:var(--text-bright)">
+            <option value="b2b_rule">B2B 销售规则</option>
+            <option value="objection_handling">异议处理</option>
+            <option value="regional_strategy">区域策略</option>
+            <option value="sales_tactic">销售策略</option>
+            <option value="general">通用</option>
+          </select>
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">触发条件（客户消息关键词）</label>
+          <input id="v7RuleTrigger" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:#0a0c18;color:var(--text-bright)" placeholder="例如：价格、太贵、样品">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">行为规则（AI 必须执行）</label>
+          <textarea id="v7RuleAction" rows="4" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:#0a0c18;color:var(--text-bright);resize:vertical" placeholder="例如：报价前必须先问图纸尺寸..."></textarea>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">类型</label>
+          <select id="v7RuleSeverity" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:#0a0c18;color:var(--text-bright)">
+            <option value="hard_rule">硬性规则（AI 不可绕过）</option>
+            <option value="suggestion">建议（供 AI 参考）</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost" onclick="document.getElementById('v7RuleModal').remove()">取消</button>
+          <button class="btn" style="background:var(--gold);color:#000" onclick="saveV7Rule()">保存规则</button>
+        </div>
+      </div>
+    </div>
+  `;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  document.body.appendChild(div.firstElementChild);
+}
+
+async function saveV7Rule() {
+  const data = {
+    category: document.getElementById('v7RuleCat').value,
+    trigger_condition: document.getElementById('v7RuleTrigger').value,
+    action_rule: document.getElementById('v7RuleAction').value,
+    severity: document.getElementById('v7RuleSeverity').value,
+    source_scenario: 'manual',
+  };
+  if (!data.action_rule) { alert('请输入行为规则'); return; }
+  await api('/api/v7/ai-feedback/rules', 'POST', data);
+  document.getElementById('v7RuleModal').remove();
+  loadV7Evolution();
+}
+
+// 从评估自动生成
+async function autoImproveV7() {
+  if (!confirm('从最新评估结果中自动提取低分场景作为改进规则？')) return;
+  try {
+    const res = await api('/api/v7/ai-feedback/auto-improve', 'POST');
+    alert('已生成 ' + (res.generated || 0) + ' 条改进规则');
+    loadV7Evolution();
+  } catch(e) {
+    alert('自动改进失败: ' + e.message);
+  }
+}
+
+// 工具函数
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ================= V3 自优化销售系统 =================
+function loadV3Dashboard() {
+  var el = document.getElementById('v3DashboardContent');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">加载中...</div>';
+  api('/api/v3/dashboard').then(function(d) {
+    var stats30 = d.stats_30d || {};
+    var stats7 = d.stats_7d || {};
+    var rate30 = (stats30.rate * 100).toFixed(1);
+    var rate7 = (stats7.rate * 100).toFixed(1);
+    var intentW = d.intent_weights || {};
+    var logs = d.optimization_logs || [];
+
+    var intentRows = Object.keys(intentW).map(function(k) {
+      return '<tr><td>' + k + '</td><td>' + intentW[k] + '</td></tr>';
+    }).join('');
+
+    var logRows = logs.map(function(l) {
+      return '<tr><td>' + (l.created_at || '') + '</td><td>' + l.optimizer_type + '</td><td>' + (l.summary || '') + '</td><td>' + (l.changes_made || 0) + '</td></tr>';
+    }).join('');
+
+    el.innerHTML = '' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">' +
+        '<div class="stat-card"><div class="stat-value">' + stats30.total + '</div><div class="stat-label">总对话(30d)</div></div>' +
+        '<div class="stat-card"><div class="stat-value" style="color:var(--green)">' + rate30 + '%</div><div class="stat-label">成交率(30d)</div></div>' +
+        '<div class="stat-card"><div class="stat-value" style="color:var(--gold)">' + rate7 + '%</div><div class="stat-label">成交率(7d)</div></div>' +
+        '<div class="stat-card"><div class="stat-value">' + logs.length + '</div><div class="stat-label">优化运行</div></div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">' +
+        '<div class="table-wrap"><div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)">意图权重</div>' +
+          '<table class="table"><thead><tr><th>意图</th><th>权重</th></tr></thead><tbody>' + (intentRows || '<tr><td colspan="2" style="color:var(--muted)">暂无数据</td></tr>') + '</tbody></table></div>' +
+        '<div class="table-wrap"><div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)">优化日志</div>' +
+          '<table class="table"><thead><tr><th>时间</th><th>类型</th><th>摘要</th><th>变更</th></tr></thead><tbody>' + (logRows || '<tr><td colspan="4" style="color:var(--muted)">暂无日志</td></tr>') + '</tbody></table></div>' +
+      '</div>';
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>';
+  });
+}
+
+function loadV3ABTest() {
+  var el = document.getElementById('v3ABTestContent');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">加载中...</div>';
+  api('/api/v3/ab-test/performance').then(function(d) {
+    var perf = d.performance || {};
+    var weights = d.weights || {};
+    var allStates = Object.keys(perf);
+
+    var html = '';
+    allStates.forEach(function(state) {
+      var versions = perf[state] || {};
+      html += '<div class="table-wrap" style="margin-bottom:16px">';
+      html += '<div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)">' + state + '</div>';
+      html += '<table class="table"><thead><tr><th>版本</th><th>试验</th><th>成交</th><th>成交率</th><th>权重</th></tr></thead><tbody>';
+      ['A','B','C'].forEach(function(v) {
+        var data = versions[v];
+        if (!data) return;
+        var rate = ((data.conversion_rate || 0) * 100).toFixed(1);
+        var w = (data.weight || 1.0).toFixed(1);
+        var wColor = w > 1.0 ? 'var(--green)' : (w < 1.0 ? 'var(--pink)' : 'var(--text)');
+        html += '<tr><td>版本 ' + v + '</td><td>' + data.total_trials + '</td><td>' + data.won_count + '</td><td>' + rate + '%</td><td style="color:' + wColor + ';font-weight:700">' + w + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    if (!allStates.length) html = '<div style="color:var(--muted);text-align:center;padding:40px">暂无 A/B 测试数据</div>';
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>';
+  });
+}
+
+function loadV3Price() {
+  var el = document.getElementById('v3PriceContent');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">加载中...</div>';
+  api('/api/v3/price/performance').then(function(d) {
+    var perf = d.performance || {};
+    var allTiers = Object.keys(perf);
+    var html = '';
+    allTiers.forEach(function(tier) {
+      var data = perf[tier] || [];
+      html += '<div class="table-wrap" style="margin-bottom:16px">';
+      html += '<div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)">档位: ' + tier + '</div>';
+      html += '<table class="table"><thead><tr><th>价格区间</th><th>试验</th><th>成交</th><th>成交率</th><th>平均营收</th></tr></thead><tbody>';
+      data.forEach(function(row) {
+        var rate = ((row.conversion_rate || 0) * 100).toFixed(1);
+        html += '<tr><td>' + (row.price_range || '-') + '</td><td>' + row.total_trials + '</td><td>' + row.won_count + '</td><td>' + rate + '%</td><td>$' + (row.avg_revenue || 0).toFixed(0) + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    if (!allTiers.length) html = '<div style="color:var(--muted);text-align:center;padding:40px">暂无价格数据</div>';
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>';
+  });
+}
+
+function loadV3DealAnalysis() {
+  var el = document.getElementById('v3DealContent');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px">加载中...</div>';
+  api('/api/v3/deal-analysis/insights').then(function(d) {
+    var insights = d.insights || {};
+    var recs = d.recommendations || [];
+    var factors = insights.winning_factors || [];
+    var reasons = insights.lost_reasons || [];
+
+    var html = '';
+    if (recs.length) {
+      html += '<div style="margin-bottom:16px">';
+      html += '<div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--gold)"><i class="fas fa-lightbulb"></i> 推荐建议</div>';
+      recs.forEach(function(r) {
+        html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;font-size:13px">' + r + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+    html += '<div class="table-wrap"><div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border);color:var(--green)">成交成功因素</div>';
+    html += '<table class="table"><thead><tr><th>因素</th><th>出现次数</th></tr></thead><tbody>';
+    (factors.length ? factors : [["暂无数据", 0]]).forEach(function(f) {
+      html += '<tr><td>' + f[0] + '</td><td>' + f[1] + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<div class="table-wrap"><div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border);color:var(--pink)">失败原因</div>';
+    html += '<table class="table"><thead><tr><th>原因</th><th>出现次数</th></tr></thead><tbody>';
+    (reasons.length ? reasons : [["暂无数据", 0]]).forEach(function(r) {
+      html += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '</div>';
+    html += '<div style="margin-top:16px;color:var(--muted);text-align:center;font-size:12px">总分析数: ' + (insights.total_analyses || 0) + '</div>';
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--pink);text-align:center;padding:40px">加载失败</div>';
+  });
+}
+
+// ================= V3 操作函数 =================
+function runV3FullOptimize() {
+  if (!confirm('运行完整优化将调整 A/B 权重、价格锚和意图权重。确定？')) return;
+  var btn = event && event.target ? event.target : null;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 优化中...'; }
+  api('/api/v3/optimize', { method: 'POST', body: '{}' }).then(function(r) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> 运行完整优化'; }
+    alert('优化完成！\n变更数: ' + r.total_changes);
+    loadV3Dashboard();
+  }).catch(function() {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> 运行完整优化'; }
+  });
+}
+function runV3ABOptimize() {
+  api('/api/v3/ab-test/optimize', { method: 'POST', body: '{}' }).then(function(r) {
+    alert('A/B 优化完成！\n' + r.summary);
+    loadV3ABTest();
+  });
+}
+function runV3PriceOptimize() {
+  api('/api/v3/price/optimize', { method: 'POST', body: '{}' }).then(function(r) {
+    var optimized = Object.keys(r).filter(function(k) { return r[k].status === 'optimized'; }).length;
+    if (optimized > 0 && confirm('发现 ' + optimized + ' 个可优化的档位，立即应用？')) {
+      api('/api/v3/price/apply', { method: 'POST', body: JSON.stringify({ recommendations: r }) }).then(function() {
+        alert('价格已更新！');
+        loadV3Price();
+      });
+    } else { loadV3Price(); }
+  });
+}
+function runV3BatchAnalysis() {
+  api('/api/v3/deal-analysis/batch', { method: 'POST', body: '{"days":30}' }).then(function(r) {
+    alert('分析完成！共分析 ' + (r.total_analyzed || 0) + ' 条对话。');
+    loadV3DealAnalysis();
+  });
+}
 </script>
 
 </body>

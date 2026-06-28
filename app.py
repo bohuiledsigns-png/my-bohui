@@ -21,7 +21,7 @@ from datetime import datetime
 import io
 import openpyxl
 
-from database import init_db, get_stats, get_revenue_trend, get_chart_data, get_workbench, get_customers, get_customer, get_customer_detail, add_customer, update_customer, delete_customer, bulk_add_customers, add_activity_log, get_activity_logs, get_activity_logs_count
+from database import init_db, init_ai_evolution, get_stats, get_revenue_trend, get_chart_data, get_workbench, get_customers, get_customer, get_customer_detail, add_customer, update_customer, delete_customer, bulk_add_customers, add_activity_log, get_activity_logs, get_activity_logs_count
 from database import get_messages, add_message, get_media, add_media, delete_media
 from database import get_ai_generations, delete_ai_generation, add_ai_generation, get_ai_generation_stats
 from database import get_email_settings, save_email_settings, add_email_log, get_email_log, get_all_email_log
@@ -45,13 +45,17 @@ from database import get_partners, get_partner, add_partner, update_partner, del
 from database import get_purchase_orders, get_purchase_order, add_purchase_order, update_purchase_order, delete_purchase_order, add_po_timeline_entry
 from ai_engine import translate, generate_image, generate_video, VIDEO_PRESETS, analyze_customer_message, summarize_chat, analyze_viral, rewrite_copy
 from ai_engine import get_country_context, generate_customized_script, search_industry_knowledge, analyze_chat_history, parse_whatsapp_export, analyze_product_image
-from ai_engine import generate_video_from_image, generate_image_volc, ask_ali, get_ai_greeting, get_ai_followup_message, clear_knowledge_base_cache
+from ai_engine import ask_ali, get_ai_greeting, get_ai_followup_message, clear_knowledge_base_cache
+from ai_engine import generate_sign_prompt, generate_sign_prompt_and_image, generate_sign_prompt_ali, generate_storefront_promo_video
 from catalog_generator import generate_catalog
 from scripts.generate_product_catalog import generate_product_catalog
-from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server, get_qr_base64
+from whatsapp_engine import send_text, send_image_clipboard, send_media_file, read_messages, start_monitor, stop_monitor, get_monitor_status, refresh_whatsapp_page, set_remote_server, get_qr_base64, is_logged_in
 from lead_state_engine import update_lead_state, get_lead_state, init_customer_state
 from decision_engine import decide_action
 from action_router import execute_action, register_action, log_action
+
+# Publishing Manager（多平台视频发布管理系统）
+from publishing_manager import init_publishing
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "glowforge-crm-2026-secret-key-change-in-production")
@@ -279,6 +283,43 @@ def api_countries_delete(filename):
 
 # 初始化数据库
 init_db()
+init_ai_evolution()
+
+# V3 自优化销售系统：加载优化后的权重
+try:
+    from revenue_engine import load_v3_optimizations
+    load_v3_optimizations()
+except Exception:
+    pass
+
+# V4 自动销售系统：加载动态定价覆盖
+try:
+    from ai_engine.dynamic_pricing import load_v4_dynamic_anchors
+    load_v4_dynamic_anchors()
+except Exception:
+    pass
+
+# V4 自动销售系统：启动后台调度器
+try:
+    from ai_engine.revenue_scheduler import start_v4_scheduler_background
+    start_v4_scheduler_background()
+except Exception as e:
+    print(f"[v4] Scheduler start failed: {e}")
+
+# 发布管理系统：初始化数据库 + Blueprint + 后台调度线程
+try:
+    DB_PATH = os.path.join(BASE_DIR, "crm_data.db")
+    init_publishing(app, DB_PATH)
+    print("[Publishing] Manager initialized")
+except Exception as e:
+    print(f"[Publishing] Init failed: {e}")
+
+# V5 Agent Competition系统：初始化数据库表
+try:
+    from database import init_v5_tables
+    init_v5_tables()
+except Exception as e:
+    print(f"[v5] DB init failed: {e}")
 
 
 # ========= 页面 =========
@@ -371,6 +412,40 @@ def api_delete_prompt(filename):
     return jsonify({"ok": True})
 
 
+@app.route("/api/prompts/generate-from-requirements", methods=["POST"])
+def api_generate_from_requirements():
+    """AI根据客户需求生成招牌可视化提示词"""
+    data = request.json
+    industry = data.get("industry", "")
+    sign_text = data.get("sign_text", "")
+    reference = data.get("reference", "")
+    material = data.get("material", "")
+    scene = data.get("scene", "")
+    image_data = data.get("image_data", "")
+
+    if not sign_text and not reference and not image_data:
+        return jsonify({"error": "请至少提供招牌文字、参考描述或上传图片"}), 400
+
+    do_preview = data.get("preview", False)
+    image_engine = data.get("image_engine", "volc")
+
+    if do_preview:
+        if image_engine == "ali":
+            result, image_url, err = generate_sign_prompt_ali(industry, sign_text, reference, material, scene, image_data)
+        else:
+            result, image_url, err = generate_sign_prompt_and_image(industry, sign_text, reference, material, scene, image_data)
+        if err:
+            return jsonify({"error": err}), 500
+        return jsonify({"result": result, "image_url": image_url})
+    else:
+        result, err = generate_sign_prompt(industry, sign_text, reference, material, scene, image_data)
+        if err:
+            return jsonify({"error": err}), 500
+        return jsonify({
+            "result": result
+        })
+
+
 # ========= API: 统计 =========
 @app.route("/api/stats")
 def api_stats():
@@ -389,6 +464,38 @@ def api_stats():
     conn.close()
     stats["dormant"] = dormant
     return jsonify(stats)
+
+# ========= 系统存活监控 =========
+@app.route("/api/health")
+def api_health():
+    """系统健康检查"""
+    wa_ok = False
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:15789/health", timeout=5) as r:
+            wa_ok = r.status == 200
+    except Exception:
+        wa_ok = False
+    return jsonify({
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "whatsapp_server": "connected" if wa_ok else "offline",
+        "db": "ok",
+        "version": "GLOWFORGE CRM V5",
+    })
+
+@app.route("/api/monitor")
+def api_monitor():
+    """返回最近20条监控日志"""
+    try:
+        log_path = os.path.join(BASE_DIR, ".whatsapp_session", "monitor.log")
+        if not os.path.exists(log_path):
+            return jsonify({"lines": []})
+        with open(log_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        return jsonify({"lines": lines[-20:]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/stale-customers")
 def api_stale_customers():
@@ -422,7 +529,7 @@ def api_follow_up(cid):
         return jsonify({"error": "客户不存在"}), 404
 
     contact_name = c["name"]
-    lang = c.get("language", "English") or "English"
+    lang = c["language"] if c["language"] else "English"
 
     # 根据天数选择不同的话术
     from database import get_messages
@@ -451,7 +558,11 @@ def api_follow_up(cid):
 5. 可以顺带提一下上次聊的内容（如果有）
 
 直接输出跟进消息，不要解释："""
-    reply = ask_ali(follow_prompt, f"最近聊天：{[(m.get('content_cn','') or m.get('content_en',''))[:80] for m in msgs[-3:]]}", max_tokens=500, timeout=30)
+    try:
+        reply = ask_ali(follow_prompt, f"最近聊天：{[(m.get('content_cn','') or m.get('content_en',''))[:80] for m in msgs[-3:]]}", max_tokens=500, timeout=30)
+    except Exception as e:
+        print(f"[FollowUp] AI调用失败: {e}")
+        reply = None
     if not reply:
         reply = f"Hi {contact_name}, just checking in — have you had a chance to review the quote? Happy to answer any questions."
 
@@ -714,7 +825,11 @@ def api_generate_image():
     if image_data:
         en_prompt = prompt
     else:
-        en_prompt = translate(prompt) or prompt
+        try:
+            en_prompt = translate(prompt) or prompt
+        except Exception as e:
+            print(f"[ImageGen] 翻译失败，使用原文: {e}")
+            en_prompt = prompt
 
     url, error = generate_image(en_prompt, image_data=image_data or None)
     if error:
@@ -801,11 +916,10 @@ def api_generate_video():
     return jsonify({"ok": True, "task_id": task_id, "msg": "视频生成中（约1-5分钟）"})
 
 
-# ========= API: 火山引擎 seedance 图生视频 =========
+# ========= API: 通义万相 图生视频 =========
 @app.route("/api/generate-video-from-image", methods=["POST"])
 def api_generate_video_from_image():
-    """上传产品图片 → seedance图生视频"""
-    # 支持两种方式：上传文件 或 提供图片路径
+    """上传产品图片 → 通义万相图生视频"""
     image_file = request.files.get("image")
     image_path = request.form.get("image_path", "")
     prompt = request.form.get("prompt", "")
@@ -817,7 +931,7 @@ def api_generate_video_from_image():
     if image_file:
         import uuid
         ext = image_file.filename.rsplit(".", 1)[-1].lower() if "." in image_file.filename else "jpg"
-        filename = f"seedance_{uuid.uuid4().hex[:8]}.{ext}"
+        filename = f"wan_{uuid.uuid4().hex[:8]}.{ext}"
         saved_path = os.path.join(UPLOAD_DIR, filename)
         image_file.save(saved_path)
     elif image_path:
@@ -828,8 +942,9 @@ def api_generate_video_from_image():
     else:
         return jsonify({"error": "请上传图片或提供图片路径"}), 400
 
-    # 调用seedance
-    url, error = generate_video_from_image(saved_path, prompt, duration)
+    # 调用通义万相（阿里云），图生视频
+    url, error = generate_video(prompt, quality="720p", duration=duration,
+                                 aspect_ratio="16:9", image_path=saved_path)
     if error:
         return jsonify({"error": error}), 500
 
@@ -837,33 +952,32 @@ def api_generate_video_from_image():
     try:
         import requests as req
         r = req.get(url, timeout=120)
-        vid = f"seedance_{uuid.uuid4().hex[:8]}.mp4"
+        vid = f"wan_{uuid.uuid4().hex[:8]}.mp4"
         vpath = os.path.join(UPLOAD_DIR, vid)
         with open(vpath, "wb") as f:
             f.write(r.content)
         add_media(vid, vpath, "video", len(r.content),
-                  f"Seedance图生视频: {prompt[:60] if prompt else '产品展示'}",
+                  f"通义万相图生视频: {prompt[:60] if prompt else '产品展示'}",
                   customer_id)
-        add_ai_generation("video", f"[seedance] {prompt}", url, vid,
+        add_ai_generation("video", f"[通义万相] {prompt}", url, vid,
                           customer_id=customer_id,
-                          metadata={"engine": "seedance", "source": os.path.basename(saved_path)})
+                          metadata={"engine": "wan2.7", "source": os.path.basename(saved_path)})
         return jsonify({"ok": True, "url": url, "saved": vid, "filepath": vpath})
     except Exception as e:
         return jsonify({"ok": True, "url": url, "saved": None, "error": str(e)})
 
 
-# ========= API: 火山引擎 seedream 文生图（备选） =========
-@app.route("/api/generate-image-volc", methods=["POST"])
-def api_generate_image_volc():
-    """火山引擎seedream文生图，可作为阿里通义万相的备选"""
+# ========= API: 通义万相 文生图 =========
+@app.route("/api/generate-image-wan", methods=["POST"])
+def api_generate_image_wan():
+    """通义万相文生图（备用端点）"""
     data = request.json
     prompt = data.get("prompt", "")
-    size = data.get("size", "2K")
     customer_id = data.get("customer_id")
     if not prompt:
         return jsonify({"error": "请输入描述"}), 400
 
-    url, error = generate_image_volc(prompt, size)
+    url, error = generate_image(prompt)
     if error:
         return jsonify({"error": error}), 500
 
@@ -871,14 +985,14 @@ def api_generate_image_volc():
     try:
         import requests as req
         r = req.get(url, timeout=60)
-        fn = f"seedream_{uuid.uuid4().hex[:8]}.png"
+        fn = f"wan_image_{uuid.uuid4().hex[:8]}.png"
         fp = os.path.join(UPLOAD_DIR, fn)
         with open(fp, "wb") as f:
             f.write(r.content)
         add_media(fn, fp, "image", len(r.content), prompt, customer_id)
-        add_ai_generation("image", f"[seedream] {prompt}", url, fn,
+        add_ai_generation("image", f"[通义万相] {prompt}", url, fn,
                           customer_id=customer_id,
-                          metadata={"engine": "seedream"})
+                          metadata={"engine": "wan2.7-image-pro"})
         return jsonify({"url": url, "saved": fn, "filepath": fp})
     except Exception as e:
         return jsonify({"url": url, "saved": None, "error": str(e)})
@@ -1159,8 +1273,14 @@ def _whatsapp_message_handler(chat_name, messages):
                 "content_en": m.get("content_en", "")
             })
         style_samples = _get_style_samples(5)
-        analysis = analyze_customer_message(text, country=customer_country, history=history_for_ai,
-                                           style_samples=style_samples, sales_name=profile.get("name", "Philip"))
+        try:
+            analysis = analyze_customer_message(text, country=customer_country, history=history_for_ai,
+                                               style_samples=style_samples, sales_name=profile.get("name", "Philip"),
+                                               customer_id=c.get("id", 0))
+        except Exception as e:
+            print(f"[Auto] AI分析异常: {e}")
+            _add_wa_activity("error", c["id"], chat_name, f"AI分析异常: {e}")
+            return
         if not analysis or "error" in analysis:
             print(f"[Auto] AI分析失败: {analysis}")
             _add_wa_activity("error", c["id"], chat_name, f"AI分析失败")
@@ -1339,8 +1459,65 @@ def api_analyze_message():
     text = data.get("text", "").strip()
     if not text:
         return jsonify({"error": "请输入客户消息"}), 400
-    result = analyze_customer_message(text)
+    try:
+        result = analyze_customer_message(text)
+    except Exception as e:
+        print(f"[Analyze] AI分析异常: {e}")
+        return jsonify({"error": f"AI分析异常: {e}"}), 500
     return jsonify(result or {"error": "分析失败"})
+
+
+# ========= API: 多语言语音合成（Qwen-TTS） =========
+@app.route("/api/tts", methods=["POST"])
+def api_tts():
+    """文字转语音，支持多语言
+
+    POST JSON:
+        text: str           — 要合成的文字
+        lang: str           — English / Chinese / Auto / Arabic / etc（默认 Auto）
+        voice: str          — Cherry / Chelsie / Stella（默认 Cherry）
+        response_format: str — wav / mp3（默认 wav）
+    Returns:
+        {ok: true, url: "...", path: "...", duration: 1.5}
+    """
+    data = request.json
+    text = (data or {}).get("text", "").strip()
+    if not text:
+        return jsonify({"error": "请输入文字"}), 400
+    lang = data.get("lang", "Auto")
+    voice = data.get("voice", "Cherry")
+    fmt = data.get("response_format", "wav")
+    try:
+        from voice_engine import synthesize, get_audio_duration
+        url, path = synthesize(text, lang=lang, voice=voice, response_format=fmt)
+        if not path:
+            return jsonify({"error": "语音合成失败"}), 500
+        duration = get_audio_duration(path)
+        # 返回相对路径
+        rel_path = os.path.relpath(path, BASE_DIR) if os.path.isabs(path) else path
+        return jsonify({"ok": True, "url": url, "path": rel_path.replace("\\", "/"), "duration": duration})
+    except Exception as e:
+        return jsonify({"error": f"语音合成异常: {e}"}), 500
+
+
+@app.route("/api/tts/voices", methods=["GET"])
+def api_tts_voices():
+    """列出可用音色"""
+    try:
+        from voice_engine import list_voices
+        return jsonify({"voices": list_voices()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tts/languages", methods=["GET"])
+def api_tts_languages():
+    """列出支持的语言"""
+    try:
+        from voice_engine import LANGUAGES
+        return jsonify({"languages": LANGUAGES})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ========= API: 爆款分析 =========
@@ -1351,7 +1528,11 @@ def api_analyze_viral():
     text = data.get("text", "").strip()
     if not text:
         return jsonify({"error": "请输入爆款文案"}), 400
-    result = analyze_viral(text)
+    try:
+        result = analyze_viral(text)
+    except Exception as e:
+        print(f"[Viral] AI分析异常: {e}")
+        return jsonify({"error": f"AI分析异常: {e}"}), 500
     return jsonify(result or {"error": "分析失败"})
 
 @app.route("/api/rewrite-copy", methods=["POST"])
@@ -1362,7 +1543,11 @@ def api_rewrite_copy():
     industry = data.get("industry", "发光字/亚克力")
     if not analysis_text:
         return jsonify({"error": "缺少分析内容"}), 400
-    result = rewrite_copy(analysis_text, industry)
+    try:
+        result = rewrite_copy(analysis_text, industry)
+    except Exception as e:
+        print(f"[Rewrite] AI仿写异常: {e}")
+        return jsonify({"error": f"AI仿写异常: {e}"}), 500
     return jsonify({"result": result or "生成失败"})
 
 @app.route("/api/oembed")
@@ -1401,7 +1586,11 @@ def api_read_and_analyze():
     raw = read_messages()
     if not raw:
         return jsonify({"error": "读取WhatsApp失败，请确认WhatsApp窗口已打开"})
-    analysis = analyze_customer_message(raw)
+    try:
+        analysis = analyze_customer_message(raw)
+    except Exception as e:
+        print(f"[ReadAnalyze] AI分析异常: {e}")
+        return jsonify({"error": f"AI分析异常: {e}", "raw": raw}), 500
     return jsonify({"raw": raw, "analysis": analysis or {}})
 
 
@@ -1819,6 +2008,42 @@ def api_analyze_product_image():
         return jsonify(result), 500
     return jsonify(result)
 
+@app.route("/api/products/generate-promo-video", methods=["POST"])
+def api_generate_promo_video():
+    """从产品库中的图片生成客户店面宣传视频（即梦图生视频）"""
+    data = request.json
+    product_id = data.get("product_id")
+    biz_name = data.get("biz_name", "")
+    sign_text = data.get("sign_text", "")
+
+    if not product_id:
+        return jsonify({"error": "缺少 product_id"}), 400
+
+    p = get_product(product_id)
+    if not p:
+        return jsonify({"error": "产品不存在"}), 404
+
+    images = p.get("images", [])
+    if isinstance(images, str):
+        images = json.loads(images)
+    if isinstance(images, dict):
+        images = [images]
+    if not images:
+        return jsonify({"error": "产品没有图片，请先上传"}), 400
+    if isinstance(images[0], dict) and "url" in images[0]:
+        pass
+    elif isinstance(images[0], str):
+        images = [{"url": images[0]}]
+    if not images or not images[0].get("url"):
+        return jsonify({"error": "产品没有图片，请先上传"}), 400
+
+    image_url = images[0]["url"]
+    video_url, err = generate_storefront_promo_video(image_url, biz_name, sign_text)
+
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify({"video_url": video_url})
+
 @app.route("/api/products/<int:pid>/quote", methods=["POST"])
 def api_generate_quote(pid):
     """生成 PDF 报价单（博汇标准格式）"""
@@ -2086,7 +2311,17 @@ def api_generate_quote(pid):
 def api_quotes():
     status = request.args.get("status")
     cid = request.args.get("customer_id", type=int)
-    return jsonify(get_quotes(status, cid))
+    # 用户隔离：非管理员默认只看自己的报价
+    uid = session.get("user_id")
+    role = session.get("role")
+    created_by = request.args.get("created_by", type=int)
+    if created_by:
+        pass  # 明确指定了创建人
+    elif request.args.get("all") and role == "admin":
+        created_by = None  # 管理员看全部
+    elif uid:
+        created_by = uid  # 默认只看自己的
+    return jsonify(get_quotes(status, cid, created_by))
 
 @app.route("/api/quotes/<int:qid>")
 def api_quote(qid):
@@ -2096,6 +2331,7 @@ def api_quote(qid):
 @app.route("/api/quotes", methods=["POST"])
 def api_add_quote():
     data = request.json
+    data["created_by"] = session.get("user_id")
     result = add_quote(data)
     uid = session.get("user_id")
     if uid and result.get("id"):
@@ -2930,14 +3166,15 @@ def api_calc_save_quote():
         "valid_until": valid_until,
         "status": "draft",
         "notes": "AI-Generated Formal Quotation (auto-saved)",
-        "items": json.dumps([{
+        "created_by": session.get("user_id"),
+        "items": [{
             "product_id": "",
             "name": f"{data.get('productLabel','LED Letters')} - {data.get('materialLabel','')}",
             "qty": data.get("totalQty", 1),
             "unit": "set",
             "unit_price": round(amt / max(data.get("totalQty", 1), 1), 2),
             "total": amt
-        }]),
+        }],
     }
     try:
         qid = add_quote(quote_data)
@@ -3365,6 +3602,8 @@ def api_order(oid):
 @login_required
 def api_create_order():
     data = request.json or {}
+    if not data.get("customer_id"):
+        return jsonify({"error": "缺少 customer_id"}), 400
     data["created_by"] = session.get("user_id")
     result = add_order(data)
     if "error" in result:
@@ -4278,7 +4517,140 @@ def api_v4_leads_export_template():
     )
 
 
-# ==================== V5 — 全球收入操作系统 API ====================
+# ==================== V4 — Autonomous Sales System API ====================
+
+# ---- V4: 客户优先级 (Deal Prioritizer) ----
+
+@app.route("/api/v4/priorities", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_priorities():
+    """获取所有活跃客户的优先级评分列表"""
+    from ai_engine.deal_prioritizer import DealPrioritizer
+    prioritizer = DealPrioritizer()
+    results = prioritizer.batch_reprioritize(limit=200)
+    return jsonify(results)
+
+
+@app.route("/api/v4/prioritize", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v4_prioritize():
+    """手动触发重新评分"""
+    from ai_engine.deal_prioritizer import DealPrioritizer
+    result = DealPrioritizer().batch_reprioritize(limit=200)
+    return jsonify({"ok": True, "count": len(result)})
+
+
+@app.route("/api/v4/priorities/summary", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_priorities_summary():
+    """获取 A/B/C 三类客户数量汇总"""
+    from ai_engine.deal_prioritizer import DealPrioritizer
+    summary = DealPrioritizer().get_priority_summary()
+    return jsonify(summary)
+
+
+# ---- V4: 自动发送 (Autonomous Sender) ----
+
+@app.route("/api/v4/send/<int:customer_id>", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_send(customer_id):
+    """手动触发自动发送
+
+    Body: {"type": "followup_light|push_close|risk_message|wake_up|final_close|quote"}
+    """
+    data = request.json or {}
+    msg_type = data.get("type", "followup_light")
+    from ai_engine.autonomous_sender import AutonomousSender
+    sender = AutonomousSender()
+
+    if msg_type == "quote":
+        result = sender.send_quote(customer_id, data.get("price_tier", "MID"))
+    else:
+        result = sender.send_followup(customer_id, msg_type)
+
+    return jsonify(result)
+
+
+# ---- V4: 动态定价 (Dynamic Pricing) ----
+
+@app.route("/api/v4/pricing/<int:customer_id>", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_get_pricing(customer_id):
+    """查看客户当前定价"""
+    from ai_engine.dynamic_pricing import DynamicPricing
+    result = DynamicPricing().get_pricing_for_customer(customer_id)
+    return jsonify(result)
+
+
+@app.route("/api/v4/pricing/<int:customer_id>", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v4_override_pricing(customer_id):
+    """手动覆盖客户定价档位
+
+    Body: {"price_tier": "LOW|MID|HIGH", "reason": "..."}
+    """
+    data = request.json or {}
+    tier = data.get("price_tier", "MID")
+    reason = data.get("reason", "manual override")
+    from ai_engine.dynamic_pricing import DynamicPricing
+    result = DynamicPricing().apply_override(customer_id, tier, reason)
+    return jsonify(result)
+
+
+# ---- V4: 决策大脑 (Conversion AI Brain) ----
+
+@app.route("/api/v4/decide/<int:customer_id>", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v4_decide(customer_id):
+    """查看决策大脑对该客户的决策结果（dry run）"""
+    from ai_engine.conversion_ai_brain import ConversionBrain
+    result = ConversionBrain().decide(customer_id)
+    return jsonify(result)
+
+
+# ---- V4: 收单调度器 (Revenue Scheduler) ----
+
+@app.route("/api/v4/scheduler/status", methods=["GET"])
+@login_required
+@role_required('admin')
+def api_v4_scheduler_status():
+    """查看调度器状态和今日日志"""
+    from ai_engine.revenue_scheduler import RevenueScheduler
+    result = RevenueScheduler().get_status()
+    return jsonify(result)
+
+
+@app.route("/api/v4/scheduler/run", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v4_scheduler_run():
+    """手动触发调度 tick
+
+    Body: {"slot": "09:00|12:00|18:00|22:00"} (可选)
+    """
+    data = request.json or {}
+    slot = data.get("slot")
+    from ai_engine.revenue_scheduler import RevenueScheduler
+    result = RevenueScheduler().manual_run(slot)
+    return jsonify(result)
+
+
+@app.route("/api/v4/scheduler/log", methods=["GET"])
+@login_required
+@role_required('admin')
+def api_v4_scheduler_log():
+    """获取调度器历史日志"""
+    limit = request.args.get("limit", 50, type=int)
+    from ai_engine.revenue_scheduler import RevenueScheduler
+    result = RevenueScheduler().get_today_log()
+    return jsonify(result[:limit])
 
 # ---- V5: 区域引擎 ----
 
@@ -4440,6 +4812,264 @@ def api_v5_agent_stats():
     from multi_agent_team import MultiAgentTeam
     days = request.args.get("days", 30, type=int)
     return jsonify(MultiAgentTeam().get_agent_stats(days))
+
+
+# ---- V5: Agent Competition System ----
+
+@app.route("/api/v5/competition/run", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_run():
+    """运行Agent竞争（测试用）"""
+    data = request.json or {}
+    msg = data.get("message", "Hello, I'm interested in your signs.")
+    state = data.get("state", "NEW")
+    priority = data.get("priority", "C")
+    country = data.get("country", "")
+    from ai_engine.agents.agent_competition import AgentCompetition
+    result = AgentCompetition().run_competition(
+        customer_msg=msg,
+        context={"state": state, "priority": priority, "country": country},
+    )
+    return jsonify(result)
+
+
+@app.route("/api/v5/competition/agents")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_agents():
+    """获取所有Agent类型"""
+    from ai_engine.agents.agent_competition import AgentCompetition
+    comp = AgentCompetition()
+    agents = []
+    for aid in comp.get_agent_ids():
+        agent_class = comp.agents.get(aid)
+        if agent_class:
+            agents.append({
+                "agent_id": aid,
+                "name": getattr(agent_class, "NAME", aid),
+                "strategy": getattr(agent_class, "STRATEGY", ""),
+                "pricing_mode": getattr(agent_class, "PRICING_MODE", ""),
+            })
+    return jsonify(agents)
+
+
+@app.route("/api/v5/competition/weights")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_weights():
+    """获取Agent权重/学习数据"""
+    scene_state = request.args.get("state", "")
+    scene_priority = request.args.get("priority", "")
+    from ai_engine.agents.winner_selector import WinnerSelector
+    weights = WinnerSelector().get_agent_weights(scene_state, scene_priority)
+    return jsonify(weights)
+
+
+@app.route("/api/v5/competition/evolution")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_evolution():
+    """获取Agent进化报告"""
+    from ai_engine.agents.winner_selector import WinnerSelector
+    report = WinnerSelector().get_agent_evolution_report()
+    return jsonify(report)
+
+
+@app.route("/api/v5/competition/schedule")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_schedule():
+    """获取Agent调度计划"""
+    date_str = request.args.get("date", "")
+    from ai_engine.agents.agent_manager import AgentManager
+    schedule = AgentManager().get_daily_schedule(date_str or None)
+    return jsonify(schedule)
+
+
+@app.route("/api/v5/competition/route", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_route():
+    """Agent路由：客户特征→最佳Agent"""
+    data = request.json or {}
+    from ai_engine.agents.agent_router import AgentRouter
+    result = AgentRouter.route(data)
+    return jsonify(result)
+
+
+@app.route("/api/v5/competition/load")
+@login_required
+@role_required('admin', 'sales')
+def api_v5_competition_load():
+    """获取Agent负载"""
+    from ai_engine.agents.agent_manager import AgentManager
+    load = AgentManager().get_agent_load()
+    return jsonify(load)
+
+
+# =================== V6 — Global Revenue Network ===================
+
+@app.route("/api/v6/route", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_route():
+    """Global Router: 国家→区域路由"""
+    data = request.json or {}
+    from ai_engine.global_router import GlobalRouter
+    return jsonify(GlobalRouter.route(
+        data.get("country", ""),
+        data.get("intent", ""),
+        data.get("product", ""),
+        data.get("urgency", "medium"),
+    ))
+
+
+@app.route("/api/v6/regions")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_regions():
+    """获取所有区域配置"""
+    from ai_engine.global_router import GlobalRouter
+    return jsonify(GlobalRouter.get_all_regions())
+
+
+@app.route("/api/v6/culture/<country>")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_culture(country):
+    """Culture Adaptor: 获取国家文化上下文"""
+    from ai_engine.culture_adaptor import CultureAdaptor
+    return jsonify(CultureAdaptor.get_culture_context(country))
+
+
+@app.route("/api/v6/adapt-message", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_adapt_message():
+    """Culture Adaptor: 适配消息到目标文化"""
+    data = request.json or {}
+    from ai_engine.culture_adaptor import CultureAdaptor
+    adapted = CultureAdaptor.adapt(
+        data.get("text", ""),
+        data.get("country", ""),
+        data.get("product_type", ""),
+    )
+    return jsonify({"adapted": adapted})
+
+
+@app.route("/api/v6/strategy/<region>")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_strategy(region):
+    """Regional Sales Brain: 获取区域销售策略"""
+    from ai_engine.regional_sales_brain import RegionalSalesBrain
+    return jsonify(RegionalSalesBrain.get_strategy(region.upper()))
+
+
+@app.route("/api/v6/strategies")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_strategies():
+    """获取所有区域策略"""
+    from ai_engine.regional_sales_brain import RegionalSalesBrain
+    return jsonify(RegionalSalesBrain.get_all_strategies())
+
+
+@app.route("/api/v6/profit/calculate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_profit_calculate():
+    """Profit Engine: 计算价格"""
+    data = request.json or {}
+    from ai_engine.profit_engine import ProfitEngine
+    return jsonify(ProfitEngine.calculate_price(
+        float(data.get("base_cost", 0)),
+        data.get("country", "US"),
+        data.get("product_category", "general"),
+        int(data.get("quantity", 1)),
+    ))
+
+
+@app.route("/api/v6/profit/countries")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_profit_countries():
+    """获取所有国家利润配置"""
+    from ai_engine.profit_engine import ProfitEngine
+    return jsonify(ProfitEngine.get_all_country_profiles())
+
+
+@app.route("/api/v6/currency/convert", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_currency_convert():
+    """Currency Optimizer: 汇率换算"""
+    data = request.json or {}
+    from ai_engine.currency_optimizer import CurrencyOptimizer
+    return jsonify(CurrencyOptimizer.convert(
+        float(data.get("amount_usd", 0)),
+        data.get("to_currency", "USD"),
+    ))
+
+
+@app.route("/api/v6/currency/localize", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_currency_localize():
+    """Currency Optimizer: 本地化定价"""
+    data = request.json or {}
+    from ai_engine.currency_optimizer import CurrencyOptimizer
+    return jsonify(CurrencyOptimizer.get_localized_price(
+        float(data.get("amount_usd", 0)),
+        data.get("country", "US"),
+    ))
+
+
+@app.route("/api/v6/currency/all-prices", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_currency_all_prices():
+    """获取所有货币价格"""
+    data = request.json or {}
+    from ai_engine.currency_optimizer import CurrencyOptimizer
+    return jsonify(CurrencyOptimizer.get_all_prices(
+        float(data.get("amount_usd", 0)),
+    ))
+
+
+@app.route("/api/v6/production/allocate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_production_allocate():
+    """Production Allocator: 排产分配"""
+    data = request.json or {}
+    from ai_engine.production_allocator import ProductionAllocator
+    return jsonify(ProductionAllocator.allocate(data.get("orders", [])))
+
+
+@app.route("/api/v6/production/factories")
+@login_required
+@role_required('admin', 'sales')
+def api_v6_production_factories():
+    """获取工厂配置"""
+    from ai_engine.production_allocator import ProductionAllocator
+    return jsonify(ProductionAllocator.get_factory_utilization())
+
+
+@app.route("/api/v6/production/shipping", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v6_production_shipping():
+    """估算运费"""
+    data = request.json or {}
+    from ai_engine.production_allocator import ProductionAllocator
+    return jsonify(ProductionAllocator.estimate_shipping(
+        data.get("country", ""),
+        data.get("factory_id", "f1"),
+        int(data.get("quantity", 1)),
+        float(data.get("weight_kg", 10)),
+    ))
 
 
 # ---- V5: 利润引擎 ----
@@ -5026,7 +5656,841 @@ def api_v6_exec_cash():
     return jsonify(ExecutiveDashboard().get_cash_position())
 
 
-@app.route("/api/knowledge-base/reload", methods=["POST"])
+# ==================== V7 — AI Evolution API ====================
+
+@app.route("/api/v7/ai-feedback/rules", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_feedback_rules():
+    """获取 AI 进化规则列表"""
+    cat = request.args.get("category")
+    from database import get_ai_feedback_rules
+    rules = get_ai_feedback_rules(active_only=False, category=cat)
+    return jsonify(rules)
+
+
+@app.route("/api/v7/ai-feedback/rules", methods=["POST"])
+@login_required
+@role_required('admin', 'finance')
+def api_v7_feedback_add():
+    """添加 AI 进化规则"""
+    data = request.get_json(force=True)
+    from database import add_ai_feedback_rule
+    rid = add_ai_feedback_rule(data)
+    from ai_evolution import clear_rules_cache
+    clear_rules_cache()
+    return jsonify({"id": rid, "ok": True})
+
+
+@app.route("/api/v7/ai-feedback/rules/<int:rule_id>", methods=["PUT"])
+@login_required
+@role_required('admin', 'finance')
+def api_v7_feedback_update(rule_id):
+    """更新 AI 进化规则"""
+    data = request.get_json(force=True)
+    from database import update_ai_feedback_rule
+    update_ai_feedback_rule(rule_id, **data)
+    from ai_evolution import clear_rules_cache
+    clear_rules_cache()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/v7/ai-feedback/rules/<int:rule_id>", methods=["DELETE"])
+@login_required
+@role_required('admin')
+def api_v7_feedback_delete(rule_id):
+    """删除 AI 进化规则"""
+    from database import delete_ai_feedback_rule
+    delete_ai_feedback_rule(rule_id)
+    from ai_evolution import clear_rules_cache
+    clear_rules_cache()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/v7/ai-feedback/categories", methods=["GET"])
+@login_required
+def api_v7_feedback_categories():
+    """获取规则分类列表"""
+    return jsonify([
+        {"key": "b2b_rule", "label": "B2B 销售规则", "color": "#e74c3c"},
+        {"key": "objection_handling", "label": "异议处理", "color": "#e67e22"},
+        {"key": "regional_strategy", "label": "区域策略", "color": "#2ecc71"},
+        {"key": "sales_tactic", "label": "销售策略", "color": "#3498db"},
+        {"key": "auto_improvement", "label": "自动改进", "color": "#9b59b6"},
+        {"key": "general", "label": "通用", "color": "#95a5a6"},
+    ])
+
+
+@app.route("/api/v7/ai-feedback/auto-improve", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_feedback_auto_improve():
+    """从最新评估结果自动生成改进规则"""
+    from ai_evolution import generate_improvements_from_eval
+    count = generate_improvements_from_eval()
+    return jsonify({"generated": count, "ok": True})
+
+
+@app.route("/api/v7/ai-feedback/clear-cache", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_feedback_clear_cache():
+    """清除规则缓存（强制重新读取）"""
+    from ai_evolution import clear_rules_cache
+    clear_rules_cache()
+    return jsonify({"ok": True})
+
+
+# ==================== V7 — AI Test Center API ====================
+
+@app.route("/api/v7/ai-test/personas", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_test_personas():
+    """获取可用的 AI 客户画像列表"""
+    from ai_customer import list_persona_options
+    return jsonify(list_persona_options())
+
+
+@app.route("/api/v7/ai-test/run", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_test_run():
+    """运行 AI 客户 vs AI 销售模拟对话"""
+    data = request.get_json(force=True) or {}
+    persona_id = data.get("persona_id", "dubai_distributor")
+    max_rounds = int(data.get("max_rounds", 4))
+
+    from ai_customer import get_persona, generate_customer_response
+    from ai_engine import analyze_customer_message
+    from database import save_ai_test_result
+    from ai_evolution import clear_rules_cache
+
+    persona = get_persona(persona_id)
+    if not persona:
+        return jsonify({"error": f"Persona not found: {persona_id}"}), 404
+
+    conversation = []
+    customer_msg = persona["opening"]
+
+    for round_num in range(max_rounds):
+        try:
+            sales_result = analyze_customer_message(
+                text=customer_msg,
+                country=persona["country"],
+                history=[{"role": "received", "content_en": m["content"]}
+                         for m in conversation if m["role"] == "customer"]
+            )
+        except Exception as e:
+            print(f"[TestCenter] AI分析异常: {e}")
+            break
+        sales_reply = sales_result.get("reply_en", "") or sales_result.get("reply", "") or ""
+        if not sales_reply.strip():
+            break
+
+        conversation.append({"round": round_num + 1, "role": "sales", "content": sales_reply})
+
+        customer_msg = generate_customer_response(
+            persona=persona,
+            conversation_history=conversation,
+            sales_last_message=sales_reply,
+        )
+        conversation.append({"round": round_num + 1, "role": "customer", "content": customer_msg, "persona": persona["name"]})
+
+    scores = _evaluate_test_conversation(conversation, persona)
+    summary = {
+        "persona_id": persona_id, "persona_name": persona["name"],
+        "country": persona["country"], "role": persona["role"],
+        "rounds": max_rounds, "total_messages": len(conversation),
+    }
+    generated_count = _auto_generate_rules_from_test(conversation, scores, persona_id, persona)
+    clear_rules_cache()
+
+    test_id = save_ai_test_result(persona_id, persona["name"], conversation, summary, scores, generated_count)
+
+    return jsonify({
+        "test_id": test_id, "persona": persona["name"],
+        "rounds": len(conversation) // 2, "messages": len(conversation),
+        "scores": scores, "generated_rules": generated_count,
+        "conversation": conversation,
+    })
+
+
+def _evaluate_test_conversation(conversation, persona):
+    """评估测试对话质量（规则评分，不调 LLM）"""
+    sales_msgs = [m for m in conversation if m["role"] == "sales"]
+    all_text = " ".join(m["content"].lower() for m in sales_msgs)
+
+    # B2B 思维 — 是否先问需求再报价
+    b2b = 10
+    asked_spec = any(w in all_text for w in ["drawing", "dimension", "spec", "measurement", "size", "width", "height", "图纸", "尺寸"])
+    asked_env = any(w in all_text for w in ["outdoor", "indoor", "location", "wall", "facade", "环境", "安装"])
+    gave_price = any(w in all_text for w in ["$", "usd", "price is", "costs "])
+    if gave_price and not asked_spec:
+        b2b -= 5
+    if not asked_spec:
+        b2b -= 3
+    if not asked_env:
+        b2b -= 2
+
+    # 异议处理
+    obj = 10
+    has_empathy = any(w in all_text for w in ["understand", "i see", "good point", "fair", "get it", "理解"])
+    has_evidence = any(w in all_text for w in ["because", "difference", "compare", "quality", "warranty", "certified", "certification"])
+    if not has_empathy:
+        obj -= 3
+    if not has_evidence:
+        obj -= 3
+
+    # 区域适配
+    reg = 10
+    r = persona.get("region", "")
+    if r == "中东" and not any(w in all_text for w in ["shipping", "fob", "dubai", "dhl", "logistics"]):
+        reg -= 3
+    elif r == "欧洲" and not any(w in all_text for w in ["ce", "ul", "certification", "rohs", "iso"]):
+        reg -= 3
+    elif r == "北美" and not any(w in all_text for w in ["ul", "lead time", "shipping"]):
+        reg -= 2
+
+    # 话术自然度 (扣 ABC 分)
+    abc_count = sum(1 for m in sales_msgs if any(w in m["content"].lower() for w in ["reply a", "reply b", "reply c", "choose a", "choose b", "option a", "option b"]))
+    sales_score = max(0, 10 - abc_count * 3)
+
+    overall = round((max(0, b2b) + max(0, obj) + max(0, reg) + sales_score) / 4, 1)
+
+    return {
+        "b2b_score": max(0, b2b),
+        "objection_score": max(0, obj),
+        "regional_score": max(0, reg),
+        "sales_score": sales_score,
+        "abc_count": abc_count,
+        "overall": overall,
+    }
+
+
+def _auto_generate_rules_from_test(conversation, scores, persona_id, persona):
+    """根据测试结果自动生成改进规则"""
+    from database import add_ai_feedback_rule
+    count = 0
+
+    if scores.get("b2b_score", 10) < 6:
+        add_ai_feedback_rule({
+            "category": "auto_improvement",
+            "trigger_condition": persona["country"].lower(),
+            "action_rule": f"与{persona.get('region','')}客户对话时，必须优先问需求再报价。B2B评分: {scores['b2b_score']}/10",
+            "severity": "suggestion",
+            "source_scenario": f"test:{persona_id}",
+        })
+        count += 1
+
+    # ABC 话术检测
+    for m in conversation:
+        if m["role"] != "sales":
+            continue
+        if any(w in m["content"].lower() for w in ["reply a", "reply b", "reply c", "choose a", "choose b"]):
+            add_ai_feedback_rule({
+                "category": "auto_improvement",
+                "trigger_condition": persona["name"].lower(),
+                "action_rule": f"禁止用ABC选项结尾。问题回复: {m['content'][:120]}",
+                "severity": "hard_rule",
+                "source_scenario": f"test:{persona_id}",
+            })
+            count += 1
+            break
+
+    return count
+
+
+@app.route("/api/v7/ai-test/results", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_test_results():
+    """获取测试历史列表"""
+    limit = request.args.get("limit", 20, type=int)
+    from database import get_ai_test_results
+    return jsonify(get_ai_test_results(limit=limit))
+
+
+@app.route("/api/v7/ai-test/results/<int:test_id>", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_test_result_detail(test_id):
+    """获取单次测试详情"""
+    from database import get_ai_test_result
+    result = get_ai_test_result(test_id)
+    if not result:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(result)
+
+
+@app.route("/api/v7/ai-test/generate-rules/<int:test_id>", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_test_generate_rules(test_id):
+    """从测试结果生成进化规则"""
+    from database import get_ai_test_result, add_ai_feedback_rule
+    from ai_evolution import clear_rules_cache
+
+    result = get_ai_test_result(test_id)
+    if not result:
+        return jsonify({"error": "Not found"}), 404
+
+    conv = result.get("conversation", []) or []
+    scores = result.get("scores", {}) or {}
+    pid = result.get("persona_id", "")
+    pname = result.get("persona_name", "")
+    count = 0
+
+    for m in conv:
+        if m.get("role") != "sales":
+            continue
+        c = m.get("content", "")
+        if any(w in c.lower() for w in ["reply a", "reply b", "reply c", "choose a", "choose b"]):
+            add_ai_feedback_rule({
+                "category": "auto_improvement",
+                "trigger_condition": pname,
+                "action_rule": f"禁止ABC结尾。问题: {c[:120]}",
+                "severity": "hard_rule",
+                "source_scenario": f"test:{pid}",
+            })
+            count += 1
+            break
+
+    if isinstance(scores, dict) and scores.get("b2b_score", 10) < 6:
+        add_ai_feedback_rule({
+            "category": "auto_improvement",
+            "trigger_condition": pname,
+            "action_rule": f"B2B评分{scores['b2b_score']}/10 — 必须先问需求再报价",
+            "severity": "suggestion",
+            "source_scenario": f"test:{pid}",
+        })
+        count += 1
+
+    clear_rules_cache()
+    return jsonify({"generated": count, "ok": True})
+
+
+@app.route("/api/v7/sales-state/detect", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_sales_state_detect():
+    """检测客户销售阶段 + 执行器输出（用于调试/前端展示）"""
+    data = request.json or {}
+    message = data.get("message", "")
+    intent = data.get("intent", "")
+    country = data.get("country", "")
+
+    from sales_state import detect_sales_state
+    from sales_executor import SalesExecutor
+
+    state_info = detect_sales_state(message=message, intent=intent)
+    behavior = SalesExecutor().execute(state_info, message=message, country=country)
+
+    return jsonify({
+        "state": state_info["state"],
+        "confidence": state_info["confidence"],
+        "deal_probability": state_info["deal_probability"],
+        "price_tier": state_info["price_tier"],
+        "next_action": state_info["next_action"],
+        "recommended_quote_type": state_info["recommended_quote_type"],
+        "matched_keywords": state_info["matched_keywords"],
+        "reason": state_info["reason"],
+        "execution": {
+            "reply_type": behavior["reply_type"],
+            "quote_trigger": behavior["quote_trigger"],
+            "whatsapp_action": behavior["whatsapp_action"],
+            "urgency_level": behavior["urgency_level"],
+            "price_anchor": behavior["price_anchor"],
+            "anchor_price": behavior["anchor_price"],
+            "requires_risk_framing": behavior["requires_risk_framing"],
+            "customer_type": behavior["customer_type"],
+        },
+    })
+
+
+@app.route("/api/v7/sales-state/persona-test", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_sales_state_persona_test():
+    """批量测试：对每个客户画像的消息检测销售阶段"""
+    data = request.json or {}
+    persona_id = data.get("persona_id", "")
+    from ai_customer import get_persona, generate_customer_response
+
+    results = []
+    if persona_id:
+        personas = [get_persona(persona_id)]
+    else:
+        from ai_customer import get_personas
+        personas = get_personas()
+
+    for p in personas:
+        if not p:
+            continue
+        msg = p["opening"]
+        from sales_state import detect_sales_state
+        from sales_executor import SalesExecutor
+        si = detect_sales_state(message=msg)
+        be = SalesExecutor().execute(si, message=msg, country=p.get("country", ""))
+        results.append({
+            "persona": p["id"],
+            "name": p["name"],
+            "country": p["country"],
+            "message": msg[:80],
+            "state": si["state"],
+            "price_tier": si["price_tier"],
+            "deal_probability": si["deal_probability"],
+            "next_action": si["next_action"],
+            "exec_action": be["reply_type"],
+            "urgency": be["urgency_level"],
+            "quote_trigger": be["quote_trigger"],
+        })
+
+    return jsonify({"results": results, "count": len(results)})
+
+
+@app.route("/api/v7/sales-state/exec-instruction", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_sales_state_instruction():
+    """获取销售执行指令（用于查看 AI 会收到什么指令）"""
+    data = request.json or {}
+    message = data.get("message", "")
+    country = data.get("country", "")
+
+    from sales_state import detect_sales_state
+    from sales_executor import SalesExecutor
+
+    si = detect_sales_state(message=message)
+    be = SalesExecutor().execute(si, message=message, country=country)
+
+    return jsonify({
+        "instruction": be["sales_instruction"],
+        "risk_framing": be.get("risk_framing", ""),
+        "requires_risk_framing": be["requires_risk_framing"],
+        "abc_text": be.get("abc_text", ""),
+    })
+
+
+@app.route("/api/v7/revenue/process", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_revenue_process():
+    """收单引擎：处理客户消息，返回完整成交动作"""
+    data = request.json or {}
+    message = data.get("message", "")
+    intent = data.get("intent", "")
+    country = data.get("country", "")
+    customer_name = data.get("customer_name", "")
+
+    from revenue_engine import RevenueEngine
+    engine = RevenueEngine()
+    result = engine.process(
+        message=message, intent=intent,
+        country=country, customer_name=customer_name,
+    )
+    return jsonify(result)
+
+
+@app.route("/api/v7/revenue/conversion-score", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v7_revenue_conversion_score():
+    """计算成交评分（调试用）"""
+    data = request.json or {}
+    state = data.get("state", "NEW")
+    intent = data.get("intent", "")
+    price_tier = data.get("price_tier", "UNKNOWN")
+    urgency = data.get("urgency", "low")
+    from revenue_engine import _calculate_conversion_score
+    score = _calculate_conversion_score(state, intent, price_tier, urgency)
+    return jsonify({"conversion_score": score, "state": state, "intent": intent})
+
+
+# ==================== V3 — 自优化销售系统 API ====================
+
+# --- Conversions ---
+
+@app.route("/api/v3/conversions", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_conversions():
+    """获取转换记录列表"""
+    from conversion_tracker import ConversionTracker
+    tracker = ConversionTracker()
+    state = request.args.get("state", "")
+    result = request.args.get("result", "")
+    days = request.args.get("days", "")
+    limit = int(request.args.get("limit", 50))
+    rows = tracker.get_conversions(state=state, result=result, days=days, limit=limit)
+    return jsonify(rows)
+
+
+@app.route("/api/v3/conversions/stats", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_conversions_stats():
+    """获取聚合成交统计"""
+    from conversion_tracker import ConversionTracker
+    tracker = ConversionTracker()
+    filters = {}
+    for k in ("state", "intent", "price_tier", "ab_version", "days"):
+        v = request.args.get(k, "")
+        if v:
+            filters[k] = v
+    stats = tracker.get_conversion_rate(filters=filters or None)
+    return jsonify(stats)
+
+
+@app.route("/api/v3/conversions/close", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_conversions_close():
+    """关闭一条转换记录（成交/失败）"""
+    data = request.json or {}
+    cid = data.get("id", 0)
+    result = data.get("result", "won")
+    revenue = float(data.get("revenue", 0))
+    profit = float(data.get("profit", 0))
+    lost_reason = data.get("lost_reason", "")
+    from revenue_engine import RevenueEngine
+    RevenueEngine().close_conversation(cid, result, revenue, profit, lost_reason)
+    return jsonify({"ok": True})
+
+
+# --- A/B Test ---
+
+@app.route("/api/v3/ab-test/performance", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_ab_performance():
+    """获取 A/B 版本性能数据"""
+    from a_b_optimizer import ABOptimizer
+    optimizer = ABOptimizer()
+    state = request.args.get("state", "")
+    days = int(request.args.get("days", 30))
+    perf = optimizer.analyze_performance(days=days)
+    weights = optimizer.get_current_weights()
+    return jsonify({"performance": perf, "weights": weights})
+
+
+@app.route("/api/v3/ab-test/optimize", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_ab_optimize():
+    """运行 A/B 权重调优"""
+    from a_b_optimizer import ABOptimizer
+    optimizer = ABOptimizer()
+    days = int((request.json or {}).get("days", 30))
+    result = optimizer.adjust_weights(days=days)
+    # 记录优化日志
+    from database import get_db
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO v3_optimization_log (optimizer_type, summary, changes_made, details, triggered_by) VALUES (?,?,?,?,?)",
+        ("ab_optimizer", result.get("summary", ""), result.get("changes_made", 0),
+         '{}', 'manual')
+    )
+    conn.commit()
+    conn.close()
+    return jsonify(result)
+
+
+@app.route("/api/v3/ab-test/weights", methods=["PUT"])
+@login_required
+@role_required('admin')
+def api_v3_ab_weights():
+    """手动设置 A/B 权重"""
+    data = request.json or {}
+    state = data.get("state", "NEEDS_ANALYSIS")
+    version = data.get("version", "B")
+    weight = float(data.get("weight", 1.0))
+    from a_b_optimizer import ABOptimizer
+    ABOptimizer().set_manual_weight(state, version, weight)
+    return jsonify({"ok": True, "state": state, "version": version, "weight": weight})
+
+
+# --- Price ---
+
+@app.route("/api/v3/price/performance", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_price_performance():
+    """获取价格性能数据"""
+    from price_optimizer import PriceOptimizer
+    optimizer = PriceOptimizer()
+    days = int(request.args.get("days", 90))
+    perf = optimizer.analyze_price_performance(days=days)
+    current = optimizer.get_current_anchors()
+    return jsonify({"performance": perf, "current_anchors": current})
+
+
+@app.route("/api/v3/price/optimize", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_price_optimize():
+    """运行价格优化"""
+    from price_optimizer import PriceOptimizer
+    optimizer = PriceOptimizer()
+    recs = optimizer.compute_optimal_prices()
+    from database import get_db
+    conn = get_db()
+    changes = sum(1 for v in recs.values() if v.get("status") == "optimized")
+    conn.execute(
+        "INSERT INTO v3_optimization_log (optimizer_type, summary, changes_made, details, triggered_by) VALUES (?,?,?,?,?)",
+        ("price_optimizer", f"Optimized {changes} tiers", changes, json.dumps(recs, ensure_ascii=False), 'manual')
+    )
+    conn.commit()
+    conn.close()
+    return jsonify(recs)
+
+
+@app.route("/api/v3/price/apply", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_price_apply():
+    """将优化后的价格应用到引擎"""
+    from price_optimizer import PriceOptimizer
+    optimizer = PriceOptimizer()
+    data = request.json or {}
+    recs = data.get("recommendations")
+    result = optimizer.update_price_anchors(recommendations=recs)
+    return jsonify(result)
+
+
+@app.route("/api/v3/price/reset", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_price_reset():
+    """重置价格为默认值"""
+    from price_optimizer import PriceOptimizer
+    PriceOptimizer().reset_to_defaults()
+    return jsonify({"ok": True})
+
+
+# --- Intent ---
+
+@app.route("/api/v3/intent/weights", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_intent_weights():
+    """获取当前意图权重"""
+    from intent_weight_tuner import IntentWeightTuner
+    tuner = IntentWeightTuner()
+    weights = tuner.get_current_weights()
+    return jsonify(weights)
+
+
+@app.route("/api/v3/intent/performance", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_intent_performance():
+    """获取意图成交性能"""
+    from intent_weight_tuner import IntentWeightTuner
+    tuner = IntentWeightTuner()
+    days = int(request.args.get("days", 60))
+    analysis = tuner.analyze_intent_performance(days=days)
+    return jsonify(analysis)
+
+
+@app.route("/api/v3/intent/optimize", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_intent_optimize():
+    """运行意图权重调优"""
+    from intent_weight_tuner import IntentWeightTuner
+    tuner = IntentWeightTuner()
+    dry_run = (request.json or {}).get("dry_run", False)
+    result = tuner.update_weights(dry_run=dry_run)
+    # 记录优化日志
+    from database import get_db
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO v3_optimization_log (optimizer_type, summary, changes_made, details, triggered_by) VALUES (?,?,?,?,?)",
+        ("intent_tuner", result.get("summary", ""), result.get("changes_made", 0),
+         json.dumps(result.get("changes", []), ensure_ascii=False), 'manual')
+    )
+    conn.commit()
+    conn.close()
+    return jsonify(result)
+
+
+@app.route("/api/v3/intent/weights", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_intent_weights_set():
+    """手动设置单个意图权重"""
+    data = request.json or {}
+    intent = data.get("intent", "")
+    weight = int(data.get("weight", 0))
+    from intent_weight_tuner import IntentWeightTuner
+    IntentWeightTuner().set_manual_weight(intent, weight)
+    return jsonify({"ok": True, "intent": intent, "weight": weight})
+
+
+@app.route("/api/v3/intent/reset", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_intent_reset():
+    """重置所有意图权重为默认值"""
+    from intent_weight_tuner import IntentWeightTuner
+    IntentWeightTuner().reset_weights()
+    return jsonify({"ok": True})
+
+
+# --- Deal Analysis ---
+
+@app.route("/api/v3/deal-analysis", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_deal_analysis():
+    """获取成交分析摘要"""
+    from deal_analyzer import DealAnalyzer
+    analyzer = DealAnalyzer()
+    days = int(request.args.get("days", 30))
+    result = analyzer.analyze_batch(days=days)
+    return jsonify(result)
+
+
+@app.route("/api/v3/deal-analysis/batch", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_deal_analysis_batch():
+    """运行批量成交分析"""
+    from deal_analyzer import DealAnalyzer
+    analyzer = DealAnalyzer()
+    days = int((request.json or {}).get("days", 30))
+    result = analyzer.analyze_batch(days=days)
+    return jsonify(result)
+
+
+@app.route("/api/v3/deal-analysis/insights", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_deal_insights():
+    """获取聚合洞察"""
+    from deal_analyzer import DealAnalyzer
+    analyzer = DealAnalyzer()
+    days = int(request.args.get("days", 90))
+    insights = analyzer.get_insights(days=days)
+    recs = analyzer.generate_recommendations()
+    return jsonify({"insights": insights, "recommendations": recs})
+
+
+# --- Full Optimization ---
+
+@app.route("/api/v3/optimize", methods=["POST"])
+@login_required
+@role_required('admin')
+def api_v3_optimize():
+    """运行全优化流程（A/B + 价格 + 意图）"""
+    results = {}
+    errors = []
+
+    # 1. A/B 优化
+    try:
+        from a_b_optimizer import ABOptimizer
+        ab_result = ABOptimizer().adjust_weights()
+        results["ab_optimizer"] = ab_result
+    except Exception as e:
+        errors.append(f"ab_optimizer: {e}")
+        results["ab_optimizer"] = {"error": str(e)}
+
+    # 2. 价格优化
+    try:
+        from price_optimizer import PriceOptimizer
+        po = PriceOptimizer()
+        recs = po.compute_optimal_prices()
+        price_result = po.update_price_anchors(recommendations=recs)
+        results["price_optimizer"] = price_result
+    except Exception as e:
+        errors.append(f"price_optimizer: {e}")
+        results["price_optimizer"] = {"error": str(e)}
+
+    # 3. 意图权重优化
+    try:
+        from intent_weight_tuner import IntentWeightTuner
+        intent_result = IntentWeightTuner().update_weights(dry_run=False)
+        results["intent_tuner"] = intent_result
+    except Exception as e:
+        errors.append(f"intent_tuner: {e}")
+        results["intent_tuner"] = {"error": str(e)}
+
+    # 记录优化日志
+    from database import get_db
+    conn = get_db()
+    total_changes = sum(
+        r.get("changes_made", 0) for r in results.values() if isinstance(r, dict)
+    )
+    conn.execute(
+        "INSERT INTO v3_optimization_log (optimizer_type, summary, changes_made, details, triggered_by) VALUES (?,?,?,?,?)",
+        ("full_optimize", f"Total changes: {total_changes}, Errors: {len(errors)}",
+         total_changes, json.dumps(results, ensure_ascii=False), 'manual')
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"results": results, "errors": errors, "total_changes": total_changes})
+
+
+@app.route("/api/v3/optimize/logs", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_optimize_logs():
+    """获取优化历史日志"""
+    from database import get_db
+    conn = get_db()
+    limit = int(request.args.get("limit", 20))
+    rows = conn.execute(
+        "SELECT * FROM v3_optimization_log ORDER BY id DESC LIMIT ?",
+        (limit,)
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route("/api/v3/dashboard", methods=["GET"])
+@login_required
+@role_required('admin', 'sales')
+def api_v3_dashboard():
+    """V3 仪表盘聚合数据"""
+    from conversion_tracker import ConversionTracker
+    from a_b_optimizer import ABOptimizer
+    from price_optimizer import PriceOptimizer
+    from intent_weight_tuner import IntentWeightTuner
+    from deal_analyzer import DealAnalyzer
+    from database import get_db
+
+    tracker = ConversionTracker()
+
+    # 基础统计
+    stats_30d = tracker.get_conversion_rate(filters={"days": "30"})
+    stats_7d = tracker.get_conversion_rate(filters={"days": "7"})
+
+    # A/B 权重
+    ab_weights = ABOptimizer().get_current_weights()
+
+    # 当前意图权重
+    intent_weights = IntentWeightTuner().get_current_weights()
+
+    # 优化日志
+    conn = get_db()
+    log_rows = conn.execute(
+        "SELECT * FROM v3_optimization_log ORDER BY id DESC LIMIT 10"
+    ).fetchall()
+    conn.close()
+    opt_logs = [dict(r) for r in log_rows]
+
+    return jsonify({
+        "stats_7d": stats_7d,
+        "stats_30d": stats_30d,
+        "ab_weights": ab_weights,
+        "intent_weights": intent_weights,
+        "optimization_logs": opt_logs,
+    })
+
+
+@app.route("/api/reload-knowledge-base", methods=["POST"])
 @login_required
 @role_required('admin', 'sales')
 def api_reload_knowledge_base():
@@ -5684,6 +7148,376 @@ def _init_lead_state_engine():
 _init_lead_state_engine()
 
 
+# =================== V7 — Revenue Empire OS ===================
+
+@app.route("/api/v7/acquisition/campaign", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_acquisition_campaign():
+    """Acquisition Engine: 生成获客活动"""
+    data = request.json or {}
+    from ai_engine.acquisition_engine import AcquisitionEngine
+    return jsonify(AcquisitionEngine.generate_campaign(
+        data.get("product", ""), data.get("target", ""), data.get("country", ""),
+    ))
+
+
+@app.route("/api/v7/acquisition/budget", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_acquisition_budget():
+    """Acquisition Engine: 估算预算"""
+    data = request.json or {}
+    from ai_engine.acquisition_engine import AcquisitionEngine
+    return jsonify(AcquisitionEngine.estimate_budget(
+        data.get("channels") or [], int(data.get("duration_days", 30)),
+    ))
+
+
+@app.route("/api/v7/content/plan", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_content_plan():
+    """Content Factory: 生成内容计划"""
+    data = request.json or {}
+    from ai_engine.content_factory import ContentFactory
+    return jsonify(ContentFactory.batch_generate(
+        data.get("product", ""), data.get("target", ""),
+        data.get("country", ""), int(data.get("count", 10)),
+    ))
+
+
+@app.route("/api/v7/distribute", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_distribute():
+    """Channel Distributor: 创建分发计划"""
+    data = request.json or {}
+    from ai_engine.channel_distributor import ChannelDistributor
+    return jsonify(ChannelDistributor.create_distribution_plan(
+        data.get("product", ""), data.get("target", ""),
+        data.get("country", ""), float(data.get("budget", 1000)),
+    ))
+
+
+@app.route("/api/v7/product/expand", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_product_expand():
+    """Product Expander: 扩展产品矩阵"""
+    data = request.json or {}
+    from ai_engine.product_expander import ProductExpander
+    return jsonify(ProductExpander.expand(
+        data.get("product_id", ""), data.get("industry", ""),
+    ))
+
+
+@app.route("/api/v7/product/categories")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_product_categories():
+    """获取所有产品类别"""
+    from ai_engine.product_expander import ProductExpander
+    return jsonify(ProductExpander.get_all_categories())
+
+
+@app.route("/api/v7/market/analyze")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_market_analyze():
+    """Market Explorer: 分析所有市场"""
+    from ai_engine.market_explorer import MarketExplorer
+    return jsonify(MarketExplorer.analyze_markets())
+
+
+@app.route("/api/v7/market/discover")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_market_discover():
+    """Market Explorer: 发现新市场"""
+    from ai_engine.market_explorer import MarketExplorer
+    return jsonify(MarketExplorer.discover_new_markets())
+
+
+@app.route("/api/v7/market/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_market_summary():
+    """Market Explorer: 市场摘要"""
+    from ai_engine.market_explorer import MarketExplorer
+    return jsonify(MarketExplorer.get_market_summary())
+
+
+@app.route("/api/v7/ad/optimize", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_ad_optimize():
+    """Ad Optimizer: 生成优化方案"""
+    data = request.json or {}
+    from ai_engine.ad_optimizer import AdOptimizer
+    return jsonify(AdOptimizer.optimize_campaign(
+        data.get("product", ""), data.get("target", ""), data.get("country", ""),
+    ))
+
+
+@app.route("/api/v7/ad/ab-test", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_ad_ab_test():
+    """Ad Optimizer: 创建A/B测试"""
+    data = request.json or {}
+    from ai_engine.ad_optimizer import AdOptimizer
+    test = AdOptimizer.create_ab_test(
+        data.get("platform", ""), data.get("variable", "headline"),
+        data.get("base", ""), data.get("variants", []),
+    )
+    return jsonify(AdOptimizer.simulate_results(test))
+
+
+@app.route("/api/v7/revenue/insights")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_revenue_insights():
+    """Revenue Feedback Loop: 获取洞察"""
+    days = request.args.get("days", 30, type=int)
+    from ai_engine.revenue_feedback_loop import RevenueFeedbackLoop
+    return jsonify(RevenueFeedbackLoop().get_insights(days))
+
+
+@app.route("/api/v7/revenue/record", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_revenue_record():
+    """Revenue Feedback Loop: 记录指标"""
+    data = request.json or {}
+    from ai_engine.revenue_feedback_loop import RevenueFeedbackLoop
+    record_id = RevenueFeedbackLoop().record_metric(
+        data.get("type", ""), data.get("source", ""),
+        data.get("metric", ""), float(data.get("value", 0)),
+        data.get("context"),
+    )
+    return jsonify({"record_id": record_id, "ok": record_id > 0})
+
+
+@app.route("/api/v7/revenue/auto-optimize", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v7_revenue_auto_optimize():
+    """Revenue Feedback Loop: 自动优化"""
+    from ai_engine.revenue_feedback_loop import RevenueFeedbackLoop
+    return jsonify(RevenueFeedbackLoop().auto_optimize())
+
+
+@app.route("/api/v7/revenue/learning-curve")
+@login_required
+@role_required('admin', 'sales')
+def api_v7_revenue_learning_curve():
+    """Revenue Feedback Loop: 学习曲线"""
+    days = request.args.get("days", 90, type=int)
+    from ai_engine.revenue_feedback_loop import RevenueFeedbackLoop
+    return jsonify(RevenueFeedbackLoop().get_learning_curve(days))
+
+
+# =================== V8 — Business Universe OS ===================
+
+@app.route("/api/v8/company/generate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_company_generate():
+    """Company Factory: 从核心能力生成多公司"""
+    data = request.json or {}
+    from ai_universe.company_factory import CompanyFactory
+    return jsonify(CompanyFactory.generate_companies(
+        data.get("base_capability", ""),
+        data.get("markets"),  # None=auto-select all markets
+    ))
+
+
+@app.route("/api/v8/company/templates")
+@login_required
+@role_required('admin', 'sales')
+def api_v8_company_templates():
+    """Company Factory: 获取行业模板"""
+    from ai_universe.company_factory import CompanyFactory
+    return jsonify(list(CompanyFactory.COMPANY_TEMPLATES.keys()))
+
+
+@app.route("/api/v8/clone/opportunities", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_clone_opportunities():
+    """Business Clone Engine: 发现可复制机会"""
+    data = request.json or {}
+    from ai_universe.business_clone_engine import find_opportunities
+    return jsonify(find_opportunities(
+        data.get("source_market", ""),
+    ))
+
+
+@app.route("/api/v8/clone/plan", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_clone_plan():
+    """Business Clone Engine: 创建复制计划"""
+    data = request.json or {}
+    from ai_universe.business_clone_engine import create_plan
+    return jsonify(create_plan(
+        data.get("model_id", ""),
+        data.get("target_market", ""),
+    ))
+
+
+@app.route("/api/v8/clone/models")
+@login_required
+@role_required('admin', 'sales')
+def api_v8_clone_models():
+    """Business Clone Engine: 获取成功模型"""
+    from ai_universe.business_clone_engine import BusinessCloneEngine
+    return jsonify(BusinessCloneEngine.get_all_models())
+
+
+@app.route("/api/v8/capital/allocate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_capital_allocate():
+    """Capital Allocator: 资金分配"""
+    data = request.json or {}
+    from ai_universe.capital_allocator import allocate
+    return jsonify(allocate(
+        float(data.get("total_capital", 10000)),
+        data.get("portfolio"),
+    ))
+
+
+@app.route("/api/v8/capital/rebalance", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_capital_rebalance():
+    """Capital Allocator: 重新平衡"""
+    data = request.json or {}
+    from ai_universe.capital_allocator import rebalance
+    return jsonify(rebalance(
+        data.get("current_allocation", []),
+        data.get("performance", []),
+    ))
+
+
+@app.route("/api/v8/brand/generate", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_brand_generate():
+    """Brand Generator: 生成品牌"""
+    data = request.json or {}
+    from ai_universe.brand_generator import create_brand
+    return jsonify(create_brand(
+        data.get("industry", ""),
+        data.get("market", ""),
+        data.get("style", ""),
+    ))
+
+
+@app.route("/api/v8/market/plan", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_market_plan():
+    """Market Spinup: 创建市场启动计划"""
+    data = request.json or {}
+    from ai_universe.market_spinup import MarketSpinup
+    return jsonify(MarketSpinup.create_launch_plan(
+        data.get("product", ""),
+        data.get("target_market", ""),
+        data.get("industry", ""),
+        float(data.get("budget", 2000)),
+    ))
+
+
+@app.route("/api/v8/market/success-probability", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_market_success():
+    """Market Spinup: 估算成功率"""
+    data = request.json or {}
+    from ai_universe.market_spinup import MarketSpinup
+    return jsonify(MarketSpinup.estimate_success_probability(
+        data.get("product", ""),
+        data.get("market", ""),
+    ))
+
+
+@app.route("/api/v8/portfolio/register", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_portfolio_register():
+    """Portfolio Manager: 注册公司到投资组合"""
+    data = request.json or {}
+    from ai_universe.portfolio_manager import register
+    return jsonify(register(
+        data.get("name", ""),
+        data.get("market", ""),
+        data.get("industry", ""),
+        float(data.get("invested", 0)),
+    ))
+
+
+@app.route("/api/v8/portfolio/summary")
+@login_required
+@role_required('admin', 'sales')
+def api_v8_portfolio_summary():
+    """Portfolio Manager: 投资组合摘要"""
+    from ai_universe.portfolio_manager import portfolio
+    return jsonify(portfolio.get_portfolio_summary())
+
+
+@app.route("/api/v8/portfolio/analyze")
+@login_required
+@role_required('admin', 'sales')
+def api_v8_portfolio_analyze():
+    """Portfolio Manager: 分析投资组合健康度"""
+    from ai_universe.portfolio_manager import analyze
+    return jsonify(analyze())
+
+
+@app.route("/api/v8/portfolio/growth")
+@login_required
+@role_required('admin', 'sales')
+def api_v8_portfolio_growth():
+    """Portfolio Manager: 增长建议"""
+    from ai_universe.portfolio_manager import portfolio
+    return jsonify(portfolio.get_growth_recommendations())
+
+
+@app.route("/api/v8/risk/assess", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_risk_assess():
+    """Risk Balancer: 风险评估"""
+    data = request.json or {}
+    from ai_universe.risk_balancer import assess
+    return jsonify(assess(data.get("portfolio", [])))
+
+
+@app.route("/api/v8/risk/balance", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_risk_balance():
+    """Risk Balancer: 自动平衡"""
+    data = request.json or {}
+    from ai_universe.risk_balancer import auto_balance
+    return jsonify(auto_balance(data.get("portfolio", [])))
+
+
+@app.route("/api/v8/risk/hedge", methods=["POST"])
+@login_required
+@role_required('admin', 'sales')
+def api_v8_risk_hedge():
+    """Risk Balancer: 建议对冲策略"""
+    data = request.json or {}
+    from ai_universe.risk_balancer import RiskBalancer
+    return jsonify(RiskBalancer.suggest_hedge(
+        data.get("risk_assessment", {}),
+    ))
+
+
 if __name__ == "__main__":
     import webbrowser
     port = 5789
@@ -5722,6 +7556,60 @@ if __name__ == "__main__":
             print(f"[启动] WhatsApp引擎启动失败: {e}")
     threading.Thread(target=_start_bg, daemon=True).start()
 
+    # ===== 系统监控日志 =====
+    _start_time = datetime.now()
+
+    def _log_monitor(msg, logpath):
+        try:
+            with open(logpath, "a", encoding="utf-8") as f:
+                f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
+        except Exception:
+            pass
+
+    def _monitor_loop():
+        MONITOR_LOG = os.path.join(BASE_DIR, ".whatsapp_session", "monitor.log")
+        os.makedirs(os.path.dirname(MONITOR_LOG), exist_ok=True)
+        _log_monitor("=== 系统启动 ===", MONITOR_LOG)
+
+        while True:
+            try:
+                # 检查 WhatsApp 连通性
+                wa_ok = False
+                try:
+                    import urllib.request
+                    with urllib.request.urlopen("http://127.0.0.1:15789/health", timeout=5) as r:
+                        wa_ok = r.status == 200
+                except Exception:
+                    wa_ok = False
+                # 检查 AI 引擎
+                ai_ok = True
+                try:
+                    from ai_engine import ask_ali
+                    r = ask_ali("Say OK", "", max_tokens=10, timeout=10)
+                    if not r:
+                        ai_ok = False
+                except Exception:
+                    ai_ok = False
+
+                stats = get_stats() if 'get_stats' in dir() else {}
+                uptime = round((datetime.now() - _start_time).total_seconds() / 3600, 1)
+                status = {
+                    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "uptime_hours": uptime,
+                    "customers": stats.get("customers", "?"),
+                    "products": stats.get("products", "?"),
+                    "quotes": stats.get("quotes", "?"),
+                    "whatsapp": "OK" if wa_ok else "OFFLINE",
+                    "ai_engine": "OK" if ai_ok else "FAIL",
+                }
+                _log_monitor(json.dumps(status), MONITOR_LOG)
+                print(f"[Monitor] {json.dumps(status, ensure_ascii=False)}")
+            except Exception as e:
+                _log_monitor(f"[Monitor] 记录异常: {e}", MONITOR_LOG)
+            threading.Event().wait(3600)  # 每小时
+
+    threading.Thread(target=_monitor_loop, daemon=True).start()
+
     # 后台线程：每30分钟回收过期未跟进的潜客
     def _reclaim_pool_loop():
         while True:
@@ -5751,6 +7639,6 @@ if __name__ == "__main__":
     threading.Thread(target=_lead_state_timeout_check, daemon=True).start()
 
     try:
-        app.run(host="127.0.0.1", port=port, debug=False)
+        app.run(host="127.0.0.1", port=port, debug=True, use_reloader=False)
     finally:
         _cleanup()

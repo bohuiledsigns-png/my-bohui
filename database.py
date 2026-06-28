@@ -133,6 +133,7 @@ def init_db():
             valid_until TEXT DEFAULT '',
             notes TEXT DEFAULT '',
             pdf_path TEXT DEFAULT '',
+            created_by INTEGER DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (customer_id) REFERENCES customers(id)
@@ -699,8 +700,196 @@ def init_db():
         except:
             pass
 
+    # ==================== V3 — Self-Optimizing Sales System tables ====================
+    init_v3_tables(conn)
+
+    # ==================== V4 — Autonomous Sales System tables ====================
+    init_v4_tables(conn)
+
     conn.commit()
     conn.close()
+
+# ==================== V7 — AI Evolution / Feedback Rules ====================
+
+def init_ai_evolution():
+    """初始化 AI 进化系统（建表 + 添加默认规则）"""
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ai_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL DEFAULT 'general',
+            trigger_condition TEXT DEFAULT '',
+            action_rule TEXT NOT NULL,
+            severity TEXT NOT NULL DEFAULT 'suggestion' CHECK(severity IN ('hard_rule','suggestion')),
+            source_scenario TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # 插入默认进化规则（从评估结果中提炼）
+    defaults = [
+        ("b2b_rule", "客户询价", "报价前必须先问图纸/尺寸/安装环境，不得直接报具体金额。回复格式：先确认需求→要求提供图纸或尺寸→再报价。", "hard_rule", "system_eval"),
+        ("b2b_rule", "客户问价格区间", "如果客户坚持要价格范围，用ABC三级配置报价法（标准/高端/豪华），但必须加一句'最终价格需要根据您的具体图纸确认'。", "hard_rule", "system_eval"),
+        ("objection_handling", "客户比价", "比价场景必须做三件事：①指出低价产品的具体偷工减料点（电源认证/钢材等级/LED芯片）；②反问对方报价单是否包含同等规格；③提供梯度配置选项而不是直接降价。", "hard_rule", "system_eval"),
+        ("objection_handling", "客户说太贵", "砍价场景禁止用ABC分级报价。话术结构：①理解对方预算考虑→②解释为什么我们的配置值这个价（具体到部件）→③问对方预算，提供配置调整方案而不是直接降价。", "hard_rule", "system_eval"),
+        ("objection_handling", "客户投诉售后", "售后场景三步骤：①立即道歉安抚→②要求提供照片/视频证据→③说明保修政策并给出具体解决方案（换件/维修/退换）。必须中英文双语回复。", "hard_rule", "system_eval"),
+        ("regional_strategy", "中东客户", "中东客户强调：①尊重宗教文化；②清真/合规认证；③家族企业信誉；④长期合作关系。报价中包含FOB/DDP选项。", "suggestion", "system_eval"),
+        ("regional_strategy", "欧美客户", "欧美客户强调：①认证标准（UL/CE/ISO）；②环保合规（RoHS）；③知识产权保护；④交货准时率。提供详细的spec sheet。", "suggestion", "system_eval"),
+        ("sales_tactic", "OEM合作咨询", "OEM客户必须说明：①客户保护政策（不接触终端客户）；②批次一致性控制流程；③产能证明。给出梯度定价框架而不是固定报价。", "hard_rule", "system_eval"),
+        ("sales_tactic", "客户要样品", "样品政策话术：①样品需要付费但批量订单可退还；②询问具体测试需求以便准备正确样品；③提供样品种类选项（不锈钢/亚克力/定制logo）。", "hard_rule", "system_eval"),
+        ("sales_tactic", "客户要目录", "解释为什么没有固定价格表（全定制业务），然后引导客户选择产品类别，发送对应案例和参考价格。", "hard_rule", "system_eval"),
+        ("sales_tactic", "客户问交期", "交期回复必须包含：①标准生产时间（10-15天）；②运输方式和时间选项（空运vs海运DDP）；③要求确认项目时间线以便锁定生产槽位。", "hard_rule", "system_eval"),
+        ("sales_tactic", "A/B/C报价结尾", "禁止所有回复以'回复A、B或C'结尾。必须根据对话语境使用其他推进话术：如'发我图纸/尺寸，我给您精确报价'或'您倾向哪个配置？我锁定最终价格。'。ABC格式仅作为内部参考，客户看到的必须是自然对话。", "hard_rule", "system_eval"),
+    ]
+    for cat, trigger, rule, severity, source in defaults:
+        existing = conn.execute(
+            "SELECT COUNT(*) FROM ai_feedback WHERE category=? AND trigger_condition=? AND action_rule=?",
+            (cat, trigger, rule)
+        ).fetchone()[0]
+        if existing == 0:
+            conn.execute(
+                "INSERT INTO ai_feedback (category, trigger_condition, action_rule, severity, source_scenario) VALUES (?,?,?,?,?)",
+                (cat, trigger, rule, severity, source)
+            )
+
+    # AI 测试结果表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ai_test_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            persona_id TEXT NOT NULL,
+            persona_name TEXT DEFAULT '',
+            conversation TEXT DEFAULT '[]',
+            summary TEXT DEFAULT '{}',
+            scores TEXT DEFAULT '{}',
+            generated_rules INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def save_ai_test_result(persona_id, persona_name, conversation, summary, scores, generated_rules=0):
+    """保存 AI 测试结果"""
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO ai_test_results (persona_id, persona_name, conversation, summary, scores, generated_rules)
+           VALUES (?,?,?,?,?,?)""",
+        (persona_id, persona_name,
+         json.dumps(conversation, ensure_ascii=False),
+         json.dumps(summary, ensure_ascii=False),
+         json.dumps(scores, ensure_ascii=False),
+         generated_rules)
+    )
+    rid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return rid
+
+
+def get_ai_test_results(limit=20):
+    """获取 AI 测试历史"""
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT id, persona_id, persona_name, summary, scores, generated_rules, created_at "
+        "FROM ai_test_results ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    results = []
+    for r in rows:
+        item = dict(r)
+        if isinstance(item.get("scores"), str):
+            try:
+                item["scores"] = json.loads(item["scores"])
+            except Exception:
+                item["scores"] = {}
+        if isinstance(item.get("summary"), str):
+            try:
+                item["summary"] = json.loads(item["summary"])
+            except Exception:
+                item["summary"] = {}
+        results.append(item)
+    return results
+
+
+def get_ai_test_result(test_id):
+    """获取单次测试详情"""
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM ai_test_results WHERE id=?", (test_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return None
+    result = dict(row)
+    for field in ["conversation", "summary", "scores"]:
+        if isinstance(result.get(field), str):
+            try:
+                result[field] = json.loads(result[field])
+            except Exception:
+                pass
+    return result
+
+
+def get_ai_feedback_rules(active_only=True, category=None):
+    """获取 AI 进化规则列表"""
+    conn = get_db()
+    sql = "SELECT * FROM ai_feedback WHERE 1=1"
+    params = []
+    if active_only:
+        sql += " AND is_active=1"
+    if category:
+        sql += " AND category=?"
+        params.append(category)
+    sql += " ORDER BY severity DESC, category, id"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def add_ai_feedback_rule(data):
+    """添加一条进化规则"""
+    conn = get_db()
+    cur = conn.execute(
+        """INSERT INTO ai_feedback (category, trigger_condition, action_rule, severity, source_scenario)
+           VALUES (?,?,?,?,?)""",
+        (data.get("category", "general"), data.get("trigger_condition", ""),
+         data.get("action_rule", ""), data.get("severity", "suggestion"),
+         data.get("source_scenario", ""))
+    )
+    rid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return rid
+
+
+def update_ai_feedback_rule(rule_id, **kwargs):
+    """更新一条进化规则"""
+    allowed = ['category', 'trigger_condition', 'action_rule', 'severity', 'is_active']
+    sets = []
+    vals = []
+    for k, v in kwargs.items():
+        if k in allowed:
+            sets.append(f"{k}=?")
+            vals.append(v)
+    if not sets:
+        return
+    sets.append("updated_at=CURRENT_TIMESTAMP")
+    conn = get_db()
+    conn.execute(f"UPDATE ai_feedback SET {', '.join(sets)} WHERE id=?", (*vals, rule_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_ai_feedback_rule(rule_id):
+    """删除一条进化规则"""
+    conn = get_db()
+    conn.execute("DELETE FROM ai_feedback WHERE id=?", (rule_id,))
+    conn.commit()
+    conn.close()
+
 
 # ========= 客户 CRUD =========
 def get_customers():
@@ -1395,9 +1584,13 @@ def _parse_quote(row):
 
 
 # ========= 报价 =========
-def get_quotes(status=None, customer_id=None):
+def get_quotes(status=None, customer_id=None, created_by=None):
     conn = get_db()
-    sql = "SELECT q.*, c.name as customer_name, c.company as customer_company FROM quotes q LEFT JOIN customers c ON q.customer_id=c.id"
+    sql = """SELECT q.*, c.name as customer_name, c.company as customer_company,
+             u.display_name as created_by_name
+             FROM quotes q
+             LEFT JOIN customers c ON q.customer_id=c.id
+             LEFT JOIN users u ON q.created_by=u.id"""
     where = []
     params = []
     if status:
@@ -1406,6 +1599,9 @@ def get_quotes(status=None, customer_id=None):
     if customer_id:
         where.append("q.customer_id=?")
         params.append(customer_id)
+    if created_by:
+        where.append("q.created_by=?")
+        params.append(created_by)
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY q.created_at DESC"
@@ -1435,7 +1631,7 @@ def add_quote(data):
     quote_no = f"BH-{date_str}-{cust_code}-{seq}"
 
     conn.execute(
-        "INSERT INTO quotes (quote_no,customer_id,items,total_amount,currency,status,valid_until,notes) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO quotes (quote_no,customer_id,items,total_amount,currency,status,valid_until,notes,created_by) VALUES (?,?,?,?,?,?,?,?,?)",
         (
             quote_no,
             data.get("customer_id"),
@@ -1445,6 +1641,7 @@ def add_quote(data):
             data.get("status", "draft"),
             data.get("valid_until", ""),
             data.get("notes", ""),
+            data.get("created_by"),
         )
     )
     conn.commit()
@@ -3968,3 +4165,272 @@ def delete_budget(bid):
     conn.execute("DELETE FROM budgets WHERE id=?", (bid,))
     conn.commit()
     conn.close()
+
+
+# ==================== V3 — Self-Optimizing Sales System ====================
+
+def init_v3_tables(conn=None):
+    """初始化 V3 自优化销售系统表"""
+    if conn is None:
+        conn = get_db()
+        close_after = True
+    else:
+        close_after = False
+
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS v3_conversions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_id INTEGER NOT NULL,
+            country TEXT DEFAULT '',
+            intent TEXT DEFAULT '',
+            initial_state TEXT DEFAULT '',
+            final_state TEXT DEFAULT '',
+            state_path TEXT DEFAULT '[]',
+            price_tier TEXT DEFAULT 'UNKNOWN',
+            ab_version TEXT DEFAULT '',
+            quote_sent TEXT DEFAULT '',
+            quote_amount REAL DEFAULT 0,
+            final_result TEXT DEFAULT 'open' CHECK(final_result IN ('open','won','lost','silent')),
+            lost_reason TEXT DEFAULT '',
+            reply_latency_seconds INTEGER DEFAULT 0,
+            messages_count INTEGER DEFAULT 0,
+            conversion_score INTEGER DEFAULT 0,
+            deal_probability REAL DEFAULT 0,
+            revenue REAL DEFAULT 0,
+            profit REAL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            closed_at TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        CREATE TABLE IF NOT EXISTS v3_ab_test_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            state TEXT NOT NULL,
+            ab_version TEXT NOT NULL CHECK(ab_version IN ('A','B','C')),
+            total_trials INTEGER DEFAULT 0,
+            won_count INTEGER DEFAULT 0,
+            lost_count INTEGER DEFAULT 0,
+            silent_count INTEGER DEFAULT 0,
+            conversion_rate REAL DEFAULT 0,
+            avg_conversion_score REAL DEFAULT 0,
+            avg_deal_probability REAL DEFAULT 0,
+            weight REAL DEFAULT 1.0,
+            last_optimized_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(state, ab_version)
+        );
+        CREATE TABLE IF NOT EXISTS v3_price_experiments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            price_tier TEXT NOT NULL CHECK(price_tier IN ('LOW','MID','HIGH','UNKNOWN')),
+            ab_label TEXT NOT NULL,
+            price_label TEXT DEFAULT '',
+            price_range TEXT DEFAULT '',
+            midpoint_price REAL DEFAULT 0,
+            total_trials INTEGER DEFAULT 0,
+            won_count INTEGER DEFAULT 0,
+            conversion_rate REAL DEFAULT 0,
+            avg_revenue REAL DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(price_tier, ab_label)
+        );
+        CREATE TABLE IF NOT EXISTS v3_intent_conversion_stats (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            intent TEXT NOT NULL UNIQUE,
+            total_occurrences INTEGER DEFAULT 0,
+            won_count INTEGER DEFAULT 0,
+            conversion_rate REAL DEFAULT 0,
+            current_weight INTEGER DEFAULT 0,
+            optimized_weight INTEGER DEFAULT 0,
+            confidence REAL DEFAULT 0,
+            last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS v3_weight_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            weight_type TEXT NOT NULL,
+            weight_key TEXT NOT NULL,
+            old_value TEXT DEFAULT '',
+            new_value TEXT DEFAULT '',
+            reason TEXT DEFAULT 'auto_optimize',
+            triggered_by TEXT DEFAULT 'system',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS v3_deal_analyses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversion_id INTEGER NOT NULL,
+            customer_id INTEGER NOT NULL,
+            result TEXT NOT NULL CHECK(result IN ('won','lost')),
+            winning_factors TEXT DEFAULT '[]',
+            lost_reasons TEXT DEFAULT '[]',
+            key_insight TEXT DEFAULT '',
+            analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (conversion_id) REFERENCES v3_conversions(id),
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        CREATE TABLE IF NOT EXISTS v3_optimization_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            optimizer_type TEXT NOT NULL,
+            summary TEXT DEFAULT '',
+            changes_made INTEGER DEFAULT 0,
+            details TEXT DEFAULT '{}',
+            triggered_by TEXT DEFAULT 'manual',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # Indexes
+    for idx in [
+        "CREATE INDEX IF NOT EXISTS idx_v3_conv_customer ON v3_conversions(customer_id)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_conv_result ON v3_conversions(final_result)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_conv_created ON v3_conversions(created_at)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_ab_state ON v3_ab_test_results(state)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_price_tier ON v3_price_experiments(price_tier)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_weight_type ON v3_weight_history(weight_type)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_deal_conv ON v3_deal_analyses(conversion_id)",
+        "CREATE INDEX IF NOT EXISTS idx_v3_opt_type ON v3_optimization_log(optimizer_type)",
+    ]:
+        try:
+            conn.execute(idx)
+        except:
+            pass
+
+    if close_after:
+        conn.commit()
+        conn.close()
+
+
+# ==================== V4 — Autonomous Sales System tables ====================
+
+def init_v4_tables(conn=None):
+    """Initialize V4 Autonomous Sales System tables"""
+    if conn is None:
+        conn = get_db()
+        close_after = True
+    else:
+        close_after = False
+
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS v4_customer_state (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_id INTEGER NOT NULL UNIQUE,
+            priority_score INTEGER DEFAULT 0,
+            priority_class TEXT DEFAULT 'C' CHECK(priority_class IN ('A','B','C')),
+            priority_action TEXT DEFAULT 'HOLD' CHECK(priority_action IN ('HOLD','PUSH','CLOSE_NOW')),
+            priority_reason TEXT DEFAULT '',
+            priority_updated_at TIMESTAMP,
+            price_tier_override TEXT DEFAULT NULL,
+            price_anchors_json TEXT DEFAULT NULL,
+            discount_percent REAL DEFAULT 0,
+            discount_reason TEXT DEFAULT '',
+            pricing_updated_at TIMESTAMP,
+            total_messages INTEGER DEFAULT 0,
+            avg_reply_speed_hours REAL DEFAULT 0,
+            quote_view_count INTEGER DEFAULT 0,
+            last_activity_at TIMESTAMP,
+            last_push_at TIMESTAMP,
+            last_followup_at TIMESTAMP,
+            push_count INTEGER DEFAULT 0,
+            scheduler_state TEXT DEFAULT 'idle',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        CREATE TABLE IF NOT EXISTS v4_pricing_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_id INTEGER NOT NULL,
+            old_tier TEXT DEFAULT '',
+            new_tier TEXT DEFAULT '',
+            old_anchors TEXT DEFAULT '',
+            new_anchors TEXT DEFAULT '',
+            reason TEXT DEFAULT '',
+            triggered_by TEXT DEFAULT 'system',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        CREATE TABLE IF NOT EXISTS v4_scheduler_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            schedule_slot TEXT NOT NULL,
+            action TEXT NOT NULL,
+            customer_id INTEGER,
+            status TEXT DEFAULT 'completed' CHECK(status IN ('completed','skipped','error')),
+            detail TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+    """)
+
+    for idx in [
+        "CREATE INDEX IF NOT EXISTS idx_v4_state_customer ON v4_customer_state(customer_id)",
+        "CREATE INDEX IF NOT EXISTS idx_v4_state_class ON v4_customer_state(priority_class)",
+        "CREATE INDEX IF NOT EXISTS idx_v4_sched_slot ON v4_scheduler_log(schedule_slot)",
+        "CREATE INDEX IF NOT EXISTS idx_v4_pricing_customer ON v4_pricing_history(customer_id)",
+    ]:
+        try:
+            conn.execute(idx)
+        except:
+            pass
+
+    if close_after:
+        conn.commit()
+        conn.close()
+
+
+# ==================== V5 — Agent Competition tables ====================
+
+def init_v5_tables(conn=None):
+    """Initialize V5 Agent Competition tables"""
+    if conn is None:
+        conn = get_db()
+        close_after = True
+    else:
+        close_after = False
+
+    conn.executescript("""
+        DROP TABLE IF EXISTS v5_agent_assignments;
+        DROP TABLE IF EXISTS v5_agent_memory;
+
+        CREATE TABLE IF NOT EXISTS v5_agent_weights (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_id TEXT NOT NULL,
+            scene_state TEXT DEFAULT NULL,
+            scene_priority TEXT DEFAULT NULL,
+            total_matches INTEGER DEFAULT 0,
+            wins INTEGER DEFAULT 0,
+            win_rate REAL DEFAULT 0.0,
+            last_score REAL DEFAULT 0.0,
+            last_win TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS v5_competition_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_msg_snippet TEXT DEFAULT '',
+            agent_ids TEXT DEFAULT '',
+            scores_json TEXT DEFAULT '[]',
+            winner_agent_id TEXT DEFAULT '',
+            winner_score REAL DEFAULT 0.0,
+            customer_state TEXT DEFAULT '',
+            context_json TEXT DEFAULT '{}',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    for idx in [
+        "CREATE INDEX IF NOT EXISTS idx_v5_weights_agent ON v5_agent_weights(agent_id)",
+        "CREATE INDEX IF NOT EXISTS idx_v5_weights_scene ON v5_agent_weights(scene_state, scene_priority)",
+        "CREATE INDEX IF NOT EXISTS idx_v5_comp_winner ON v5_competition_log(winner_agent_id)",
+        "CREATE INDEX IF NOT EXISTS idx_v5_comp_created ON v5_competition_log(created_at)",
+    ]:
+        try:
+            conn.execute(idx)
+        except:
+            pass
+
+    if close_after:
+        conn.commit()
+        conn.close()
+
+
