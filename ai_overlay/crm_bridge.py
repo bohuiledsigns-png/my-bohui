@@ -92,7 +92,7 @@ def get_products(category=None, keyword=None, limit=20):
         sql += " AND (name LIKE ? OR description LIKE ? OR material LIKE ?)"
         kw = f"%{keyword}%"
         params.extend([kw, kw, kw])
-    sql += " ORDER BY id DESC LIMIT ?"
+    sql += " ORDER BY rowid DESC LIMIT ?"
     params.append(limit)
     rows = conn.execute(sql, params).fetchall()
     conn.close()
