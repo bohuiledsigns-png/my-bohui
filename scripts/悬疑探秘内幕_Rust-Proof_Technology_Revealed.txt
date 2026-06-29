@@ -1,0 +1,16 @@
+Rust-Proof Technology Revealed
+═══════════════════════════════════
+场景: close-up of stainless steel edge
+类别: 悬疑探秘内幕
+关键词: rust, anti-rust, raw material, edge polishing, export grade
+风格: narration, mystery, technical reveal
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据悬疑探秘内幕类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（凑近样品仔细观察）
+老外: What technology keeps outdoor letters from rusting all year round?
+旁白: Strict raw material screening and full edge polishing are the core of export-grade signage.
+

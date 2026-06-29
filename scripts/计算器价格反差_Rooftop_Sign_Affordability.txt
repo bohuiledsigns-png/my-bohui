@@ -1,0 +1,17 @@
+Rooftop Sign Affordability
+═══════════════════════════════════
+场景: looking at large rooftop installation
+类别: 计算器价格反差
+关键词: rooftop, large sign, anti-rust, 304 stainless, affordable
+风格: dialogue, price contrast, value surprise
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（惊喜）
+老外: Anti-rust rooftop large luminous signs are so affordable!
+工厂: 304 stainless steel is always in sufficient stock.
+旁白: Chinese manufacturers break the high-price monopoly of foreign signage market.
+

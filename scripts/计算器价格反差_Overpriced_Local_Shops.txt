@@ -1,0 +1,17 @@
+Overpriced Local Shops
+═══════════════════════════════════
+场景: customer realising market reality
+类别: 计算器价格反差
+关键词: overpriced, local supplier, information gap, distributor
+风格: dialogue, price contrast, market insight
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（困惑）
+老外: All shops around my town use overpriced simple luminous letters.
+工厂: They haven't found the direct source factory yet.
+旁白: Information difference creates the biggest profit space for distributors.
+

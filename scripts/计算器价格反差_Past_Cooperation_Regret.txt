@@ -1,0 +1,17 @@
+Past Cooperation Regret
+═══════════════════════════════════
+场景: customer recalling bad experience
+类别: 计算器价格反差
+关键词: past experience, triple price, inferior, premium, buyer lesson
+风格: dialogue, price contrast, experience story
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（叹气感慨）
+老外: I paid triple money for inferior signs in last cooperation.
+工厂: Most overseas buyers bear unnecessary premium every year.
+旁白: This single video can save thousands of dollars for global store operators.
+

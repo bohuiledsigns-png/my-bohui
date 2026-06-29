@@ -1,0 +1,16 @@
+Anti-Strobe Lamp Module
+═══════════════════════════════════
+场景: camera filming sign without flicker
+类别: 悬疑探秘内幕
+关键词: flicker, camera, lamp module, anti-strobe, domestic vs export
+风格: narration, mystery, technical secret
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据悬疑探秘内幕类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（对着灯珠特写发问）
+老外: Why your light is even without flickering on camera?
+旁白: We adopt export anti-strobe lamp modules, completely different from cheap domestic lamp beads.
+
