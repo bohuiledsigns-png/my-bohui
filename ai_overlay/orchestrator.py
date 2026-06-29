@@ -22,11 +22,13 @@ from ai_overlay.crm_bridge import (
     get_customer, get_customer_messages, get_products,
     search_knowledge, get_lead_state, save_quote, send_whatsapp
 )
+from ai_overlay.stabilization import (
+    StateSyncEngine, ConversationLock, ConfidenceGate, FollowUpGuard, stabilize
+)
 
 logger = logging.getLogger("orchestrator")
 
-# ── 销售状态定义 ─────────────────────────────────────────
-# 比 CRM 的 lead_state 更细，专注于「对话推进」
+# ── 销售状态定义（映射到 CRM lead_state + 补充说明） ─────
 
 SALES_STATES = {
     "NEW":              "首次接触，需要了解客户需求",
@@ -35,23 +37,10 @@ SALES_STATES = {
     "NEGOTIATING":      "客户在比价/压价/犹豫",
     "CLOSING":          "准备成交，推进定金",
     "FOLLOWUP":         "等待客户回复中",
-    "ORDER_PLACED":     "已下单",
     "COLD":             "长时间无回应",
     "ESCALATED":        "已转人工",
-}
-
-# ── 状态转换规则 ─────────────────────────────────────────
-
-STATE_TRANSITIONS = {
-    "NEW": ["QUALIFYING", "FOLLOWUP", "COLD"],
-    "QUALIFYING": ["PRICING", "FOLLOWUP", "COLD", "QUALIFYING"],
-    "PRICING": ["NEGOTIATING", "CLOSING", "FOLLOWUP", "COLD"],
-    "NEGOTIATING": ["CLOSING", "PRICING", "FOLLOWUP", "ESCALATED", "COLD"],
-    "CLOSING": ["ORDER_PLACED", "NEGOTIATING", "FOLLOWUP"],
-    "FOLLOWUP": ["PRICING", "QUALIFYING", "COLD"],
-    "ORDER_PLACED": ["FOLLOWUP", "COLD"],
-    "COLD": ["QUALIFYING", "FOLLOWUP"],
-    "ESCALATED": ["CLOSING", "ORDER_PLACED"],
+    "CLOSED_WON":       "已成交",
+    "CLOSED_LOST":      "已丢失",
 }
 
 # ── 辅助: 判定客户紧迫度 ────────────────────────────────
@@ -151,18 +140,44 @@ def decide(customer_id, message_text, extra_context=None):
         )
         decision["reply"] = reply
 
-    # 5. 记录决策上下文
-    decision["customer_id"] = customer_id
-    decision["state"] = current_state
-    decision["urgency"] = urgency
-    decision["value_score"] = value
-    decision["intent"] = intent
+    # 5. 通过稳定层: 状态同步 + 置信度门控
+    ConversationLock.record_message(customer_id, direction="received")
+    proposed_state = decision.get("next_state")
+    confidence = decision.get("confidence", 50) / 100.0  # 转为 0-1
+
+    st = stabilize({
+        "customer_id": customer_id,
+        "crm_state": current_state,
+        "ai_proposed_state": proposed_state,
+        "confidence": confidence,
+        "action": decision["action"],
+        "reply": decision.get("reply", ""),
+    })
+
+    # 6. 组装最终输出
+    result = {
+        "customer_id": customer_id,
+        "state": st["state"],
+        "state_changed": st["state_changed"],
+        "intent": intent,
+        "action": st["action"],
+        "confidence": st["confidence"],
+        "urgency": urgency,
+        "value_score": value,
+        "reply": st["reply"],
+        "safe_to_execute": st["safe_to_execute"],
+        "execution_level": st["execution_level"],
+        "conversation_locked": st["conversation_locked"],
+        "warnings": st["warnings"],
+        "gate_reason": st["gate_reason"],
+    }
 
     logger.info(
-        f"[{customer_id}] state={current_state} intent={intent} "
-        f"action={decision['action']} confidence={decision.get('confidence', 0)}"
+        f"[{customer_id}] state={current_state}→{st['state']} "
+        f"intent={intent} action={result['action']} "
+        f"confidence={result['confidence']} safe={result['safe_to_execute']}"
     )
-    return decision
+    return result
 
 
 # ── 意图分类（轻量版，复用 CRM 的 AI 或本地规则） ──────
@@ -403,22 +418,39 @@ def _generate_reply(customer, state, intent, message, decision, history):
 # ── 快捷入口 ────────────────────────────────────────────
 
 def process_message(customer_id, message_text, extra_context=None):
-    """一站式处理客户消息：分析→决策→生成回复
+    """一站式处理客户消息：分析→决策→稳定层校验→生成回复
 
-    返回可直接发送的回复内容
+    返回:
+        dict: {reply, action, safe_to_execute, state, confidence, warnings}
     """
     result = decide(customer_id, message_text, extra_context)
 
+    # 不安全操作（置信度不足或被锁定）只建议不执行
+    if not result.get("safe_to_execute", True):
+        logger.warning(
+            f"[Gate] 客户#{customer_id} 操作被阻止: "
+            f"action={result.get('action')} "
+            f"confidence={result.get('confidence')} "
+            f"locked={result.get('conversation_locked')}"
+        )
+        return {
+            "reply": result.get("reply", ""),
+            "action": "advisory_only",
+            "safe_to_execute": False,
+            "state": result.get("state"),
+            "confidence": result.get("confidence"),
+            "warnings": result.get("warnings", []),
+        }
+
     if result.get("action") == "escalate":
-        # 转人工时返回通知消息
         return {
             "reply": "Let me connect you with our sales manager who will assist you shortly.",
             "action": "escalate",
+            "state": result.get("state"),
             "priority": result.get("suggested_priority", "normal"),
         }
 
     if result.get("action") == "quote":
-        # 触发报价生成
         try:
             qr = save_quote({
                 "clientId": customer_id,
@@ -426,10 +458,16 @@ def process_message(customer_id, message_text, extra_context=None):
                 "totalQty": 1,
                 "formalTotal": "0",
             })
-            quote_msg = f"\n\nI've prepared a quotation for you. Let me know if you have any questions."
+            quote_msg = "\n\nI've prepared a quotation for you. Let me know if you have any questions."
             reply = (result.get("reply") or "") + quote_msg
         except Exception:
             reply = result.get("reply", "")
-        return {"reply": reply, "action": "quote"}
+        return {"reply": reply, "action": "quote", "state": result.get("state")}
 
-    return {"reply": result.get("reply", ""), "action": result.get("action", "reply")}
+    return {
+        "reply": result.get("reply", ""),
+        "action": result.get("action", "reply"),
+        "state": result.get("state"),
+        "confidence": result.get("confidence"),
+        "safe_to_execute": True,
+    }

@@ -24,6 +24,10 @@ DB_PATH = os.path.join(BASE_DIR, "crm_data.db")
 
 logger = logging.getLogger("followup")
 
+# ── 引入稳定层 ──────────────────────────────────────────
+
+from ai_overlay.stabilization import FollowUpGuard, ConversationLock
+
 # ── 跟进规则配置 ─────────────────────────────────────────
 
 FOLLOWUP_RULES = [
@@ -286,6 +290,14 @@ class FollowupEngine:
                 rule_name = item.get("rule_name", "24h_checkin")
                 customer_id = item["customer_id"]
                 followup_id = item["id"]
+                lead_state = item.get("lead_state", "FOLLOWUP")
+
+                # ── FollowUpGuard: 检查是否允许跟进 ──
+                guard = FollowUpGuard.can_trigger(customer_id, lead_state)
+                if not guard["allowed"]:
+                    logger.info(f"[Followup] ⏭️ {customer_name} ({rule_name}): {guard['reason']}")
+                    # 暂时跳过，保留在队列中下次再检查
+                    continue
 
                 # 生成跟进消息
                 msg = _generate_followup_message(customer_name, rule_name, customer_id)
@@ -311,6 +323,8 @@ class FollowupEngine:
                 conn.close()
 
                 if status == "sent":
+                    # 通知 ConversationLock 已发送跟进
+                    ConversationLock.record_message(customer_id, direction="followup")
                     self.scheduler.mark_sent(followup_id, customer_id, rule_name)
                     logger.info(f"[Followup] ✅ {customer_name} ({rule_name})")
 
