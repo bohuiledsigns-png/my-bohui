@@ -25,6 +25,9 @@ from ai_overlay.crm_bridge import (
 from ai_overlay.stabilization import (
     StateSyncEngine, ConversationLock, ConfidenceGate, FollowUpGuard, stabilize
 )
+from ai_overlay.lead_scoring import LeadScorer
+from ai_overlay.negotiation import NegotiationAI, is_price_negotiation
+from ai_overlay.campaign import CampaignEngine
 
 logger = logging.getLogger("orchestrator")
 
@@ -117,7 +120,18 @@ def decide(customer_id, message_text, extra_context=None):
     value = _estimate_value(customer)
     intent = ctx.get("intent") or _classify_intent(message_text)
 
-    # 3. 状态感知决策
+    # 3. Lead Scoring 2.0: 成交概率评分
+    scoring = LeadScorer.score(customer_id)
+    score_tier = scoring.get("tier", "COLD")
+    score_val = scoring.get("score", 0)
+
+    # 4. Negotiation AI: 检测砍价
+    negotiation = None
+    if is_price_negotiation(message_text) or intent == "bargaining":
+        margin_safe = ctx.get("margin_safe", True)
+        negotiation = NegotiationAI.decide(message_text, value, margin_safe=margin_safe)
+
+    # 5. 状态感知决策
     decision = _route_decision(
         state=current_state,
         intent=intent,
@@ -126,9 +140,10 @@ def decide(customer_id, message_text, extra_context=None):
         history_count=len(history),
         message=message_text,
         customer=customer,
+        tier=score_tier,
     )
 
-    # 4. 如果决定回复，生成回复内容
+    # 6. 如果决定回复，生成回复内容
     if decision["action"] in ("reply", "quote"):
         reply = _generate_reply(
             customer=customer,
@@ -138,12 +153,22 @@ def decide(customer_id, message_text, extra_context=None):
             decision=decision,
             history=history,
         )
+        # 如果有 Negotiation AI 建议，覆盖回复
+        if negotiation and negotiation.get("reply"):
+            reply = negotiation["reply"]
         decision["reply"] = reply
 
-    # 5. 通过稳定层: 状态同步 + 置信度门控
+    # 7. 通过稳定层: 状态同步 + 置信度门控
     ConversationLock.record_message(customer_id, direction="received")
     proposed_state = decision.get("next_state")
-    confidence = decision.get("confidence", 50) / 100.0  # 转为 0-1
+
+    # 评分影响置信度: HOT客户提高下限
+    base_confidence = decision.get("confidence", 50)
+    if score_tier == "HOT":
+        base_confidence = max(base_confidence, 70)
+    elif score_tier == "COLD":
+        base_confidence = min(base_confidence, 40)
+    confidence = base_confidence / 100.0
 
     st = stabilize({
         "customer_id": customer_id,
@@ -154,7 +179,7 @@ def decide(customer_id, message_text, extra_context=None):
         "reply": decision.get("reply", ""),
     })
 
-    # 6. 组装最终输出
+    # 8. 组装最终输出
     result = {
         "customer_id": customer_id,
         "state": st["state"],
@@ -164,12 +189,15 @@ def decide(customer_id, message_text, extra_context=None):
         "confidence": st["confidence"],
         "urgency": urgency,
         "value_score": value,
+        "lead_score": score_val,
+        "lead_tier": score_tier,
         "reply": st["reply"],
         "safe_to_execute": st["safe_to_execute"],
         "execution_level": st["execution_level"],
         "conversation_locked": st["conversation_locked"],
         "warnings": st["warnings"],
         "gate_reason": st["gate_reason"],
+        "negotiation": negotiation,
     }
 
     logger.info(
