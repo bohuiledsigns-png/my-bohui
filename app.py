@@ -2079,8 +2079,10 @@ def api_generate_quote(pid):
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
     arial_ok = False
-    arial_paths = [r"C:\Windows\Fonts\Arial.ttf", r"C:\Windows\Fonts\arial.ttf"]
-    arial_bold_paths = [r"C:\Windows\Fonts\Arialbd.ttf", r"C:\Windows\Fonts\arialbd.ttf"]
+    arial_paths = [r"C:\Windows\Fonts\Arial.ttf", r"C:\Windows\Fonts\arial.ttf",
+                   "/usr/share/fonts/crm/arial.ttf"]
+    arial_bold_paths = [r"C:\Windows\Fonts\Arialbd.ttf", r"C:\Windows\Fonts\arialbd.ttf",
+                        "/usr/share/fonts/crm/arialbd.ttf"]
     for ap in arial_paths:
         if os.path.exists(ap):
             try:
@@ -2505,14 +2507,21 @@ def api_calc_pdf():
     from reportlab.pdfbase.ttfonts import TTFont
 
     # Register fonts
-    FONT_DIR = "C:/Windows/Fonts"
+    if sys.platform == "win32":
+        FONT_DIRS = ["C:/Windows/Fonts"]
+    else:
+        FONT_DIRS = ["/usr/share/fonts/crm", "/usr/share/fonts"]
     for f in [("SimSun","simsun.ttc"),("SimHei","simhei.ttf"),
                ("MSYH","msyh.ttc"),("MSYHBD","msyhbd.ttc"),
                ("Arial","arial.ttf"),("ArialBD","arialbd.ttf")]:
-        try:
-            pdfmetrics.registerFont(TTFont(f[0], os.path.join(FONT_DIR, f[1])))
-        except:
-            pass
+        for fd in FONT_DIRS:
+            fp = os.path.join(fd, f[1])
+            if os.path.exists(fp):
+                try:
+                    pdfmetrics.registerFont(TTFont(f[0], fp))
+                    break
+                except:
+                    pass
 
     # Colours matching Bohui quote style
     C_PRI    = HexColor("#1a237e")
@@ -2874,14 +2883,21 @@ def api_calc_ai_quote():
     from reportlab.pdfbase.ttfonts import TTFont
 
     # Register fonts
-    FONT_DIR = "C:/Windows/Fonts"
+    if sys.platform == "win32":
+        FONT_DIRS = ["C:/Windows/Fonts"]
+    else:
+        FONT_DIRS = ["/usr/share/fonts/crm", "/usr/share/fonts"]
     for f in [("SimSun","simsun.ttc"),("SimHei","simhei.ttf"),
                ("MSYH","msyh.ttc"),("MSYHBD","msyhbd.ttc"),
                ("Arial","arial.ttf"),("ArialBD","arialbd.ttf")]:
-        try:
-            pdfmetrics.registerFont(TTFont(f[0], os.path.join(FONT_DIR, f[1])))
-        except:
-            pass
+        for fd in FONT_DIRS:
+            fp = os.path.join(fd, f[1])
+            if os.path.exists(fp):
+                try:
+                    pdfmetrics.registerFont(TTFont(f[0], fp))
+                    break
+                except:
+                    pass
 
     C_PRI = HexColor("#1a237e")
     C_ACC = HexColor("#283593")
