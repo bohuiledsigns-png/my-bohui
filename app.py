@@ -7136,10 +7136,94 @@ def _init_lead_state_engine():
 
     # ---- 注册动作回调 ----
     def _callback_generate_quote(cid, ctx):
-        """预生成报价（实际调用报价API）"""
+        """预生成报价（基于客户消息用假设引擎估算）"""
         chat_name = ctx.get("chat_name", "")
-        print(f"[Action] GENERATE_QUOTE 客户#{cid} {chat_name}")
-        return {"ok": True, "result": "已触发报价生成", "detail": f"客户#{cid}报价请求已记录"}
+        intent = ctx.get("intent", "")
+        analysis = ctx.get("analysis", {})
+        print(f"[Action] GENERATE_QUOTE 客户#{cid} {chat_name} (intent={intent})")
+
+        try:
+            # 1. 获取客户信息和最新消息
+            c = get_customer(cid)
+            if not c:
+                return {"ok": False, "error": "客户不存在", "detail": f"客户#{cid}不存在"}
+
+            msgs = get_messages(cid, limit=5)
+            latest_text = ""
+            for m in msgs:
+                if m["direction"] == "received":
+                    latest_text = m.get("content_en") or m.get("content_cn") or m.get("text", "") or ""
+                    break
+
+            # 2. 用假设引擎生成报价
+            from assumption_engine import generate_quote
+            customer_input = {"text": latest_text or chat_name}
+            # 如果有analysis里的翻译文本，用更完整的
+            reply_text = ctx.get("reply_text", "")
+            if reply_text and not latest_text:
+                customer_input["text"] = reply_text
+
+            q_result = generate_quote(customer_input)
+            price_min, price_max, currency = q_result.get("price_range", (0, 0, "USD"))
+            mode = q_result.get("mode", "ASSUMPTION_BASED")
+            assumption = q_result.get("assumption", {})
+
+            # 3. 用利润守卫检查价格区间
+            try:
+                from profit_guard import estimate_cost, ProfitGuardEngine
+                cost = estimate_cost(assumption)
+                guard = ProfitGuardEngine()
+                safe_check = guard.evaluate_range(cost, price_min, price_max)
+                level = safe_check.get("level", "SAFE")
+            except Exception:
+                level = "UNKNOWN"
+
+            print(f"[Action] 报价估算: USD {price_min}–{price_max}, mode={mode}, profit_level={level}")
+
+            # 4. 存入数据库（草稿状态）
+            ref_no = f"BH-{datetime.now().strftime('%Y%m%d')}-{chat_name[:4].upper()}-AUTO"
+            from datetime import date, timedelta
+            quote_data = {
+                "customer_id": cid,
+                "quote_no": ref_no,
+                "currency": currency,
+                "total_amount": price_max,  # 用上限作为预估总额
+                "valid_until": (date.today() + timedelta(days=15)).isoformat(),
+                "status": "draft",
+                "notes": f"AI自动生成（{mode}）: USD {price_min}–{price_max}, 利润等级={level}, 意图={intent}",
+                "created_by": 1,  # admin
+                "items": [{
+                    "product_id": "",
+                    "name": f"{assumption.get('sign_type', 'LED Sign')} ({assumption.get('description', '')})",
+                    "qty": 1,
+                    "unit": "set",
+                    "unit_price": price_max,
+                    "total": price_max
+                }],
+            }
+            db_result = add_quote(quote_data)
+            qid = db_result.get("id")
+            quote_no = db_result.get("quote_no", ref_no)
+
+            detail = (f"客户#{cid} {chat_name}: 估USD {price_min}–{price_max} "
+                      f"({mode}, {level}), 报价单#{quote_no}")
+            print(f"[Action] ✅ {detail}")
+
+            return {
+                "ok": True,
+                "result": "报价已生成",
+                "detail": detail,
+                "quote_id": qid,
+                "quote_no": quote_no,
+                "price_min": price_min,
+                "price_max": price_max,
+                "currency": currency,
+                "profit_level": level,
+            }
+
+        except Exception as e:
+            print(f"[Action] ❌ GENERATE_QUOTE 失败: {e}")
+            return {"ok": False, "error": str(e), "detail": f"报价生成异常: {e}"}
 
     def _callback_follow_up(cid, ctx):
         """标记跟进"""
@@ -7153,9 +7237,57 @@ def _init_lead_state_engine():
         print(f"[Action] ESCALATE 客户#{cid} {chat_name} — 需人工处理")
         return {"ok": True, "result": "已升级", "detail": "通知管理员待处理"}
 
+    def _callback_send_quote(cid, ctx):
+        """生成报价并通过WhatsApp发送给客户"""
+        chat_name = ctx.get("chat_name", "")
+        # 先调用生成逻辑
+        gen_result = _callback_generate_quote(cid, ctx)
+        if not gen_result.get("ok"):
+            return gen_result
+
+        # 发送WhatsApp消息
+        price_min = gen_result.get("price_min", 0)
+        price_max = gen_result.get("price_max", 0)
+        currency = gen_result.get("currency", "USD")
+        quote_no = gen_result.get("quote_no", "")
+
+        sym = "$" if currency == "USD" else "¥"
+        msg = (
+            f"Here's a quick estimate based on typical configuration:\n"
+            f"📋 Reference: {quote_no}\n"
+            f"💰 Estimated range: {sym}{price_min} – {sym}{price_max}\n\n"
+            f"This is a preliminary quote. Once you confirm the details "
+            f"(size, material, quantity), I'll send you the final formal quotation."
+        )
+        try:
+            from whatsapp_engine import send_text
+            send_text(msg, contact_name=chat_name)
+            # 标记报价为已发送
+            try:
+                qid = gen_result.get("quote_id")
+                if qid:
+                    update_quote(qid, {"status": "sent"})
+            except Exception:
+                pass
+            print(f"[Action] ✅ 报价已发送给 {chat_name} ({quote_no})")
+            return {
+                "ok": True,
+                "result": "报价已生成并发送",
+                "detail": f"已发送报价 {quote_no} 给 {chat_name} (USD {price_min}–{price_max})",
+                "quote_no": quote_no,
+            }
+        except Exception as e:
+            print(f"[Action] ⚠️ 报价已生成但发送失败: {e}")
+            return {
+                "ok": True,
+                "result": "报价已生成，发送失败",
+                "detail": f"报价 {quote_no} 已生成，但WhatsApp发送异常: {e}",
+                "quote_no": quote_no,
+            }
+
     # 注册
     ar.register_action("GENERATE_QUOTE", _callback_generate_quote)
-    ar.register_action("SEND_QUOTE", _callback_generate_quote)
+    ar.register_action("SEND_QUOTE", _callback_send_quote)
     ar.register_action("FOLLOW_UP", _callback_follow_up)
     ar.register_action("ESCALATE", _callback_escalate)
     print(f"[LeadState] 动作回调已注册: GENERATE_QUOTE, SEND_QUOTE, FOLLOW_UP, ESCALATE")
