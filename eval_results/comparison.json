@@ -1,0 +1,324 @@
+[
+  {
+    "id": "S01",
+    "type": "比价",
+    "message": "Hi, I need stainless steel letters for my storefront. Can you give me a price?",
+    "knowledge_on": {
+      "response": "Hi! Thanks for reaching out. This is Philip from Bohui (GLOWFORGE). 😊\n\nWe can definitely make stainless steel letters for your storefront. To give you an accurate quote, could you share the text or logo you need, and the approximate size? \n\nAlso, are you looking for illuminated (light-up) letters or just standard non-lit metal ones?\n\n---\n你好！感谢联系。我是博汇(GLOWFORGE)的Philip。😊\n\n我们完全可以为您制作店面不锈钢字。为了给您准确的报价，您能分享一下需要的文字或logo，以及大概的尺寸吗？\n\n另外，您是在找发光字还是普通的不发光金属字呢？",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi! Thanks for reaching out. This is Philip from Bohui (GLOWFORGE). 👋\n\nWe can definitely make those stainless steel letters for your storefront. To give you an accurate quote, I just need a couple of quick details first.\n\nWhat text or logo will be on the sign, and roughly how big do you need it to be? Also, do you want them illuminated (light-up) or just solid metal? 😊\n\n---\n你好！感谢您的联系。我是博汇(GLOWFORGE)的Philip。👋\n\n我们完全可以为您制作店面的不锈钢字。为了给您准确的报价，我需要先了解几个简单的细节。\n\n请问招牌上是什么文字或logo，大概需要多大尺寸？另外，您需要它们发光还是纯金属不发光？😊",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S02",
+    "type": "比价",
+    "message": "Your price is too high. Another supplier quoted me $2.8/cm for acrylic letters.",
+    "knowledge_on": {
+      "response": "I totally get it, price is always important! But in our industry, a lower price usually means corners are cut somewhere. 🤷‍♂️\n\nCould you share what specs they included for that $2.8/cm? Mainly:\n1️⃣ Acrylic type (imported cast vs. cheap extruded?)\n2️⃣ LED brand (Epistar vs. no-name?)\n3️⃣ Power supply (Meanwell certified vs. uncertified?)\n\nWe use imported cast acrylic (won't yellow for 10 years) and Meanwell power supplies (CE/UL certified, passes customs easily). Saving a bit now isn't worth it if the sign yellows or the power supply burns out in a year. \n\nSend me their specs and I'll give you an honest, apple-to-apple comparison! 😊\n\n---\n我完全理解，价格确实很重要！但在我们这行，低价通常意味着在某些地方偷工减料。🤷‍♂️\n\n您能分享一下他们2.8美元/厘米包含的具体配置吗？主要是：\n1️⃣ 亚克力类型（进口浇铸 vs. 便宜的挤压板？）\n2️⃣ LED品牌（晶元 vs. 无牌？）\n3️⃣ 电源（明纬认证 vs. 无认证？）\n\n我们用的是进口浇铸亚克力（10年不黄变）和明纬电源（CE/UL认证，轻松过海关）。如果招牌一年后发黄或者电源烧坏，现在省那点钱是不划算的。\n\n把他们的配置发我，我给您做一个客观、对等的对比！😊",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "I totally get it, price is a big factor. But $2.8/cm for acrylic letters usually means they're cutting corners on the hidden parts. 🤔\n\nCould you check what power supply and LED brand they quoted? \n\nWe use Taiwan Meanwell power supplies (CE/UL certified, passes customs easily) and imported cast acrylic (won't yellow for 10 years). Cheaper quotes often use uncertified PSUs that burn out in 6 months and recycled acrylic that yellows fast.\n\nSend me their specs and I’ll give you an honest side-by-side comparison. Then you can decide! 😊\n\n---\n我完全理解，价格是个重要因素。但$2.8/cm的亚克力发光字通常意味着他们在隐蔽部件上偷工减料。🤔\n\n您能看下他们报价用的是什么电源和LED品牌吗？\n\n我们用的是台湾明纬电源（CE/UL认证，轻松过海关）和进口浇筑亚克力（10年不发黄）。更便宜的报价通常用无认证电源（6个月就烧坏）和回收亚克力（很快发黄）。\n\n把他们的配置发我，我给您做个客观的对比。然后您再做决定！😊",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S03",
+    "type": "询价",
+    "message": "How much for a set of LED channel letters, about 40cm height, 10 letters, for a restaurant?",
+    "knowledge_on": {
+      "response": "Hey! Thanks for reaching out. 👍 \n\n40cm height, 10 letters for a restaurant — got it! To give you an accurate price, I just need a few quick details:\n\n1. Is it for indoor or outdoor use? (Outdoor needs IP65 waterproofing)\n2. Do you prefer front-lit or back-lit (halo effect) lighting?\n3. Which country should I calculate shipping to?\n\nDrop me these details and I'll get a quote over to you ASAP! 😊\n\n---\n嘿！感谢您的联系。👍 \n\n40cm高，餐厅用的10个字母——收到！为了给您准确的报价，我只需要几个快速的小细节：\n\n1. 是室内用还是室外用？（室外需要IP65防水）\n2. 您偏好正面发光还是背面发光（光晕效果）？\n3. 我需要计算运费到哪个国家？\n\n把这些细节发我，我尽快把报价发给您！😊",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 2.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi there! Thanks for the details. 40cm height and 10 letters for a restaurant — got it! 👍\n\nTo give you an accurate price, I just need to know two quick things:\n1. Will this be installed indoors or outdoors? (This affects the waterproofing and materials we use)\n2. What lighting effect do you prefer? (e.g., front-lit, backlit/halo, and what color?)\n\nLet me know and I'll work out the quote for you! 😊\n\n---\n您好！感谢提供细节。40cm高、10个字母、餐厅用——收到！👍\n\n为了给您准确的报价，我只需快速确认两个小问题：\n1. 招牌是安装在室内还是室外？（这会影响我们使用的防水和材料）\n2. 您偏好什么发光效果？（例如：正面发光、背面发光/光晕，以及什么颜色？）\n\n告诉我后，我马上为您核算报价！😊",
+      "scores": {
+        "行业术语": 6.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S04",
+    "type": "问工艺",
+    "message": "What's the difference between stainless steel 201 and 304 for outdoor signs?",
+    "knowledge_on": {
+      "response": "Great question! The main difference is rust resistance, which is crucial for outdoor signs.\n\n🔹 201 Stainless Steel: Budget-friendly, but best for indoor use. Outdoors, it can start rusting in 6-12 months (especially in humid or coastal areas).\n🔹 304 Stainless Steel: The standard for outdoor signs. Highly rust-resistant (lasts 8-10 years outdoors) and we provide a material test report with it.\n\nIf your sign is going outdoors, I highly recommend 304. Where will the sign be installed (city/country)? If it's near the coast, we might even suggest 316 marine-grade. 😊\n\n---\n好问题！最主要的区别在于防锈能力，这对户外招牌来说至关重要。\n\n🔹 201不锈钢：价格实惠，但最适合室内使用。在户外，它可能在6-12个月内开始生锈（特别是在潮湿或沿海地区）。\n🔹 304不锈钢：户外招牌的标准配置。防锈能力极强（户外可使用8-10年），并且我们会提供材质检测报告。\n\n如果您的招牌是户外使用，我强烈建议用304。请问招牌将安装在哪个国家/城市？如果靠近海边，我们甚至可能建议用316航海级不锈钢。😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Great question! For outdoor signs, the biggest difference is rust resistance.\n\n🔹 201# Stainless Steel: Great for indoor use. But if used outdoors, it might start rusting in 6-12 months, especially in humid or rainy areas.\n🔹 304# Stainless Steel: Our standard for outdoor signs. It handles weather much better and typically lasts 8-10 years outdoors without rusting (3-5 years in coastal areas).\n\nFor outdoor projects, we always use genuine 1.0-1.2mm thick 304# and provide a material test report. It costs a bit more upfront but saves you from replacing a rusty sign later.\n\nIs your sign going to be installed near the coast or in a very humid area? If so, we might even look at 316# marine grade. Let me know the city/country, and I'll give you the best recommendation! 😊\n\n---\n好问题！对于户外招牌，最大的区别在于防锈能力。\n\n🔹 201#不锈钢：适合室内使用。如果用在户外，6-12个月可能就会开始生锈，特别是在潮湿或多雨的地区。\n🔹 304#不锈钢：我们户外招牌的标准配置。它耐候性好得多，通常在户外8-10年不生锈（沿海地区3-5年）。\n\n对于户外项目，我们始终使用真正的1.0-1.2mm厚304#，并提供材质检测报告。前期成本稍微高一点，但能帮您省去以后更换生锈招牌的麻烦。\n\n您的招牌是安装在沿海地区或非常潮湿的地方吗？如果是的话，我们甚至可以考虑316#航海级。告诉我您所在的城市/国家，我会给您最合适的建议！😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S05",
+    "type": "问工艺",
+    "message": "I need acrylic signs that are UV resistant and waterproof for outdoor use. What material do you recommend?",
+    "knowledge_on": {
+      "response": "Hey there! For outdoor use, I highly recommend imported cast acrylic (like Mitsubishi grade). It has UV protection built right in, so it won't yellow for up to 10 years, and it handles sun and rain way better than standard extruded acrylic. ☀️\n\nFor the waterproofing part, we seal the edges with structural silicone (the same grade used for glass curtain walls) to keep it fully waterproof outdoors. 🌧️\n\nTo help me suggest the right thickness and design, could you share the approximate size you need and what text or logo will be on the sign? 📏\n\n---\n您好！对于户外使用，我强烈推荐进口浇铸亚克力（如三菱级别）。它内置抗UV成分，10年内不会发黄，而且比普通的挤压亚克力更耐日晒雨淋。☀️\n\n防水方面，我们用结构硅酮胶（和玻璃幕墙同级别）来封边，确保在户外完全防水。🌧️\n\n为了帮您建议合适的厚度和设计方案，您能告诉我您需要的大概尺寸以及招牌上的文字或Logo内容吗？📏",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 2.0,
+        "主动引导": 6.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Great question! For outdoor use, I highly recommend imported UV-resistant cast acrylic (like Mitsubishi) for the face — it won't yellow for at least 3-5 years under direct sun. \n\nFor waterproofing, we use Dow Corning structural silicone (the same grade used in glass curtain walls) to seal the edges, guaranteeing 10 years of outdoor waterproofing. We also pair it with a 304 stainless steel or aluminum return for extra durability. \n\nTo give you the best advice, roughly how big are these signs, and will they be mounted on a wall or freestanding? 😊\n\n---\n好问题！对于户外使用，我强烈建议面板使用进口抗UV浇铸亚克力（如三菱），在阳光直射下至少3-5年不发黄。\n\n防水方面，我们使用道康宁结构硅酮胶（与玻璃幕墙同级）来密封边缘，保证10年户外防水。我们还会搭配304不锈钢或铝边带，增加耐用性。\n\n为了给您最好的建议，这些标牌大概多大？是安装在墙上还是独立放置的？😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 2.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S06",
+    "type": "问工艺",
+    "message": "Can you make GLOWFORGE chromatic signs? How does the color-changing effect work under sunlight?",
+    "knowledge_on": {
+      "response": "Yes, absolutely! GLOWFORGE chromatic signs are one of our signature products. ✨\n\nTo be totally transparent about sunlight: in direct, strong sunlight, the internal LED glow gets washed out (that's just physics for all LED signs). BUT, during the day, the special dichroic surface reflects beautiful shifting colors naturally in the sun. Then at night or indoors, the programmable LED color-changing effects really pop!\n\nAre you planning to install this indoors or outdoors? That helps me recommend the best material and LED brightness for you. 😊\n\n---\n是的，没问题！GLOWFORGE幻彩发光字是我们的招牌产品之一。✨\n\n关于阳光下的效果我跟您透个底：在强烈的阳光直射下，内部LED的光会被太阳光掩盖（这是所有LED发光字的物理规律）。但是！在白天，表面的特殊幻彩材质会在阳光下自然反射出漂亮的变色/彩虹效果。到了晚上或室内，可编程的LED变色效果就会完全展现出来！\n\n您打算安装在室内还是室外呢？这样我能为您推荐最合适的材质和LED亮度。😊",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Yes, absolutely! GLOWFORGE chromatic signs are one of our specialties. ✨\n\nUnder sunlight, the special chromatic coating on the surface refracts light, creating a beautiful color-shifting effect (like purple, blue, green, and gold) depending on your viewing angle. It looks stunning even when the LEDs are off during the day!\n\nAre you planning to install it outdoors? And do you have a logo or specific text in mind so I can recommend the best material for you? 😊\n\n---\n当然可以！GLOWFORGE炫彩发光字是我们的特色强项之一。✨\n\n在阳光下，表面的特殊炫彩涂层会折射光线，根据您的视角产生漂亮的色彩渐变效果（如紫、蓝、绿、金）。即使白天不亮灯，视觉效果也非常惊艳！\n\n您打算安装在户外吗？另外您有具体的Logo或文字内容吗？这样我可以为您推荐最合适的材料。😊",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S07",
+    "type": "要样品",
+    "message": "Do you offer free samples? I want to check the quality before placing a bulk order.",
+    "knowledge_on": {
+      "response": "Hi there! Totally understand wanting to check the quality first — that's exactly what I'd do too. 😊\n\nWe do make samples! There is a production cost for the sample upfront, but we'll fully refund that fee when you place your bulk order. So it essentially becomes free! ✅\n\nWhat kind of sign or product are you looking to test? Just let me know the text/design and approximate size, and I'll get you a quick sample quote.",
+      "scores": {
+        "行业术语": 0.0,
+        "B2B思维": 4.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi! Checking quality first is definitely the right move. 👍\n\nWe do offer samples! Our policy is that the sample and shipping costs are paid upfront, but we'll fully refund the sample fee when you place your bulk order. \n\nWhat specific product or material do you want to test? (e.g., 3D LED letters, acrylic displays). Let me know so I can check the exact cost and shipping for you! 😊\n\n---\n您好！先检查质量绝对是非常正确的做法。👍\n\n我们提供样品的！我们的政策是前期支付样品费和运费，但在您下大货订单时，我们会全额退还样品费。\n\n请问您具体想测试什么产品或材料？（例如：3D LED发光字、亚克力展示制品）。告诉我后，我帮您核算具体的样品费和运费！😊",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 4.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S08",
+    "type": "问交期",
+    "message": "What's the lead time for 50 sets of acrylic letters to Melbourne?",
+    "knowledge_on": {
+      "response": "Hey there! For 50 sets, production typically takes 10-15 working days after the design is confirmed. 🗓️\n\nShipping to Melbourne is usually 5-7 days by air, or 15-20 days by sea. \n\nTo give you a more exact timeline, could you let me know the approximate size of the letters? And do you have the design files ready? 😊\n\n---\n你好！50套的话，设计确认后生产通常需要10-15个工作日。🗓️\n\n运到墨尔本的话，空运一般5-7天，海运15-20天。\n\n为了给您更准确的时间表，能告诉我字母的大概尺寸吗？另外您的设计文件准备好了吗？😊",
+      "scores": {
+        "行业术语": 6.0,
+        "B2B思维": 6.0,
+        "主动引导": 6.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi there! For 50 sets, production usually takes about 10-15 working days after the design is confirmed and deposit is received. ⏱️\n\nTo give you a more exact timeline (and a quick quote), could you let me know the approximate size of the letters and if they are illuminated (light-up) or just solid acrylic? 😊\n\n---\n你好！50套的话，生产通常在设计确认并收到定金后需要大约10-15个工作日。⏱️\n\n为了给您更准确的时间（以及快速报价），您能告诉我字母的大概尺寸，以及它们是发光字还是纯实心亚克力字吗？😊",
+      "scores": {
+        "行业术语": 2.0,
+        "B2B思维": 2.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S09",
+    "type": "售后",
+    "message": "The LED lights in the sign I bought from you stopped working after 2 months. What can you do?",
+    "knowledge_on": {
+      "response": "Oh no, I'm really sorry to hear that! Let's get this sorted out for you right away.\n\nCould you please send me a quick video or some photos showing the issue? And if you have your order number or invoice handy, that would be super helpful.\n\nOnce I see what's happening, I'll have our technical team check it. If it's a defect on our end, we'll ship out replacement parts (like the LED strips or power supply) to you completely free of charge. Don't worry, we've got your back! 😊\n\n---\n\n哦不，听到这个我非常抱歉！让我们马上为您解决这个问题。\n\n您能发一个简短的视频或几张照片给我看看具体情况吗？如果您手边有订单号或发票，那就太好了。\n\n等我看到具体情况后，我会让技术团队进行核查。如果是我们这边的质量问题，我们会完全免费给您寄出替换部件（比如LED灯带或电源）。别担心，我们会负责到底的！😊",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 6.7
+      }
+    },
+    "knowledge_off": {
+      "response": "Oh no, I'm really sorry to hear that! That’s definitely not the experience we want you to have. Let’s get this sorted out right away. 🛠️\n\nCould you do me a quick favor?\n1. Send a short video showing the issue.\n2. Check if the power supply box has a light on (or send a photo of it).\n\nSometimes it’s just the power supply or a loose connection rather than the LEDs themselves. Once I have the video, I’ll check with our technical team immediately and arrange the fastest solution (like sending replacement parts) for you. We’ve got your back! 👍\n\n---\n哦不，听到这个我真的非常抱歉！这绝对不是我们希望您有的体验。让我们马上解决这个问题。🛠️\n\n能请您帮个小忙吗？\n1. 发一段显示问题的小视频。\n2. 检查一下电源盒上是否有指示灯亮着（或者拍张照发我）。\n\n有时候只是电源问题或者接线松了，而不是LED灯本身的问题。一拿到视频，我会立刻跟技术团队核实，并为您安排最快的解决方案（比如寄送替换配件）。我们会为您负责到底的！👍",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 0.0,
+        "主动引导": 2.0,
+        "自信专业": 6.7
+      }
+    }
+  },
+  {
+    "id": "S10",
+    "type": "询价",
+    "message": "I need 200pcs acrylic display stands for my retail store. Dimensions: 15cm x 10cm. Can you quote?",
+    "knowledge_on": {
+      "response": "Hi there! Thanks for reaching out. Yes, we can definitely make 200pcs of 15x10cm acrylic display stands for you. 👍\n\nTo give you an accurate quote, could you let me know:\n1. What thickness do you prefer? (e.g., 3mm or 5mm)\n2. Do you have a design drawing or reference photo? (Like L-shape, T-shape, or slanted?)\n3. Do you need your logo printed on them?\n\nOnce I have these, I'll calculate the best price for you right away! 😊\n\n---\n您好！感谢联系。没问题，我们完全可以为您做200个15x10cm的亚克力展示架。👍\n\n为了给您准确的报价，能告诉我以下信息吗：\n1. 您需要多厚的？（比如3mm或5mm）\n2. 有设计图或参考图吗？（比如L型、T型还是斜面的？）\n3. 需要在上面印您的Logo吗？\n\n有了这些信息，我马上为您核算最优价格！😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 6.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi! Thanks for reaching out. 200pcs of 15x10cm acrylic display stands — got it! 👍\n\nTo give you an exact price, I just need a couple more details:\n1. What thickness do you prefer? (e.g., 3mm or 5mm)\n2. Do you have a design drawing or a reference photo for the shape?\n3. Should they be clear/transparent or a specific color?\n\nLet me know and I'll get the quote over to you right away! 😊\n\n---\n你好！感谢联系。200个15x10cm的亚克力展示架——收到！👍\n\n为了给您准确的价格，我还需要确认几个小细节：\n1. 您需要多厚的？（比如3mm或5mm）\n2. 您有设计图纸或形状参考图吗？\n3. 需要透明/全透的还是特定颜色的？\n\n告诉我后，我马上把报价发给您！😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S11",
+    "type": "合作",
+    "message": "I'm a sign company in Dubai. We're looking for a reliable OEM partner for our projects. Can you handle large volumes?",
+    "knowledge_on": {
+      "response": "Hi! Thanks for reaching out. Yes, absolutely — we regularly handle large-volume OEM projects for overseas sign companies.\n\nSince you're in Dubai, I know outdoor durability and batch consistency are crucial. We use genuine 304 stainless steel and Meanwell power supplies as standard, which handle high temperatures perfectly. We also guarantee 100% client protection (we never contact your end clients) and offer neutral packaging.\n\nTo see how we can best support you, what type of signs do you mostly produce? (e.g., 3D channel letters, backlit signs?) And do you have a current project we could quote so you can test our quality? 😊\n\n---\n您好！感谢您的联系。是的，完全没问题——我们经常为海外的招牌公司处理大批量的OEM项目。\n\n既然您在迪拜，我知道户外耐用性和批次一致性至关重要。我们标配真正的304不锈钢和明纬电源，完美应对高温天气。我们还保证100%的客户保护（绝不接触您的终端客户），并提供中性包装。\n\n为了看看我们如何最好地支持您，您主要制作哪种类型的招牌？（例如：3D发光字、背发光字？）您目前有正在进行的项目可以让我们报价，以便您测试我们的质量吗？😊",
+      "scores": {
+        "行业术语": 4.0,
+        "B2B思维": 4.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi there! Thanks for reaching out. I'm Philip from Bohui (GLOWFORGE). \n\nYes, absolutely! We've been manufacturing custom LED signs and acrylic products for over 10 years, and handling large volumes for OEM partners is a core part of our business. \n\nWe know what matters most for OEM: 100% customer protection (we never contact your end clients), neutral packaging, and strict quality control so every piece in a large batch looks identical. \n\nTo see how we can best support your team, what type of signs do you mainly focus on? (e.g., 3D channel letters, backlit signs, neon, or acrylic displays?) \n\nDo you have any ongoing projects we could work on a quote for? 😊\n\n---\n您好！感谢联系。我是博汇(GLOWFORGE)的Philip。\n\n完全没问题！我们做定制LED发光字和亚克力产品已经10多年了，为OEM合作伙伴处理大批量订单是我们核心业务之一。\n\n我们很清楚OEM最看重什么：100%客户保护（我们绝不联系您的终端客户）、中性包装，以及严格的品控确保批量订单中每一件产品都完全一致。\n\n为了看看我们如何最好地支持您的团队，请问您主要做哪类招牌？（比如3D发光字、背发光字、霓虹灯还是亚克力展示制品？）\n\n您目前有正在进行的项目可以让我们试着报个价吗？😊",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 2.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S12",
+    "type": "要目录",
+    "message": "Can you send me your full product catalog and price list?",
+    "knowledge_on": {
+      "response": "Hi! This is Philip from Bohui (GLOWFORGE). Thanks for reaching out! 😊\n\nI'm attaching our full product catalog for you to check out. \n\nAbout the price list — since all our LED signs and acrylic products are fully custom-made, we don't have a fixed standard price list. The cost depends entirely on your specific design, size, materials, and quantity.\n\nTo help me give you an accurate estimate, what type of products are you mainly looking for right now? (e.g., LED channel letters, acrylic displays, or furniture?) And do you have a rough size in mind? 📋\n\n---\n您好！我是博汇(GLOWFORGE)的Philip。感谢您的联系！😊\n\n我把完整的产品目录作为附件发给您看看。\n\n关于价格表——由于我们所有的LED发光字和亚克力产品都是完全定制的，我们没有固定的标准价格表。成本完全取决于您的具体设计、尺寸、材料和数量。\n\n为了帮您做一个准确的估算，您现在主要想找哪类产品呢？（比如：LED发光字、亚克力展示制品还是家具？）您心里有大概的尺寸吗？📋",
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 2.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "Hi! 👋 This is Philip from Bohui (GLOWFORGE). \n\nSince we're a 100% custom fabrication factory, we don't have a fixed price list — pricing always depends on your specific size, material, and design details. \n\nI'd love to send you our catalog! To make sure I share the most relevant info, what kind of products are you mainly looking for right now? (e.g., LED signs, acrylic displays, or acrylic furniture?) 😊\n\n---\n您好！👋 我是博汇(GLOWFORGE)的Philip。\n\n因为我们是100%定制工厂，所以没有固定的价格表——价格总是取决于您具体的尺寸、材料和设计细节。\n\n我很乐意把目录发给您！为了确保分享最相关的信息，您目前主要在找哪类产品呢？（比如：LED发光字、亚克力展示制品，还是亚克力家具？）😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S13",
+    "type": "比价",
+    "message": "I found cheaper options on Alibaba for similar quality signs. Why should I choose you?",
+    "knowledge_on": {
+      "response": "I totally get it — on the surface, a lot of signs look identical in photos! 😅\n\nBut the price difference usually hides in the details you can't see. For example:\n1️⃣ Power supply: We use Taiwan Meanwell (CE/UL certified, 5yr warranty). Cheaper ones use uncertified PSUs that fail customs or burn out in 6 months.\n2️⃣ Steel: We use genuine 1.0mm 304# stainless with a test report. Cheaper options often use 0.6mm 201# that starts rusting in a year.\n3️⃣ Waterproofing: We use structural silicone (same as glass curtain walls). Cheap ones use basic glue that leaks quickly.\n\nIf you don't mind sharing, what exactly did they quote you for? (Material thickness, LED brand, power supply). I'll do an honest, apples-to-apples comparison for you, and you can decide. No pressure at all! 😊\n\n---\n我完全理解——表面上看，很多招牌在照片里看起来都一模一样！😅\n\n但价格差异通常隐藏在您看不到的细节里。比如：\n1️⃣ 电源：我们用台湾明纬（CE/UL认证，5年质保）。便宜的用无认证电源，过不了海关或者6个月就烧坏。\n2️⃣ 钢材：我们用真正的1.0mm 304#不锈钢，带检测报告。便宜的通常用0.6mm 201#，一年就开始生锈。\n3️⃣ 防水：我们用结构硅酮胶（和玻璃幕墙一样）。便宜的用普通胶水，很快就漏水。\n\n如果您不介意的话，他们具体给您报的是什么配置？（材料厚度、LED品牌、电源）。我帮您做一个诚实的、同等条件的对比，然后您自己决定。完全没有压力！😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "I totally get it — Alibaba is full of cheaper options, and on the surface, the photos look exactly the same. 😅\n\nBut in our industry, 'similar quality' usually hides 4 major cost-cutting tricks:\n1️⃣ Power Supply: We use Taiwan Meanwell (CE/UL certified, passes customs, 5yr warranty). Cheap ones use uncertified PSUs that fail customs or burn out in 6 months.\n2️⃣ Stainless Steel: We use genuine 1.0mm 304# with a test report. Cheap ones use 0.6mm 201# that starts rusting in half a year.\n3️⃣ Waterproofing: We use structural silicone (same as glass curtain walls). Cheap ones use ordinary glue that leaks in 1 year.\n4️⃣ LEDs: We use Epistar 72pcs/m. Cheap ones use 30pcs no-name strips with fast light decay.\n\nSave 30% now, but spend more on replacements later.\n\nIf you don't mind, send me their quote or specs. I’ll do an honest side-by-side comparison for you, and you can decide! No pressure at all. 😊\n\n---\n我完全理解——阿里巴巴上有很多更便宜的选项，而且表面上看，照片都长得一模一样。😅\n\n但在我们这个行业，“质量相似”通常隐藏着4个主要的偷工减料套路：\n1️⃣ 电源：我们用台湾明纬（CE/UL认证，清关无忧，5年质保）。便宜的用无认证电源，过不了海关或者6个月就烧坏。\n2️⃣ 不锈钢：我们用真正的1.0mm 304#带检测报告。便宜的用0.6mm 201#，半年就开始生锈。\n3️⃣ 防水：我们用结构硅酮胶（和玻璃幕墙一样）。便宜的用普通胶水，1年就漏水。\n4️⃣ LED：我们用晶元72颗/米。便宜的用30颗无牌灯带，光衰很快。\n\n现在省30%，以后换新的花得更多。\n\n如果您不介意的话，可以把他们的报价或规格发给我。我帮您做一个诚实的逐项对比，然后您再做决定！完全没有压力。😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 0.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    }
+  },
+  {
+    "id": "S14",
+    "type": "问工艺",
+    "message": "What's the best material for a beachfront hotel sign near the ocean? It needs to handle salt air.",
+    "knowledge_on": {
+      "response": "Great question! Salt air is definitely the biggest enemy for outdoor signs. 🌊\n\nFor a beachfront hotel, I highly recommend **Marine-grade 316# stainless steel** (1.2mm thick). While 304# is great for normal outdoors, 316# is specifically built for coastal areas and can last 10-15 years without rusting. \n\nWe'd also pair it with:\n✅ UV-resistant imported acrylic (won't yellow in the sun)\n✅ IP67 waterproof LEDs & Meanwell power supply\n✅ Dow Corning structural silicone for sealing (same grade as glass curtain walls)\n\nDo you already have a design or logo ready, or are you still in the concept stage? 😊\n\n---\n好问题！盐雾绝对是户外招牌最大的敌人。🌊\n\n对于海滨酒店，我强烈推荐**海洋级316#不锈钢**（1.2mm厚）。虽然304#在普通户外很好用，但316#是专门为沿海地区设计的，能用10-15年不生锈。\n\n我们还会搭配：\n✅ 抗UV进口亚克力（太阳晒不发黄）\n✅ IP67防水LED和明纬电源\n✅ 道康宁结构硅胶密封（和玻璃幕墙同级别）\n\n您现在有现成的设计图或Logo了吗，还是还在概念阶段？😊",
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 2.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "knowledge_off": {
+      "response": "For beachfront spots with salty air, **316# stainless steel** (marine-grade) is definitely the way to go. It handles the harsh coastal environment perfectly and stays rust-free for 10-15 years. 🌊\n\nIf you're working with a stricter budget, **304# stainless steel** with a powder-coated finish is a solid backup, but 316# is the safest bet right by the ocean.\n\nWe also use structural silicone for all the sealing (same grade as glass curtain walls) so saltwater won't seep inside.\n\nDo you have a rough size in mind, or a logo/text you're planning to use? Happy to give you some tailored advice! 😊\n\n---\n对于有盐雾空气的海滨项目，**316#不锈钢**（海洋级）绝对是首选。它能完美应对恶劣的沿海环境，保持10-15年不生锈。🌊\n\n如果预算比较紧，**304#不锈钢**加粉末喷涂涂层也是一个可靠的备选，但在海边316#是最稳妥的选择。\n\n我们所有的密封都使用结构硅酮胶（和玻璃幕墙同级），所以海水不会渗入内部。\n\n您心里有大概的尺寸吗？或者计划使用的logo/文字？很高兴为您提供量身定制的建议！😊",
+      "scores": {
+        "行业术语": 6.0,
+        "B2B思维": 2.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    }
+  }
+]

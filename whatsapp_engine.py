@@ -360,7 +360,7 @@ def _format_messages(msgs):
 
 
 async def _monitor_loop(page):
-    """监控新消息循环（未登录时自动刷新页面）"""
+    """监控新消息循环（未登录时只等待，不刷屏）"""
     consecutive_errors = 0
     not_logged_in_count = 0
     while _running.is_set():
@@ -369,7 +369,7 @@ async def _monitor_loop(page):
                 await page.wait_for_selector(
                     'div[aria-label="Chat list"], div[aria-label="聊天列表"], '
                     'div[aria-label*="chat" i], [data-testid="chat-list"]',
-                    timeout=15000)
+                    timeout=30000)
                 not_logged_in_count = 0  # 重置计数
             except Exception as inner_e:
                 err = str(inner_e)
@@ -377,21 +377,22 @@ async def _monitor_loop(page):
                     _log("[Monitor] Chrome窗口已关闭，通知引擎重启...")
                     return  # 退出monitor → cmd_loop退出 → 引擎重启
                 not_logged_in_count += 1
-                _log(f"[Monitor] WhatsApp未登录 ({not_logged_in_count}/3)")
-                # 连续3次未检测到登录 → 刷新页面（二维码过期了）
-                if not_logged_in_count >= 3:
-                    _log("[Monitor] 二维码可能已过期，自动刷新页面...")
+                # 前几次不刷日志，避免日志刷屏
+                if not_logged_in_count <= 3 or not_logged_in_count % 6 == 0:
+                    _log(f"[Monitor] WhatsApp未登录 (已等待{not_logged_in_count * 30}秒)")
+                # 只在确实超时后才刷新（每5分钟一次），且刷新后多等一会儿
+                if not_logged_in_count >= 10:
+                    _log("[Monitor] 5分钟未登录，温和刷新页面...")
                     try:
-                        await page.reload(timeout=60000)
-                        await asyncio.sleep(5)
+                        await page.reload(timeout=30000)
+                        await asyncio.sleep(10)
                     except Exception as e:
                         err2 = str(e)
                         if "closed" in err2.lower() or "target" in err2.lower():
                             _log("[Monitor] Chrome窗口已关闭，通知引擎重启...")
                             return
-                        _log(f"[Monitor] 刷新页面失败: {e}")
                     not_logged_in_count = 0
-                await asyncio.sleep(10)
+                await asyncio.sleep(30)
                 continue
 
             consecutive_errors = 0
@@ -441,8 +442,27 @@ async def _engine_main_launch():
 
     from playwright.async_api import async_playwright
 
+    # 连续崩溃计数器 — 防止无限闪退循环
+    global _crash_count
+    try:
+        _crash_count
+    except NameError:
+        _crash_count = 0
+    _profile_cleaned = False
+    err = ""  # 初始化，避免try块外未定义
+
     while _running.is_set():
-        # 只在首次启动时创建目录，不删除已有 profile（保持登录状态）
+        err = ""  # 每次循环重置，避免残留
+        if _crash_count >= 3 and not _profile_cleaned:
+            backup_dir = PROFILE_DIR.rstrip("\\/") + "_corrupted_" + str(int(time.time() - 1))
+            _log(f"[Engine] Profile损坏保护，备份→{os.path.basename(backup_dir)}")
+            try:
+                if os.path.exists(PROFILE_DIR):
+                    os.rename(PROFILE_DIR, backup_dir)
+            except Exception as bak_e:
+                _log(f"[Engine] 备份profile失败: {bak_e}")
+            _profile_cleaned = True
+
         os.makedirs(PROFILE_DIR, exist_ok=True)
         _log(f"[Engine] 启动 Chrome (launch_persistent_context, profile={PROFILE_DIR})")
 
@@ -463,14 +483,20 @@ async def _engine_main_launch():
                         "--no-default-browser-check",
                         "--disable-blink-features=AutomationControlled",
                         "--disable-automation",
+                        "--disable-gpu",
+                        "--disable-software-rasterizer",
+                        "--disable-dev-shm-usage",
+                        "--disable-features=VizDisplayCompositor",
+                        "--no-sandbox",
                     ],
                     ignore_default_args=["--enable-automation"],
                     handle_sigint=False,
                     handle_sigterm=False,
-                    timeout=60000,
+                    timeout=90000,
                 )
                 _browser_context = context
                 _log(f"[Engine] Chrome 启动成功")
+                _crash_count = 0  # 成功启动，重置崩溃计数
 
                 # 找已有的 WhatsApp 标签页，没有就新建
                 page = None
@@ -499,8 +525,22 @@ async def _engine_main_launch():
 
         # 等待一下再重启，防止过快循环
         if _running.is_set():
-            _log("[Engine] Chrome已关闭，5秒后重启...")
-            await asyncio.sleep(5)
+            _crash_count += 1
+            # 用户主动关闭窗口 → 等更久，避免闪屏
+            is_user_close = "closed" in err.lower() or "target" in err.lower()
+            if is_user_close:
+                wait = 300  # 用户关闭窗口→等5分钟再重启，不烦用户
+            elif _crash_count >= 5:
+                wait = 120  # 5次以上崩溃等2分钟
+            elif _crash_count >= 3:
+                wait = 60   # 3-4次崩溃等1分钟
+            elif _crash_count >= 2:
+                wait = 30   # 第2次崩溃等30秒
+            else:
+                wait = 10   # 第1次崩溃等10秒
+            reason = "用户关闭" if is_user_close else f"崩溃(第{_crash_count}次)"
+            _log(f"[Engine] Chrome已关闭 [{reason}]，{wait}秒后重启...")
+            await asyncio.sleep(wait)
 
 
 async def _engine_main_cdp():
@@ -614,8 +654,6 @@ def _send_cmd(cmd, timeout=120):
     if "error" in result:
         raise Exception(result["error"])
     return result
-
-
 
 # ==================== 远程模式（独立服务器） ====================
 # 启用后所有函数通过 HTTP 转发到独立 whatsapp_server.py

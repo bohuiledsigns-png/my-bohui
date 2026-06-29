@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 带货视频生成工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+
+/* Help Panel */
+.help-toggle{background:none;border:none;color:#8b949e;cursor:pointer;font-size:18px;padding:0 6px;border-radius:4px;transition:.15s;line-height:1}
+.help-toggle:hover{color:#58a6ff;background:#21262d}
+.help-panel{display:none;margin-bottom:16px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;font-size:13px;line-height:1.7;color:#c9d1d9}
+.help-panel.open{display:block}
+.help-panel h3{font-size:14px;color:#58a6ff;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid #21262d}
+.help-panel h3:first-child{margin-top:0}
+.help-panel table{width:100%;border-collapse:collapse;margin:6px 0}
+.help-panel td,.help-panel th{border:1px solid #30363d;padding:5px 8px;text-align:left;font-size:12px}
+.help-panel th{background:#161b22;color:#8b949e;font-weight:500}
+.help-panel td{color:#c9d1d9}
+.help-panel kbd{background:#21262d;border:1px solid #30363d;border-radius:3px;padding:1px 5px;font-size:11px;color:#e6edf3}
+.help-panel ul{margin:4px 0 4px 16px}
+.help-panel li{margin-bottom:2px}
+.help-panel .tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:3px;margin-right:4px;font-weight:500}
+.help-panel .tag-green{background:#1a5a2a;color:#3fb950}
+.help-panel .tag-blue{background:#1a3a5a;color:#58a6ff}
+.help-panel .tag-yellow{background:#5a4a1a;color:#d29922}
+.app{display:grid;grid-template-columns:1fr 380px;gap:0;height:100vh}
+/* Left Panel */
+.left{overflow-y:auto;padding:24px 32px;border-right:1px solid #30363d}
+.left::-webkit-scrollbar{width:6px}
+.left::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
+h1{font-size:20px;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+h1 span{background:#238636;font-size:11px;padding:2px 8px;border-radius:4px;color:#fff}
+.subtitle{color:#8b949e;font-size:13px;margin-bottom:20px}
+.section{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px}
+.section-title{font-size:13px;font-weight:600;color:#8b949e;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+/* Image selector */
+.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;max-height:140px;overflow-y:auto;padding:2px}
+.image-grid::-webkit-scrollbar{width:4px}
+.image-grid::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px}
+.img-opt{cursor:pointer;border:2px solid transparent;border-radius:6px;overflow:hidden;transition:.15s;position:relative;aspect-ratio:1}
+.img-opt:hover{border-color:#58a6ff}
+.img-opt.active{border-color:#238636}
+.img-opt img{width:100%;height:100%;object-fit:cover;display:block}
+.img-opt .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#21262d;color:#484f58;font-size:20px}
+/* Template selector */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.tpl-card{cursor:pointer;padding:8px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;transition:.15s}
+.tpl-card:hover{border-color:#58a6ff}
+.tpl-card.active{border-color:#238636;background:#0f2d14}
+.tpl-card .tpl-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl-card .tpl-en{font-size:11px;color:#8b949e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl-card .tpl-id{font-size:10px;color:#484f58}
+/* Form */
+.form-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.form-group{flex:1;min-width:100px}
+.form-group label{display:block;font-size:12px;color:#8b949e;margin-bottom:4px}
+.form-group select,.form-group input{width:100%;padding:6px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px}
+.form-group select:focus,.form-group input:focus{outline:none;border-color:#58a6ff}
+textarea{width:100%;padding:8px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px;resize:vertical;font-family:inherit}
+textarea:focus{outline:none;border-color:#58a6ff}
+textarea.prompt-editor{min-height:70px;font-size:12px;line-height:1.5}
+textarea.voiceover-editor{min-height:50px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
+.btn-primary{background:#238636;color:#fff}
+.btn-primary:hover{background:#2ea043}
+.btn-primary:disabled{background:#1a5a2a;color:#8b949e;cursor:not-allowed}
+.btn-secondary{background:#21262d;color:#e6edf3;border:1px solid #30363d}
+.btn-secondary:hover{background:#30363d}
+/* Right Panel */
+.right{display:flex;flex-direction:column;background:#0d1117}
+.right-header{padding:16px 20px;border-bottom:1px solid #30363d;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.right-header .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.right-header .dot.idle{background:#484f58}
+.right-header .dot.running{background:#d29922;animation:pulse 1s infinite}
+.right-header .dot.done{background:#238636}
+.right-header .dot.error{background:#da3633}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.log-area{flex:1;overflow-y:auto;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:12px;line-height:1.6}
+.log-area::-webkit-scrollbar{width:4px}
+.log-area::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px}
+.log-line{padding:1px 0;color:#8b949e;white-space:pre-wrap;word-break:break-all}
+.log-line.info{color:#e6edf3}
+.log-line.done{color:#3fb950}
+.log-line.error{color:#f85149}
+.log-line.warn{color:#d29922}
+.log-time{color:#484f58;margin-right:6px}
+/* Result panel */
+.result-area{padding:12px 16px;border-top:1px solid #30363d;display:none}
+.result-area.show{display:block}
+.result-area video{width:100%;border-radius:6px;max-height:240px;background:#000}
+.result-actions{display:flex;gap:8px;margin-top:8px}
+/* Image preview in right panel */
+.image-preview{margin-bottom:12px}
+.image-preview img{width:100%;max-height:120px;object-fit:contain;border-radius:6px;background:#161b22}
+/* Loading overlay for logs */
+.log-empty{color:#484f58;text-align:center;padding:40px 0;font-size:13px}
+
+/* Script Library tabs */
+.sl-tab{display:inline-block;padding:3px 10px;font-size:11px;border-radius:4px;cursor:pointer;background:#21262d;color:#8b949e;border:1px solid #30363d;transition:.15s;margin:2px}
+.sl-tab:hover{border-color:#d29922;color:#e6edf3}
+.sl-tab-active{background:#5a4a1a;border-color:#d29922;color:#d29922}
+
+/* Feedback buttons */
+.fb-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #30363d;border-radius:6px;background:#21262d;color:#e6edf3;font-size:13px;cursor:pointer;transition:.15s;margin-right:6px}
+.fb-btn:hover{border-color:#58a6ff;background:#30363d}
+.fb-btn:disabled{opacity:.4;cursor:default;border-color:#30363d}
+.fb-btn[data-thumbs="up"]:hover:not(:disabled){border-color:#3fb950}
+.fb-btn[data-thumbs="down"]:hover:not(:disabled){border-color:#f85149}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Left Panel -->
+  <div class="left">
+    <div style="display:flex;align-items:center;gap:6px">
+      <h1>AI Short Video <span>Desktop Tool</span></h1>
+      <button class="help-toggle" onclick="toggleHelp()" title="使用帮助">?</button>
+    </div>
+    <p class="subtitle">通义万相 + TTS + BGM — AI 一键生成带货视频</p>
+
+    <!-- Help Panel -->
+    <div class="help-panel" id="helpPanel">
+      <h3>📖 快速上手</h3>
+      <p>选择产品图 → 选模板 → 调整参数 → 点击「✨ AI 自动」→「▶ 生成视频」</p>
+
+      <h3>🎬 两种模式</h3>
+      <table>
+        <tr><th>模式</th><th>操作</th><th>适用场景</th></tr>
+        <tr>
+          <td><span class="tag tag-green">通义万相生成</span></td>
+          <td>① 点产品图 → ③ 调参数 → AI 自动 → 生成视频</td>
+          <td>无素材时 AI 从零生成</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">导入已有视频</span></td>
+          <td>上传视频 → 填写产品名 → AI 配乐+字幕</td>
+          <td>已有拍摄素材，加配音/BGM/字幕</td>
+        </tr>
+      </table>
+
+      <h3>🎤 自定义声音</h3>
+      <p>TTS 音色下拉选「🎤 自定义声音」→ 上传你的录音文件（.wav / .mp3 / .m4a）→ 从下拉列表选已上传的声音 → 生成视频时会直接用你的录音。</p>
+      <p>注意：这是直接使用你上传的音频文件，不是 AI 声音克隆。</p>
+
+      <h3>🔊 保留原声</h3>
+      <p>导入已有视频时，勾选「保留原声」则不替换音频轨道，仅叠加字幕和封面钩子文字。适合原视频已有讲解或背景声的场景。</p>
+
+      <h3>⏱ 视频时长</h3>
+      <p>可选 5秒 / 10秒 / 15秒。AI 会根据所选时长自动生成匹配长度的文案，字幕也按时长自动分段。</p>
+
+      <h3>📄 参考链接仿写</h3>
+      <p>粘贴 TikTok / 抖音 / B站 / YouTube / 小红书等链接 → 点「🔍 分析仿写」→ AI 自动分析风格并生成类似的 prompt / 旁白 / 钩子。</p>
+
+      <h3>⚙️ 参数说明</h3>
+      <table>
+        <tr><th>参数</th><th>说明</th></tr>
+        <tr><td>画质</td><td>720P 默认 / 1080P 高清 / Pro 最高（生成更慢）</td></tr>
+        <tr><td>比例</td><td>9:16 竖屏（抖音/TikTok）/ 16:9 横屏（YouTube）/ 1:1 方形</td></tr>
+        <tr><td>BGM</td><td>轻奢钢琴 / 环境氛围 / 潮流电子 / 无 BGM</td></tr>
+        <tr><td>随机种子</td><td>-1=随机，固定数字可复现相同画面</td></tr>
+        <tr><td>钩子标题</td><td>视频开头 3 秒显示的封面文字，吸引点击</td></tr>
+      </table>
+
+      <h3>🐌 生成慢怎么办？</h3>
+      <p>最耗时的是 <strong>通义万相视频生成</strong>（2-10 分钟），这是云端计算时间，无法跳过。如果已有视频素材，用「导入已有视频」可跳过通义万相，只需几十秒完成配音+字幕合成。</p>
+
+      <h3>🏁 完整流程</h3>
+      <ul>
+        <li><strong>通义万相模式：</strong>选产品图 → 选模板 → 调参数(画质/时长/比例/BGM/TTS) → AI 自动 → 生成视频 → 等待 2-10 分钟 → 下载</li>
+        <li><strong>导入视频模式：</strong>上传视频 → 勾选/取消保留原声 → 填产品名 → AI 配乐+字幕 → 等待 30-60 秒 → 下载</li>
+      </ul>
+    </div>
+
+    <!-- Product Image -->
+    <div class="section">
+      <div class="section-title">① 选择产品图</div>
+      <div class="image-grid" id="imageGrid"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <span id="selectedImageName" style="font-size:13px;color:#8b949e">未选择</span>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp"
+               style="flex:1;font-size:12px;padding:4px;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3">
+        <button class="btn btn-secondary" style="padding:4px 12px;font-size:12px" onclick="uploadImage()">上传</button>
+      </div>
+    </div>
+
+    <!-- Import Video -->
+    <div class="section" style="border-color:#1f6feb">
+      <div class="section-title" style="color:#58a6ff">📹 导入已有视频（跳过通义万相）</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
+               style="flex:1;font-size:12px;padding:4px;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3">
+        <button class="btn btn-secondary" style="padding:4px 12px;font-size:12px" onclick="uploadVideo()">上传</button>
+      </div>
+      <div id="importVideoInfo" style="font-size:12px;color:#8b949e">未导入视频</div>
+      <label style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:12px;color:#8b949e;cursor:pointer">
+        <input type="checkbox" id="keepOriginalAudio" style="accent-color:#238636">
+        保留原声（不替换音频，仅加字幕/钩子）
+      </label>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <input type="text" id="importProductName" placeholder="产品名称（如: Titanium LED Sign）"
+               style="flex:1;padding:6px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px">
+        <button class="btn btn-primary" style="padding:6px 16px;font-size:12px" onclick="startImportProcess()">🎬 AI 配乐+字幕</button>
+      </div>
+    </div>
+
+    <!-- Template -->
+    <div class="section">
+      <div class="section-title">② 选择模板</div>
+      <div class="tpl-grid" id="templateGrid"></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid #30363d">
+        <div style="font-size:12px;color:#8b949e;margin-bottom:6px">📝 另存为自定义模板：</div>
+        <div style="display:flex;gap:4px">
+          <input type="text" id="customTmplName" placeholder="模板名称（如: 亚克力精品展示）"
+                 style="flex:1;padding:5px 8px;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3;font-size:12px">
+          <button class="btn btn-secondary" style="padding:4px 12px;font-size:11px" onclick="saveCustomTemplate()">保存</button>
+        </div>
+        <div id="customTemplateList" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="section">
+      <div class="section-title">③ 参数调整</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>画质</label>
+          <select id="quality">
+            <option value="720p">720P</option>
+            <option value="1080p">1080P</option>
+            <option value="pro">Pro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>时长</label>
+          <select id="duration">
+            <option value="5">5 秒</option>
+            <option value="10">10 秒</option>
+            <option value="15" selected>15 秒（推荐）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>比例</label>
+          <select id="aspectRatio">
+            <option value="9:16">竖屏 9:16</option>
+            <option value="16:9">横屏 16:9</option>
+            <option value="1:1">方形 1:1</option>
+            <option value="4:3">4:3</option>
+            <option value="3:4">3:4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>BGM</label>
+          <select id="bgm">
+            <option value="">无 BGM</option>
+            <option value="classic">轻奢钢琴</option>
+            <option value="ambient" selected>环境氛围</option>
+            <option value="trendy">潮流电子</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>语言</label>
+          <select id="language">
+            <option value="en">🇬🇧 English</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="pt">🇧🇷 Português</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>TTS 音色</label>
+          <select id="voice">
+            <option value="Cherry">Cherry (女声, 推荐)</option>
+            <option value="Chelsie">Chelsie (女声)</option>
+            <option value="Stella">Stella (女声)</option>
+            <option value="Andre">Andre (男声, 沉稳商务)</option>
+            <option value="Ethan">Ethan (男声, 阳光温暖)</option>
+            <option value="Vincent">Vincent (男声, 沙哑烟嗓)</option>
+            <option value="__custom__">🎤 自定义声音</option>
+          </select>
+        </div>
+        <div id="customVoiceSection" style="display:none" class="form-group">
+          <label>上传声音样本</label>
+          <div style="display:flex;gap:4px;margin-bottom:4px">
+            <input type="file" id="voiceFileInput" accept="audio/wav,audio/mpeg,audio/mp4,audio/ogg"
+                   style="flex:1;font-size:11px;padding:4px;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3">
+            <button class="btn btn-secondary" style="padding:3px 10px;font-size:11px" onclick="uploadVoice()">上传</button>
+          </div>
+          <select id="customVoiceSelect" onchange="onCustomVoiceChange()">
+            <option value="">-- 选择已上传声音 --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>随机种子</label>
+          <input type="number" id="seed" value="-1" placeholder="-1=随机">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:8px">
+        <label>视频提示词 (Prompt)</label>
+        <textarea class="prompt-editor" id="prompt" placeholder="描述视频画面..."></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>英文旁白 (Voiceover, ~13秒)</label>
+        <textarea class="voiceover-editor" id="voiceover" placeholder="英文旁白内容..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>钩子标题 (封面文字)</label>
+        <input type="text" id="hookText" placeholder="如: Premium LED Sign — Upgrade Your Shop" style="width:100%;padding:6px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px">
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8b949e;cursor:pointer;margin-top:6px">
+        <input type="checkbox" id="useScriptRef" checked style="accent-color:#d29922">
+        Use script style reference (inject matching scripts into AI prompt)
+      </label>
+    </div>
+
+    <!-- Reference URL -->
+    <div class="section">
+      <div class="section-title">④ 参考链接 / 文案仿写（可选）</div>
+      <div class="form-group" style="margin-bottom:6px">
+        <input type="url" id="refUrl" placeholder="粘贴 TikTok / 抖音 / B站 / YouTube / 小红书等链接..."
+               style="width:100%;padding:6px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px">
+      </div>
+      <div class="form-group" style="margin-bottom:6px">
+        <textarea id="refText" placeholder="或直接粘贴参考文案（抓不到内容时备用）..."
+                  style="width:100%;padding:6px 10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;resize:vertical;min-height:40px;font-family:inherit"></textarea>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-secondary" style="padding:6px 16px;font-size:13px" onclick="analyzeReference()">🔍 分析仿写</button>
+        <span id="refStatus" style="font-size:12px;color:#8b949e;align-self:center"></span>
+      </div>
+    </div>
+
+    <!-- Knowledge Base -->
+    <div class="section" style="border-color:#30363d">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleKnowledgeBase()">
+        <span class="section-title" style="margin-bottom:0;flex:1">🧠 AI 知识库</span>
+        <span id="kbToggle" style="font-size:11px;color:#8b949e">展开 ▸</span>
+      </div>
+      <div id="kbPanel" style="display:none;margin-top:10px">
+        <div style="font-size:12px;color:#8b949e;margin-bottom:8px">
+          知识库包含产品材质、工艺、卖点等信息，AI 生成视频内容时会参考这些数据。
+        </div>
+        <div id="kbList" style="max-height:300px;overflow-y:auto;"></div>
+        <button class="btn btn-secondary" style="padding:4px 12px;font-size:11px;margin-top:6px" onclick="refreshKnowledgeBase()">🔄 刷新</button>
+      </div>
+    </div>
+
+    <!-- Script Library -->
+    <div class="section" style="border-color:#d29922">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleScriptLib()">
+        <span class="section-title" style="margin-bottom:0;flex:1"> Script Library (30 scripts)</span>
+        <span id="slToggle" style="font-size:11px;color:#8b949e">Expand ▸</span>
+      </div>
+      <div id="slPanel" style="display:none;margin-top:10px">
+        <div style="font-size:12px;color:#8b949e;margin-bottom:8px">
+          30 dialogue-style video scripts used as AI style reference. The AI learns tone and pacing from these when auto-generating content.
+        </div>
+        <div id="slDaily" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap" id="slTabs"></div>
+        <div id="slList" style="max-height:350px;overflow-y:auto;"></div>
+        <button class="btn btn-secondary" style="padding:4px 12px;font-size:11px;margin-top:6px" onclick="refreshScriptLib()"> Refresh</button>
+      </div>
+    </div>
+
+    <!-- Effectiveness Stats -->
+    <div class="section" style="border-color:#58a6ff">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleStatsPanel()">
+        <span class="section-title" style="margin-bottom:0;flex:1">📊 效果统计</span>
+        <span id="statsToggle" style="font-size:11px;color:#8b949e">展开 ▸</span>
+      </div>
+      <div id="statsPanel" style="display:none;margin-top:10px">
+        <div id="statsContent" style="font-size:12px;color:#c9d1d9;line-height:1.6">
+          <div style="color:#8b949e">加载中...</div>
+        </div>
+        <button class="btn btn-secondary" style="padding:4px 12px;font-size:11px;margin-top:6px" onclick="refreshStats()">🔄 刷新</button>
+      </div>
+    </div>
+
+    <!-- Generate -->
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" id="btnGenerate" onclick="startGenerate()">▶ 生成视频</button>
+      <button class="btn btn-secondary" onclick="autoFillContent()">✨ AI 自动</button>
+      <button class="btn btn-secondary" onclick="clearFields()">重置</button>
+    </div>
+    <p id="statusMessage" style="font-size:12px;color:#8b949e;margin-top:8px"></p>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right">
+    <div class="right-header">
+      <span class="dot idle" id="statusDot"></span>
+      <span id="statusLabel">就绪</span>
+    </div>
+    <div class="log-area" id="logArea">
+      <div class="log-empty">选择模板和产品图，点击「生成视频」开始</div>
+    </div>
+    <div class="result-area" id="resultArea">
+      <video id="resultVideo" controls playsinline></video>
+      <div class="result-actions">
+        <a class="btn btn-primary" id="downloadBtn" download="glowforge_video.mp4">⬇ 下载视频</a>
+      </div>
+      <div class="feedback-area" id="feedbackArea" style="margin-top:10px;padding-top:10px;border-top:1px solid #30363d;display:none">
+        <div style="font-size:12px;color:#8b949e;margin-bottom:6px">这个结果怎么样？帮 AI 进步 👇</div>
+        <button class="fb-btn" data-thumbs="up" onclick="sendFeedback('up')" title="好，效果不错">👍 不错</button>
+        <button class="fb-btn" data-thumbs="down" onclick="sendFeedback('down')" title="不好，需要改进">👎 不好</button>
+        <span id="fbStatus" style="font-size:12px;color:#3fb950;margin-left:8px;display:none"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// State
+let templates = [];
+let products = [];
+let selectedTemplate = null;
+let selectedImagePath = '';
+let currentTaskId = null;
+let pollTimer = null;
+let lastLogCount = 0;
+let importedVideoPath = '';
+let selectedCustomVoice = '';
+let kbExpanded = false;
+
+// Init
+async function init() {
+  const [tplRes, prodRes] = await Promise.all([
+    fetch('/api/templates').then(r=>r.json()),
+    fetch('/api/products').then(r=>r.json())
+  ]);
+  templates = tplRes;
+  products = prodRes;
+  renderTemplates();
+  renderImages();
+  if (templates.length) selectTemplate(templates[0].id);
+  loadCustomTemplates();
+}
+init();
+
+// Templates
+function renderTemplates() {
+  const grid = document.getElementById('templateGrid');
+  grid.innerHTML = templates.map(t => `
+    <div class="tpl-card" data-id="${t.id}" onclick="selectTemplate(${t.id})">
+      <div class="tpl-id">#${t.id}</div>
+      <div class="tpl-name">${t.name}</div>
+      <div class="tpl-en">${t.en_name}</div>
+    </div>
+  `).join('');
+}
+
+function selectTemplate(id) {
+  selectedTemplate = templates.find(t => t.id === id);
+  if (!selectedTemplate) return;
+  document.querySelectorAll('.tpl-card').forEach(c => c.classList.toggle('active', +c.dataset.id === id));
+  document.getElementById('prompt').value = '';
+  document.getElementById('voiceover').value = '';
+  document.getElementById('hookText').value = '';
+  document.getElementById('prompt').placeholder = 'AI is generating prompt...';
+  const bgmSelect = document.getElementById('bgm');
+  if (selectedTemplate.bgm && [...bgmSelect.options].some(o => o.value === selectedTemplate.bgm)) {
+    bgmSelect.value = selectedTemplate.bgm;
+  }
+  autoFillContent(selectedTemplate.en_name, selectedTemplate.scene);
+}
+
+function saveCustomTemplate() {
+  const name = document.getElementById('customTmplName').value.trim();
+  if (!name) { addLog('warn', 'Please enter a template name'); return; }
+  const data = {
+    name: name,
+    en_name: document.getElementById('hookText').value.trim() || name,
+    scene: document.getElementById('prompt').value.trim().slice(0, 100) || 'custom scene',
+    prompt: document.getElementById('prompt').value.trim(),
+    voiceover: document.getElementById('voiceover').value.trim(),
+    hook_text: document.getElementById('hookText').value.trim(),
+    bgm: document.getElementById('bgm').value,
+  };
+  fetch('/api/custom_templates', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data),
+  }).then(r => r.json()).then(res => {
+    if (res.error) { addLog('error', 'Save failed: ' + res.error); return; }
+    addLog('done', 'Custom template saved: ' + name);
+    document.getElementById('customTmplName').value = '';
+    loadCustomTemplates();
+    refreshTemplates();
+  }).catch(e => addLog('error', 'Save error: ' + e.message));
+}
+
+function deleteCustomTemplate(id) {
+  if (!confirm('Delete this custom template?')) return;
+  fetch('/api/custom_templates/' + id, {method: 'DELETE'})
+    .then(r => r.json()).then(() => {
+      addLog('info', 'Custom template deleted');
+      loadCustomTemplates();
+      refreshTemplates();
+    }).catch(e => addLog('error', 'Delete failed: ' + e.message));
+}
+
+function loadCustomTemplates() {
+  fetch('/api/custom_templates').then(r => r.json()).then(list => {
+    const el = document.getElementById('customTemplateList');
+    if (!list.length) {
+      el.innerHTML = '<span style="font-size:11px;color:#484f58">No custom templates</span>';
+      return;
+    }
+    el.innerHTML = list.map(t => `
+      <span style="display:inline-flex;align-items:center;gap:3px;background:#1f6feb22;border:1px solid #1f6feb44;border-radius:4px;padding:2px 8px;font-size:11px">
+        ${t.name}
+        <span onclick="deleteCustomTemplate(${t.id})" style="cursor:pointer;color:#f85149;font-size:13px;line-height:1">&times;</span>
+      </span>
+    `).join('');
+  }).catch(() => {});
+}
+
+function refreshTemplates() {
+  fetch('/api/templates').then(r => r.json()).then(list => {
+    templates = list;
+    renderTemplates();
+  }).catch(() => {});
+}
+
+// Images
+function renderImages() {
+  const grid = document.getElementById('imageGrid');
+  if (!products.length) {
+    grid.innerHTML = '<div style="color:#484f58;font-size:12px;padding:10px">No product images</div>';
+    return;
+  }
+  grid.innerHTML = products.map((p, i) => {
+    const query = new URLSearchParams({path: p.path}).toString();
+    return `<div class="img-opt${i===0?' active':''}" data-path="${p.path}" onclick="selectImage(this)">
+      <img src="/api/product_image?${query}" alt="${p.name}" loading="lazy">
+    </div>`;
+  }).join('');
+  const first = grid.querySelector('.img-opt');
+  if (first) selectImage(first);
+}
+
+function selectImage(el) {
+  document.querySelectorAll('.img-opt').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedImagePath = el.dataset.path;
+  const name = selectedImagePath.split('\\').pop().split('/').pop();
+  document.getElementById('selectedImageName').textContent = 'Selected: ' + name;
+}
+
+async function uploadImage() {
+  const input = document.getElementById('fileInput');
+  if (!input.files.length) { addLog('warn', 'Select an image first'); return; }
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) { addLog('error', 'Image exceeds 10MB'); return; }
+  const form = new FormData();
+  form.append('file', file);
+  addLog('info', 'Uploading image...');
+  try {
+    const resp = await fetch('/api/upload_image', {method: 'POST', body: form});
+    const data = await resp.json();
+    if (data.error) { addLog('error', 'Upload failed: ' + data.error); return; }
+    addLog('done', 'Uploaded: ' + data.name);
+    const prodRes = await fetch('/api/products').then(r=>r.json());
+    products = prodRes;
+    renderImages();
+    input.value = '';
+  } catch(e) { addLog('error', 'Upload error: ' + e.message); }
+}
+
+// Video Import
+async function uploadVideo() {
+  const input = document.getElementById('videoFileInput');
+  if (!input.files.length) { addLog('warn', 'Select a video file first'); return; }
+  const file = input.files[0];
+  if (file.size > 500 * 1024 * 1024) { addLog('error', 'Video exceeds 500MB'); return; }
+  const form = new FormData();
+  form.append('file', file);
+  addLog('info', 'Uploading video...');
+  try {
+    const resp = await fetch('/api/upload_video', {method: 'POST', body: form});
+    const data = await resp.json();
+    if (data.error) { addLog('error', 'Upload failed: ' + data.error); return; }
+    importedVideoPath = data.path;
+    const info = document.getElementById('importVideoInfo');
+    info.innerHTML = 'Imported: ' + data.name + ' (' + data.duration + 's)';
+    addLog('done', 'Video uploaded: ' + data.name + ' (' + data.duration + 's)');
+    input.value = '';
+  } catch(e) { addLog('error', 'Upload error: ' + e.message); }
+}
+
+async function startImportProcess() {
+  if (!importedVideoPath) { addLog('error', 'Upload a video first'); return; }
+  const productName = document.getElementById('importProductName').value.trim() || 'LED Sign';
+  const bgm = document.getElementById('bgm').value;
+  const voice = document.getElementById('voice').value;
+  const keepOrig = document.getElementById('keepOriginalAudio').checked;
+  addLog('info', keepOrig
+    ? 'Adding subtitles/hook (keeping original audio)...'
+    : 'AI generating voiceover+subtitles+for imported video...');
+  setStatus('running', 'Processing...');
+  const btn = document.querySelector('[onclick="startImportProcess()"]');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  try {
+    const resp = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        video_path: importedVideoPath,
+        auto: true,
+        auto_product: productName,
+        bgm: bgm,
+        voice: voice === '__custom__' ? 'Cherry' : voice,
+        custom_voice: selectedCustomVoice,
+        keep_original_audio: document.getElementById('keepOriginalAudio').checked,
+        quality: '720p',
+        duration: 5,
+        aspect_ratio: '9:16',
+        image_path: '',
+        seed: -1,
+      }),
+    });
+    const data = await resp.json();
+    if (data.error) { addLog('error', 'Submit failed: ' + data.error); setStatus('error', 'Failed'); btn.disabled = false; btn.textContent = 'AI + Subtitles'; return; }
+    currentTaskId = data.task_id;
+    addLog('info', 'Task submitted, waiting...');
+    lastLogCount = 0;
+    pollTask();
+  } catch(e) { addLog('error', 'Request error: ' + e.message); setStatus('error', 'Network error'); }
+  btn.disabled = false;
+  btn.textContent = 'AI + Subtitles';
+}
+
+// Voice
+async function uploadVoice() {
+  const input = document.getElementById('voiceFileInput');
+  if (!input.files.length) { addLog('warn', 'Select a voice file first'); return; }
+  const file = input.files[0];
+  const form = new FormData();
+  form.append('file', file);
+  addLog('info', 'Uploading voice sample...');
+  try {
+    const resp = await fetch('/api/upload_voice', {method: 'POST', body: form});
+    const data = await resp.json();
+    if (data.error) { addLog('error', 'Upload failed: ' + data.error); return; }
+    addLog('done', 'Voice uploaded: ' + data.label);
+    await refreshCustomVoices();
+    input.value = '';
+  } catch(e) { addLog('error', 'Upload error: ' + e.message); }
+}
+
+async function refreshCustomVoices() {
+  try {
+    const resp = await fetch('/api/voices');
+    const voices = await resp.json();
+    const select = document.getElementById('customVoiceSelect');
+    select.innerHTML = '<option value="">-- Select uploaded voice --</option>';
+    voices.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.path;
+      opt.textContent = v.name;
+      select.appendChild(opt);
+    });
+  } catch(e) { addLog('error', 'Failed to load voices'); }
+}
+
+function onCustomVoiceChange() {
+  const select = document.getElementById('customVoiceSelect');
+  selectedCustomVoice = select.value;
+  if (selectedCustomVoice) {
+    addLog('info', 'Selected custom voice: ' + select.options[select.selectedIndex].text);
+  }
+}
+
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'voice') {
+    const section = document.getElementById('customVoiceSection');
+    if (e.target.value === '__custom__') {
+      section.style.display = 'block';
+      refreshCustomVoices();
+    } else {
+      section.style.display = 'none';
+      selectedCustomVoice = '';
+    }
+  }
+});
+
+// AI Auto-Fill
+async function autoFillContent(productName, sceneHint) {
+  const btn = document.getElementById('btnGenerate');
+  const wasDisabled = btn.disabled;
+  btn.disabled = true;
+  addLog('info', 'AI generating video content...');
+  const name = productName || (selectedTemplate ? selectedTemplate.en_name : '');
+  const scene = sceneHint || (selectedTemplate ? selectedTemplate.scene : '');
+  if (!name) { addLog('error', 'Select a template first'); btn.disabled = wasDisabled; return; }
+  try {
+    const resp = await fetch('/api/auto_content', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({product: name, scene: scene, use_script_ref: document.getElementById('useScriptRef').checked, language: document.getElementById('language').value}),
+    });
+    const data = await resp.json();
+    if (data.error) { addLog('error', 'AI failed: ' + data.error); btn.disabled = wasDisabled; return; }
+    if (data.prompt) document.getElementById('prompt').value = data.prompt;
+    if (data.voiceover) document.getElementById('voiceover').value = data.voiceover;
+    if (data.hook_text) document.getElementById('hookText').value = data.hook_text;
+    addLog('done', 'AI generated prompt/voiceover/hook');
+  } catch(e) { addLog('error', 'AI request failed: ' + e.message); }
+  btn.disabled = wasDisabled;
+}
+
+// Generate
+async function startGenerate() {
+  const btn = document.getElementById('btnGenerate');
+  if (btn.disabled) return;
+  let prompt = document.getElementById('prompt').value.trim();
+  let voiceover = document.getElementById('voiceover').value.trim();
+  if (!prompt && selectedTemplate) {
+    addLog('info', 'Prompt empty, auto-generating...');
+    await autoFillContent(selectedTemplate.en_name, selectedTemplate.scene);
+    prompt = document.getElementById('prompt').value.trim();
+    voiceover = document.getElementById('voiceover').value.trim();
+  }
+  if (!prompt) { addLog('error', 'Please enter a prompt'); return; }
+  if (!document.getElementById('voiceover').value.trim()) { addLog('warn', 'Voiceover empty, will use default'); }
+  document.getElementById('resultArea').classList.remove('show');
+  document.getElementById('logArea').innerHTML = '';
+  lastLogCount = 0;
+  setStatus('running', 'Generating...');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  const voiceSelect = document.getElementById('voice');
+  const isCustomVoice = voiceSelect.value === '__custom__';
+  const body = {
+    prompt,
+    quality: document.getElementById('quality').value,
+    duration: parseInt(document.getElementById('duration').value),
+    aspect_ratio: document.getElementById('aspectRatio').value,
+    image_path: selectedImagePath || '',
+    voiceover: document.getElementById('voiceover').value.trim(),
+    hook_text: document.getElementById('hookText').value.trim(),
+    bgm: document.getElementById('bgm').value,
+    seed: parseInt(document.getElementById('seed').value) || -1,
+    voice: isCustomVoice ? 'Cherry' : voiceSelect.value,
+    custom_voice: isCustomVoice ? selectedCustomVoice : '',
+  };
+  try {
+    const resp = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    if (data.error) { addLog('error', data.error); setStatus('error', 'Failed'); btn.disabled = false; btn.textContent = 'Generate Video'; return; }
+    currentTaskId = data.task_id;
+    addLog('info', 'Task submitted, waiting...');
+    pollTask();
+  } catch(e) { addLog('error', 'Submit failed: ' + e.message); setStatus('error', 'Network error'); btn.disabled = false; btn.textContent = 'Generate Video'; }
+}
+
+async function pollTask() {
+  if (!currentTaskId) return;
+  try {
+    const resp = await fetch(`/api/status/${currentTaskId}`);
+    const data = await resp.json();
+    if (data.logs) {
+      for (let i = lastLogCount; i < data.logs.length; i++) { addLog('info', data.logs[i]); }
+      lastLogCount = data.logs.length;
+    }
+    if (data.status === 'done') {
+      const result = data.result;
+      document.getElementById('resultVideo').src = `/api/download/${result.name}`;
+      document.getElementById('downloadBtn').href = `/api/download/${result.name}`;
+      document.getElementById('resultArea').classList.add('show');
+      document.getElementById('feedbackArea').style.display = 'block';
+      document.querySelectorAll('.fb-btn').forEach(b => b.disabled = false);
+      document.getElementById('fbStatus').style.display = 'none';
+      addLog('done', 'Video complete!');
+      setStatus('done', 'Complete');
+      currentTaskId = null;
+      document.getElementById('btnGenerate').disabled = false;
+      document.getElementById('btnGenerate').textContent = 'Generate Video';
+      return;
+    } else if (data.status === 'error') {
+      addLog('error', data.error || 'Unknown error');
+      setStatus('error', 'Failed');
+      currentTaskId = null;
+      document.getElementById('btnGenerate').disabled = false;
+      document.getElementById('btnGenerate').textContent = 'Generate Video';
+      return;
+    }
+    setTimeout(pollTask, 1500);
+  } catch(e) { addLog('error', 'Status query failed: ' + e.message); setTimeout(pollTask, 3000); }
+}
+
+// UI Helpers
+function toggleHelp() {
+  document.getElementById("helpPanel").classList.toggle("open");
+}
+
+function toggleKnowledgeBase() {
+  kbExpanded = !kbExpanded;
+  document.getElementById('kbPanel').style.display = kbExpanded ? 'block' : 'none';
+  document.getElementById('kbToggle').textContent = kbExpanded ? 'Collapse' : 'Expand';
+  if (kbExpanded) refreshKnowledgeBase();
+}
+
+function refreshKnowledgeBase() {
+  const el = document.getElementById('kbList');
+  el.innerHTML = '<div style="color:#484f58;font-size:12px">Loading...</div>';
+  fetch('/api/knowledge').then(r => r.json()).then(list => {
+    if (!list || !list.length) { el.innerHTML = '<div style="color:#484f58;font-size:12px">Knowledge base empty</div>'; return; }
+    el.innerHTML = list.map(e => {
+      const sps = (e.selling_points || []).join('; ');
+      const feats = (e.features || []).join('; ');
+      return '<div style="padding:8px;margin-bottom:6px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-size:12px">' +
+        '<div style="color:#58a6ff;font-weight:500;margin-bottom:2px">' + (e.category || e.en_name || '') + '</div>' +
+        '<div style="color:#8b949e">' + (e.en_name || '') + '</div>' +
+        (feats ? '<div style="color:#c9d1d9;margin-top:3px"><span style="color:#8b949e">Features:</span> ' + feats + '</div>' : '') +
+        (sps ? '<div style="color:#c9d1d9;margin-top:2px"><span style="color:#8b949e">Sell:</span> ' + sps + '</div>' : '') +
+        (e.technical_details ? '<div style="color:#484f58;margin-top:2px;font-size:11px">' + e.technical_details.slice(0, 120) + '...</div>' : '') +
+        '</div>';
+    }).join('');
+  }).catch(e => { el.innerHTML = '<div style="color:#f85149;font-size:12px">Failed: ' + e.message + '</div>'; });
+}
+
+// Script Library
+let slExpanded = false;
+
+function toggleScriptLib() {
+  slExpanded = !slExpanded;
+  document.getElementById('slPanel').style.display = slExpanded ? 'block' : 'none';
+  document.getElementById('slToggle').textContent = slExpanded ? 'Collapse ▾' : 'Expand ▸';
+  if (slExpanded) refreshScriptLib();
+}
+
+function refreshScriptLib() {
+  const dailyEl = document.getElementById('slDaily');
+  const tabsEl = document.getElementById('slTabs');
+  const listEl = document.getElementById('slList');
+
+  fetch('/api/scripts/daily')
+    .then(r => r.json())
+    .then(daily => {
+      if (daily && daily.length) {
+        dailyEl.innerHTML = '<div style="font-size:12px;color:#d29922;font-weight:500;margin-bottom:4px">Today\'s rotation (1 per category):</div>' +
+          daily.map(s => {
+            const preview = (s.script || []).slice(0, 2).map(l => l.text).join(' ').slice(0, 60);
+            return '<span style="display:inline-block;background:#5a4a1a33;border:1px solid #d2992244;border-radius:4px;padding:2px 8px;margin:2px;font-size:11px" title="' + (s.title || '') + ': ' + preview + '">' +
+              (s.title || '').slice(0, 30) + '</span>';
+          }).join('');
+      }
+    }).catch(() => {});
+
+  listEl.innerHTML = '<div style="color:#484f58;font-size:12px">Loading...</div>';
+  fetch('/api/scripts')
+    .then(r => r.json())
+    .then(scripts => {
+      if (!scripts || !scripts.length) {
+        listEl.innerHTML = '<div style="color:#484f58;font-size:12px">Script library empty</div>';
+        return;
+      }
+      const cats = [...new Set(scripts.map(s => s.category_zh || s.category))];
+      tabsEl.innerHTML = '<span class="sl-tab sl-tab-active" data-cat="all" onclick="filterScripts(this)">All</span>' +
+        cats.map(c => '<span class="sl-tab" data-cat="' + c + '" onclick="filterScripts(this)">' + c + '</span>').join('');
+      listEl._allScripts = scripts;
+      renderScriptList(scripts, listEl);
+    }).catch(e => { listEl.innerHTML = '<div style="color:#f85149;font-size:12px">Failed: ' + e.message + '</div>'; });
+}
+
+function renderScriptList(scripts, el) {
+  el.innerHTML = scripts.map(s => {
+    const lines = (s.script || []).slice(0, 4).map(l => {
+      const sp = l.speaker === 'scene' ? '' : l.speaker + ': ';
+      return sp + l.text.slice(0, 60);
+    }).join('<br>');
+    return '<div style="padding:8px;margin-bottom:6px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-size:12px">' +
+      '<div style="color:#d29922;font-weight:500">' + (s.title || 'Untitled') + '</div>' +
+      '<div style="color:#8b949e;font-size:11px">' + (s.category_zh || s.category || '') + '</div>' +
+      '<div style="color:#c9d1d9;margin-top:4px;line-height:1.5">' + lines + '</div>' +
+      '<div style="color:#484f58;margin-top:4px;font-size:11px">Keywords: ' + (s.keywords || []).join(', ') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function filterScripts(el) {
+  document.querySelectorAll('.sl-tab').forEach(t => t.classList.remove('sl-tab-active'));
+  el.classList.add('sl-tab-active');
+  const cat = el.dataset.cat;
+  const listEl = document.getElementById('slList');
+  const all = listEl._allScripts || [];
+  if (cat === 'all') {
+    renderScriptList(all, listEl);
+  } else {
+    renderScriptList(all.filter(s => (s.category_zh || s.category) === cat), listEl);
+  }
+}
+
+function addLog(level, msg) {
+  const area = document.getElementById('logArea');
+  const empty = area.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const t = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.className = 'log-line ' + level;
+  div.innerHTML = '<span class="log-time">[' + t + ']</span>' + msg;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function setStatus(state, label) {
+  const dot = document.getElementById('statusDot');
+  const lbl = document.getElementById('statusLabel');
+  dot.className = 'dot ' + state;
+  lbl.textContent = label;
+}
+
+function clearFields() {
+  document.getElementById('prompt').value = '';
+  document.getElementById('voiceover').value = '';
+  document.getElementById('hookText').value = '';
+  if (selectedTemplate) selectTemplate(selectedTemplate.id);
+  document.getElementById('resultArea').classList.remove('show');
+  document.getElementById('logArea').innerHTML = '<div class="log-empty">Reset</div>';
+  setStatus('idle', 'Ready');
+}
+
+// Reference Analysis
+async function analyzeReference() {
+  const url = document.getElementById('refUrl').value.trim();
+  const text = document.getElementById('refText').value.trim();
+  if (!url && !text) { document.getElementById('refStatus').textContent = 'Enter URL or paste text'; return; }
+  const btn = document.querySelector('[onclick="analyzeReference()"]');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  document.getElementById('refStatus').textContent = 'AI analyzing style...';
+  try {
+    const resp = await fetch('/api/analyze_url', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url, text}),
+    });
+    const data = await resp.json();
+    if (data.error) { document.getElementById('refStatus').textContent = data.error; return; }
+    if (data.prompt) document.getElementById('prompt').value = data.prompt;
+    if (data.voiceover) document.getElementById('voiceover').value = data.voiceover;
+    if (data.hook_text) document.getElementById('hookText').value = data.hook_text;
+    if (data.analysis) addLog('info', 'Style analysis: ' + data.analysis);
+    document.getElementById('refStatus').textContent = 'Done, filled into form';
+    addLog('done', 'Reference analysis complete');
+  } catch(e) { document.getElementById('refStatus').textContent = 'Request failed'; addLog('error', 'Analysis request failed: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Analyze'; }
+}
+
+// ── 反馈 ──
+function sendFeedback(thumbs) {
+  const btn = document.querySelector(`.fb-btn[data-thumbs="${thumbs}"]`);
+  if (btn.disabled) return;
+  const product = selectedTemplate ? selectedTemplate.name : '';
+  fetch('/api/feedback', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      task_id: currentTaskId || '',
+      thumbs: thumbs,
+      prompt: document.getElementById('prompt').value,
+      voiceover: document.getElementById('voiceover').value,
+      hook: document.getElementById('hookText').value,
+      product: product,
+      quality: document.getElementById('quality').value,
+      duration: document.getElementById('duration').value,
+      aspect_ratio: document.getElementById('aspectRatio').value,
+      bgm: document.getElementById('bgm').value,
+      voice: document.getElementById('voice').value,
+      use_script_ref: document.getElementById('useScriptRef').checked,
+    })
+  }).then(r => r.json()).then(res => {
+    const el = document.getElementById('fbStatus');
+    el.textContent = thumbs === 'up' ? '✓ 已记录，AI 会学习这个风格' : '✓ 已记录，我们会改进';
+    el.style.display = 'inline';
+    document.querySelectorAll('.fb-btn').forEach(b => b.disabled = true);
+  }).catch(() => {
+    document.getElementById('fbStatus').textContent = '提交失败，请重试';
+    document.getElementById('fbStatus').style.display = 'inline';
+  });
+}
+
+// ── 效果统计 ──
+let statsExpanded = false;
+function toggleStatsPanel() {
+  statsExpanded = !statsExpanded;
+  document.getElementById('statsPanel').style.display = statsExpanded ? 'block' : 'none';
+  document.getElementById('statsToggle').textContent = statsExpanded ? '收起 ▾' : '展开 ▸';
+  if (statsExpanded) refreshStats();
+}
+function refreshStats() {
+  const el = document.getElementById('statsContent');
+  el.innerHTML = '<div style="color:#8b949e">加载中...</div>';
+  fetch('/api/stats/effectiveness').then(r => r.json()).then(d => {
+    let html = '';
+    html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">`;
+    html += `<span>总共 <b>${d.total}</b> 次</span>`;
+    html += `<span style="color:#3fb950">✅ <b>${d.done}</b> 成功</span>`;
+    html += `<span style="color:#f85149">❌ <b>${d.failed}</b> 失败</span>`;
+    html += `<span>成功率 <b>${(d.success_rate * 100).toFixed(0)}%</b></span>`;
+    html += `<span>今日 <b>${d.today}</b> 次</span>`;
+    html += `</div>`;
+
+    if (d.top_products && d.top_products.length) {
+      html += `<div style="margin-bottom:8px"><b>热门产品</b><br>`;
+      d.top_products.slice(0, 5).forEach(p => {
+        html += `<span style="color:#8b949e;font-size:11px">${p.name}: ${p.count}次</span><br>`;
+      });
+      html += `</div>`;
+    }
+
+    if (d.top_bgms && d.top_bgms.length) {
+      html += `<div style="margin-bottom:8px"><b>热门 BGM</b><br>`;
+      d.top_bgms.forEach(b => {
+        html += `<span style="color:#8b949e;font-size:11px">${b.name}: ${b.count}次</span><br>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `<div style="color:#8b949e;font-size:11px">`;
+    html += `自动生成: ${d.auto_vs_manual.auto} 次 | 手动: ${d.auto_vs_manual.manual} 次`;
+    html += `</div>`;
+
+    el.innerHTML = html;
+  }).catch(() => {
+    el.innerHTML = '<div style="color:#f85149">加载失败</div>';
+  });
+}
+
+</script>
+
+</body>
+</html>

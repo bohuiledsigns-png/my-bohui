@@ -1,0 +1,19 @@
+[
+  {
+    "task_id": "42b486f9da0e4842a6bf4426a753c0b2",
+    "timestamp": "2026-06-28T21:11:58.555287",
+    "status": "done",
+    "product": "LED Sign",
+    "scene": "night",
+    "auto_mode": false,
+    "prompt": "test video",
+    "voiceover": "test",
+    "hook_text": "test hook",
+    "quality": "720p",
+    "duration": 15,
+    "aspect_ratio": "9:16",
+    "bgm": "",
+    "voice": "Cherry",
+    "import_mode": false
+  }
+]

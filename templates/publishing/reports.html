@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>报表 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1000px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px}
+.controls{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+.controls button,.controls select{padding:8px 14px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:13px}
+.controls button:hover{border-color:#555;background:#1e1e2a}
+.report-card{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:24px;margin-bottom:16px}
+.report-card h2{font-size:16px;margin-bottom:4px}
+.report-card .period{font-size:12px;color:#888;margin-bottom:16px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px}
+.stat-item{text-align:center;padding:12px;background:#0f0f13;border-radius:8px}
+.stat-item .num{font-size:24px;font-weight:700}
+.stat-item .lbl{font-size:11px;color:#888;margin-top:2px}
+.platform-table{width:100%;border-collapse:collapse;margin-top:12px}
+.platform-table th{text-align:left;font-size:11px;color:#666;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid #2a2a35}
+.platform-table td{padding:10px 12px;border-bottom:1px solid #1a1a24;font-size:13px}
+.platform-table tr:hover td{background:#1a1a24}
+.top-list{list-style:none;padding:0}
+.top-list li{padding:8px 0;border-bottom:1px solid #1a1a24;display:flex;justify-content:space-between;font-size:13px}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px}
+.btn-primary{background:#2563eb;color:#fff}
+.empty-msg{text-align:center;padding:60px 20px;color:#555}
+.generated{font-size:11px;color:#555;text-align:right;margin-top:12px}
+</style></head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-file-alt"></i> 效果报表</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/content">内容管理</a>
+    <a href="/publishing/analytics">数据分析</a>
+  </div>
+</div>
+
+<div class="controls">
+  <select id="periodSelect">
+    <option value="weekly">周报</option>
+    <option value="daily">日报</option>
+    <option value="monthly">月报</option>
+  </select>
+  <button onclick="generateReport()"><i class="fas fa-file-export"></i> 生成报表</button>
+  <span id="statusText" style="font-size:12px;color:#888"></span>
+</div>
+
+<div id="content">
+  <div class="empty-msg"><h3>Generate a Report</h3><p>Select a period and click "生成报表" to see performance data.</p></div>
+</div>
+
+<script>
+async function generateReport() {
+  const period = document.getElementById('periodSelect').value;
+  document.getElementById('statusText').textContent = 'Generating...';
+  try {
+    const r = await fetch('/publishing/api/reports/generate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({period})
+    });
+    const report = await r.json();
+    render(report);
+    document.getElementById('statusText').textContent = `${report.label} report generated`;
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div class="empty-msg"><h3>Error</h3><p>Could not generate report.</p></div>';
+  }
+}
+
+function render(r) {
+  const engRate = r.engagement_rate || 0;
+  const platforms = r.platforms || [];
+  const top = r.top_content || [];
+
+  document.getElementById('content').innerHTML = `
+    <div class="report-card">
+      <h2><i class="fas fa-chart-simple"></i> ${r.label} Performance Report</h2>
+      <div class="period">${r.period_start} → ${r.period_end}</div>
+
+      <div class="stats-row">
+        <div class="stat-item"><div class="num" style="color:#60a5fa">${fmt(r.total_published)}</div><div class="lbl">已发布</div></div>
+        <div class="stat-item"><div class="num" style="color:#a78bfa">${fmt(r.total_views)}</div><div class="lbl">播放</div></div>
+        <div class="stat-item"><div class="num" style="color:#34d399">${fmt(r.total_engagement)}</div><div class="lbl">Engagement</div></div>
+        <div class="stat-item"><div class="num" style="color:#fbbf24">${engRate}%</div><div class="lbl">Engagement Rate</div></div>
+      </div>
+
+      <h3 style="font-size:13px;color:#aaa;margin-bottom:8px">平台分布</h3>
+      <table class="platform-table">
+        <tr><th>Platform</th><th>播放</th><th>点赞</th></tr>
+        ${platforms.length ? platforms.map(p =>
+          `<tr><td>${esc(p.platform)}</td><td>${fmt(p.views)}</td><td>${fmt(p.likes)}</td></tr>`
+        ).join('') : '<tr><td colspan="3" style="text-align:center;color:#555">无数据</td></tr>'}
+      </table>
+
+      <h3 style="font-size:13px;color:#aaa;margin:16px 0 8px">热门内容</h3>
+      ${top.length ? `<ul class="top-list">${top.map(c =>
+        `<li><span>${esc(c.title)}</span><span style="color:#60a5fa">${fmt(c.views)} views</span></li>`
+      ).join('')}</ul>` : '<p style="color:#555;font-size:13px">No content data for this period.</p>'}
+
+      <div class="generated">生成时间: ${r.generated_at}</div>
+    </div>
+  `;
+}
+
+function fmt(n) { return (n||0).toLocaleString(); }
+function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// Auto-generate on load
+generateReport();
+</script>
+</body>
+</html>

@@ -101,7 +101,13 @@ class LeadScorer:
                 ts = m.get("created_at", "")
                 if ts:
                     try:
-                        times.append(datetime.fromisoformat(ts.replace("Z", "")))
+                        try:
+                            times.append(datetime.strptime(ts[:19], "%Y-%m-%d %H:%M:%S"))
+                        except ValueError:
+                            try:
+                                times.append(datetime.strptime(ts[:10], "%Y-%m-%d"))
+                            except ValueError:
+                                continue
                     except (ValueError, TypeError):
                         continue
             if len(times) >= 2:

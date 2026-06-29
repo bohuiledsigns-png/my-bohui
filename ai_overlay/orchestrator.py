@@ -28,6 +28,11 @@ from ai_overlay.stabilization import (
 from ai_overlay.lead_scoring import LeadScorer
 from ai_overlay.negotiation import NegotiationAI, is_price_negotiation
 from ai_overlay.campaign import CampaignEngine
+from ai_overlay.sales_autopilot import SalesAutopilot
+from ai_overlay.proactive_messaging import ProactiveMessagingEngine
+from ai_overlay.conversion_decision import ConversionDecisionEngine
+from ai_overlay.revenue_pressure import RevenuePressureEngine
+from ai_overlay.multi_agent_brain import MultiAgentRouter
 
 logger = logging.getLogger("orchestrator")
 
@@ -125,13 +130,29 @@ def decide(customer_id, message_text, extra_context=None):
     score_tier = scoring.get("tier", "COLD")
     score_val = scoring.get("score", 0)
 
-    # 4. Negotiation AI: 检测砍价
+    # 4. [V1.3] Multi-Agent Brain: 多智能体销售大脑
+    agent_context = {"customer_value": value, "margin_safe": ctx.get("margin_safe", True)}
+    agent_result = MultiAgentRouter.route(
+        customer, current_state, intent, message_text, history, agent_context
+    )
+
+    # 5. [V1.3] Sales Autopilot: 强制状态推进检查
+    autopilot = SalesAutopilot.evaluate(
+        customer_id, current_state, intent, message_text, history
+    )
+
+    # 6. [V1.3] Conversion Decision: 成交时机判断
+    conversion = ConversionDecisionEngine.evaluate(
+        customer_id, score_val, current_state, message_text, history
+    )
+
+    # 7. Negotiation AI: 检测砍价
     negotiation = None
     if is_price_negotiation(message_text) or intent == "bargaining":
         margin_safe = ctx.get("margin_safe", True)
         negotiation = NegotiationAI.decide(message_text, value, margin_safe=margin_safe)
 
-    # 5. 状态感知决策
+    # 8. 状态感知决策
     decision = _route_decision(
         state=current_state,
         intent=intent,
@@ -143,22 +164,60 @@ def decide(customer_id, message_text, extra_context=None):
         tier=score_tier,
     )
 
-    # 6. 如果决定回复，生成回复内容
+    # 9. 决策覆盖: Sales Autopilot + Conversion Decision 影响
+    # V1.3 Autopilot: 如果需要强制推进，覆盖 next_state
+    if autopilot.get("force_progression") and autopilot.get("proposed_state"):
+        decision["next_state"] = autopilot["proposed_state"]
+        decision["reason"] += f" | Autopilot: {autopilot['reason']}"
+        # 如果推进到 CLOSING，同时提升动作
+        if autopilot["proposed_state"] == "CLOSING":
+            decision["action"] = "escalate"
+            decision["confidence"] = max(decision.get("confidence", 50), 85)
+            decision["suggested_priority"] = "high"
+
+    # V1.3 Conversion Decision: 如果检测到强成交信号，提升动作
+    if conversion.get("should_close"):
+        if decision["action"] not in ("escalate",):
+            decision["action"] = "quote"
+            decision["confidence"] = max(decision.get("confidence", 50), 80)
+            decision["reason"] += f" | ConversionDecision: {conversion['reason']}"
+            decision["close_score"] = conversion.get("close_score")
+            decision["close_method"] = conversion.get("method")
+
+    # 10. 如果决定回复，生成回复内容
     if decision["action"] in ("reply", "quote"):
-        reply = _generate_reply(
-            customer=customer,
-            state=current_state,
-            intent=intent,
-            message=message_text,
-            decision=decision,
-            history=history,
-        )
+        # V1.3: 优先使用 multi-agent 回复
+        if agent_result and agent_result.get("reply"):
+            reply = agent_result["reply"]
+        else:
+            reply = _generate_reply(
+                customer=customer,
+                state=current_state,
+                intent=intent,
+                message=message_text,
+                decision=decision,
+                history=history,
+            )
         # 如果有 Negotiation AI 建议，覆盖回复
         if negotiation and negotiation.get("reply"):
             reply = negotiation["reply"]
+
+        # V1.3 Proactive Messaging: 追加主动追问
+        reply = ProactiveMessagingEngine.get_combined_reply(
+            reply, customer, current_state, intent, history, message_text
+        )
+
+        # V1.3 Revenue Pressure: 追加紧迫感
+        pressure_tier = RevenuePressureEngine.select_tier(
+            decision.get("next_state", current_state), score_val
+        )
+        reply = RevenuePressureEngine.append_to_reply(
+            reply, pressure_tier, customer.get("name", "Customer")
+        )
+
         decision["reply"] = reply
 
-    # 7. 通过稳定层: 状态同步 + 置信度门控
+    # 11. 通过稳定层: 状态同步 + 置信度门控
     ConversationLock.record_message(customer_id, direction="received")
     proposed_state = decision.get("next_state")
 
@@ -179,7 +238,7 @@ def decide(customer_id, message_text, extra_context=None):
         "reply": decision.get("reply", ""),
     })
 
-    # 8. 组装最终输出
+    # 12. 组装最终输出
     result = {
         "customer_id": customer_id,
         "state": st["state"],
@@ -198,6 +257,20 @@ def decide(customer_id, message_text, extra_context=None):
         "warnings": st["warnings"],
         "gate_reason": st["gate_reason"],
         "negotiation": negotiation,
+        # V1.3 新增字段
+        "agent_used": agent_result.get("primary_agent") if agent_result else None,
+        "agents_used": agent_result.get("agents_used", []) if agent_result else [],
+        "autopilot_forced": autopilot.get("force_progression", False),
+        "autopilot_strategy": autopilot.get("strategy"),
+        "close_ready": conversion.get("should_close", False),
+        "close_score": conversion.get("close_score"),
+        "close_method": conversion.get("method"),
+        "proactive_applied": bool(
+            agent_result and agent_result.get("reply")
+            and ProactiveMessagingEngine.should_be_proactive(
+                customer, current_state, intent, history, message_text
+            ).get("should")
+        ),
     }
 
     logger.info(
@@ -250,7 +323,7 @@ def _classify_intent(text):
 
 # ── 路由决策 ────────────────────────────────────────────
 
-def _route_decision(state, intent, urgency, value, history_count, message, customer):
+def _route_decision(state, intent, urgency, value, history_count, message, customer, tier=None):
     """根据当前状态+意图，决定下一步动作"""
 
     # --- 高价值客户/投诉 → 立即转人工 ---

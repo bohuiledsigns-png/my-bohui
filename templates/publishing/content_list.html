@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>内容管理 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1400px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px}
+.controls{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.controls button,.controls select,.controls input{padding:8px 14px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:13px}
+.controls button:hover{border-color:#555;background:#1e1e2a}
+.controls input{flex:1;min-width:200px}
+.content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px}
+.content-card{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:16px;transition:border-color .15s}
+.content-card:hover{border-color:#555}
+.content-card .title{font-size:14px;font-weight:600;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.content-card .meta{font-size:11px;color:#888;margin-bottom:8px}
+.content-card .tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.content-card .tags span{background:#2a2a35;padding:2px 8px;border-radius:4px;font-size:10px;color:#aaa}
+.content-card .actions{display:flex;gap:6px;margin-top:8px}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.status-dot.draft{background:#888}
+.status-dot.ready{background:#60a5fa}
+.status-dot.published{background:#34d399}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100;justify-content:center;align-items:center}
+.modal.show{display:flex}
+.modal-content{background:#1a1a24;border:1px solid #2a2a35;border-radius:16px;padding:28px;width:700px;max-width:90vw;max-height:85vh;overflow-y:auto}
+.modal-content h2{font-size:17px;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:#888;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:#0f0f13;border:1px solid #2a2a35;border-radius:8px;color:#e8e8ed;font-size:13px;font-family:inherit}
+.form-group textarea{min-height:60px;resize:vertical}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#555}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-secondary{background:#2a2a35;color:#ccc}.btn-secondary:hover{background:#3a3a45}
+.btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
+.btn-sm{padding:4px 10px;font-size:11px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.empty-msg{text-align:center;padding:80px 20px;color:#555}
+.empty-msg i{font-size:48px;margin-bottom:12px;color:#333}
+.scan-list{max-height:400px;overflow-y:auto}
+.scan-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #1a1a24;gap:12px}
+.scan-item:last-child{border-bottom:none}
+.scan-item .info{flex:1;min-width:0}
+.scan-item .info .name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scan-item .info .detail{font-size:11px;color:#888;margin-top:2px}
+.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid #2a2a35}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;color:#888;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#e8e8ed;border-color:#60a5fa}
+.tab:hover{color:#e8e8ed}
+.search-highlight{background:#fbbf2433;padding:0 2px}
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.pagination button{padding:6px 12px;border:1px solid #2a2a35;border-radius:6px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:12px}
+.pagination button.active{background:#2563eb;border-color:#2563eb}
+.pagination button:hover:not(.active){border-color:#555}
+</style></head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-video"></i> 内容管理</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/schedule">发布排期</a>
+    <a href="/publishing/analytics">数据分析</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('my')">我的内容</div>
+  <div class="tab" onclick="switchTab('import')">从视频工具导入</div>
+</div>
+
+<div id="myTab">
+<div class="controls">
+  <input id="searchInput" placeholder="搜索内容..." oninput="loadContent()">
+  <select id="statusFilter" onchange="loadContent()">
+    <option value="">全部状态</option><option value="draft">草稿</option><option value="ready">就绪</option><option value="published">已发布</option>
+  </select>
+  <button onclick="showNewContent()" style="background:#2563eb;color:#fff;border-color:#2563eb;"><i class="fas fa-plus"></i> 新建内容</button>
+</div>
+
+<div id="contentGrid" class="content-grid">
+  <div class="empty-msg"><i class="fas fa-video-slash"></i><p>暂无内容，新建或从视频工具导入。</p></div>
+</div>
+<div id="pagination" class="pagination" style="display:none"></div>
+</div>
+
+<div id="importTab" style="display:none">
+<div class="controls">
+  <button onclick="scanVideoTool()" style="background:#7c3aed;color:#fff;border-color:#7c3aed;"><i class="fas fa-search"></i> 扫描视频工具输出</button>
+  <span id="scanStatus" style="font-size:12px;color:#888"></span>
+</div>
+<div id="scanResults" class="scan-list" style="border:1px solid #2a2a35;border-radius:8px;background:#16161f;min-height:100px">
+  <div class="empty-msg" style="padding:40px"><p>点击"扫描视频工具输出"查找可导入的视频。</p></div>
+</div>
+</div>
+
+<!-- 内容管理 Form Modal -->
+<div class="modal" id="contentModal">
+  <div class="modal-content">
+    <h2 id="modalTitle">新建内容</h2>
+    <div class="form-group">
+      <label>Title</label>
+      <input id="c_title" placeholder="e.g. LED Sign Promo 视频">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="c_description" placeholder="视频 description..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Tags (comma separated)</label>
+      <input id="c_tags" placeholder="led, sign, promo">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="c_category">
+        <option value="">未分类</option>
+        <option value="product">Product Showcase</option>
+        <option value="tutorial">Tutorial</option>
+        <option value="behind_scenes">Behind the Scenes</option>
+        <option value="testimonial">Testimonial</option>
+        <option value="promo">Promotional</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>视频 File Path</label>
+      <input id="c_video_path" placeholder="/videos/my_video.mp4">
+    </div>
+    <div class="form-group">
+      <label>时长 (seconds)</label>
+      <input id="c_duration" type="number" placeholder="30">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteContent()"><i class="fas fa-trash"></i> 删除</button>
+      <button class="btn btn-primary" onclick="saveContent()"><i class="fas fa-save"></i> 保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let editingContentId = null;
+let currentPage = 0;
+const PAGE_SIZE = 20;
+let allContent = [];
+let importItems = [];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('myTab').style.display = name === 'my' ? 'block' : 'none';
+  document.getElementById('importTab').style.display = name === 'import' ? 'block' : 'none';
+  document.querySelector(`.tab[onclick*="${name}"]`).classList.add('active');
+  if (name === 'import') scanVideoTool();
+}
+
+async function loadContent() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const r = await fetch(`/publishing/api/content?limit=200&status=${status}`);
+  const data = await r.json();
+  allContent = data.items || [];
+  if (q) {
+    allContent = allContent.filter(c =>
+      (c.title||'').toLowerCase().includes(q) ||
+      (c.tags||'').toLowerCase().includes(q) ||
+      (c.description||'').toLowerCase().includes(q)
+    );
+  }
+  renderContent();
+}
+
+function renderContent() {
+  const grid = document.getElementById('contentGrid');
+  const totalPages = Math.ceil(allContent.length / PAGE_SIZE);
+  if (totalPages <= 1) currentPage = 0;
+  const start = currentPage * PAGE_SIZE;
+  const page = allContent.slice(start, start + PAGE_SIZE);
+  if (allContent.length === 0) {
+    grid.innerHTML = '<div class="empty-msg"><i class="fas fa-video-slash"></i><p>No content found.</p></div>';
+    document.getElementById('pagination').style.display = 'none';
+    return;
+  }
+  let html = '';
+  page.forEach(c => {
+    const tags = (c.tags||'').split(',').filter(Boolean);
+    html += `<div class="content-card">
+      <div class="title"><span class="status-dot ${c.status||'draft'}"></span>${esc(c.title||'未命名')}</div>
+      <div class="meta">${c.duration_seconds||0}s &middot; ${c.category||'uncategorized'} &middot; ID#${c.id}</div>
+      <div class="tags">${tags.map(t => `<span>${esc(t.trim())}</span>`).join('')}</div>
+      <div class="actions">
+        <button class="btn btn-sm btn-primary" onclick="scheduleContent(${c.id})"><i class="fas fa-calendar-plus"></i> 发布排期</button>
+        <button class="btn btn-sm btn-secondary" onclick="editContent(${c.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteContentById(${c.id})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+  // Pagination
+  const pg = document.getElementById('pagination');
+  if (totalPages > 1) {
+    pg.style.display = 'flex';
+    let ph = '';
+    for (let i = 0; i < totalPages; i++) {
+      ph += `<button class="${i===currentPage?'active':''}" onclick="currentPage=${i};renderContent()">${i+1}</button>`;
+    }
+    pg.innerHTML = ph;
+  } else {
+    pg.style.display = 'none';
+  }
+}
+
+async function scanVideoTool() {
+  document.getElementById('scanStatus').textContent = 'Scanning...';
+  document.getElementById('scanResults').innerHTML = '<div class="empty-msg" style="padding:40px"><p>Scanning...</p></div>';
+  try {
+    const r = await fetch('/publishing/api/scan-video-tool');
+    importItems = await r.json();
+    renderScanResults();
+    document.getElementById('scanStatus').textContent = `Found ${importItems.length} videos`;
+  } catch(e) {
+    document.getElementById('scanResults').innerHTML = `<div class="empty-msg" style="padding:40px"><p>Error: ${e.message}</p></div>`;
+    document.getElementById('scanStatus').textContent = 'Error scanning';
+  }
+}
+
+function renderScanResults() {
+  const container = document.getElementById('scanResults');
+  if (importItems.length === 0) {
+    container.innerHTML = '<div class="empty-msg" style="padding:40px"><p>No videos found in the output directory.</p></div>';
+    return;
+  }
+  let html = '';
+  importItems.forEach((item, idx) => {
+    const time = item.created_at ? new Date(item.created_at*1000).toLocaleString() : 'Unknown';
+    const name = item.product || item.video_path?.split(/[\\/]/).pop() || 'Unknown';
+    html += `<div class="scan-item">
+      <div class="info">
+        <div class="name"><i class="fas fa-video" style="color:#888;margin-right:6px"></i>${esc(name)}</div>
+        <div class="detail">${time} &middot; ${item.duration||0}s ${item.language ? '&middot; '+item.language : ''}</div>
+      </div>
+      <div><button class="btn btn-sm btn-success" onclick="importVideo(${idx})"><i class="fas fa-download"></i> 导入</button></div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+async function importVideo(idx) {
+  const item = importItems[idx];
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 导入ing...';
+  try {
+    const r = await fetch('/publishing/api/import-video', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        title: item.product || '导入ed 视频',
+        description: item.prompt || '',
+        tags: item.product ? item.product.toLowerCase().replace(/\s+/g,',') : '',
+        video_path: item.video_path || '',
+        duration: item.duration || 0,
+        source_id: item.source_id || 0,
+        prompt: item.prompt || ''
+      })
+    });
+    const data = await r.json();
+    btn.innerHTML = '<i class="fas fa-check"></i> 导入ed';
+    btn.classList.remove('btn-success');
+    btn.classList.add('btn-secondary');
+    document.getElementById('scanStatus').textContent += ' — imported!';
+    loadContent();
+  } catch(e) {
+    btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 失败';
+    btn.classList.remove('btn-success');
+    btn.classList.add('btn-danger');
+  }
+}
+
+function showNewContent() {
+  editingContentId = null;
+  document.getElementById('modalTitle').textContent = '新建内容';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('c_title').value = '';
+  document.getElementById('c_description').value = '';
+  document.getElementById('c_tags').value = '';
+  document.getElementById('c_category').value = '';
+  document.getElementById('c_video_path').value = '';
+  document.getElementById('c_duration').value = '';
+  document.getElementById('contentModal').classList.add('show');
+}
+
+async function editContent(id) {
+  editingContentId = id;
+  document.getElementById('modalTitle').textContent = '编辑 内容管理';
+  document.getElementById('deleteBtn').style.display = 'inline-block';
+  const r = await fetch(`/publishing/api/content/${id}`);
+  const c = await r.json();
+  document.getElementById('c_title').value = c.title || '';
+  document.getElementById('c_description').value = c.description || '';
+  document.getElementById('c_tags').value = c.tags || '';
+  document.getElementById('c_category').value = c.category || '';
+  document.getElementById('c_video_path').value = c.video_path || '';
+  document.getElementById('c_duration').value = c.duration_seconds || '';
+  document.getElementById('contentModal').classList.add('show');
+}
+
+async function saveContent() {
+  const body = {
+    title: document.getElementById('c_title').value.trim() || '未命名',
+    description: document.getElementById('c_description').value.trim(),
+    tags: document.getElementById('c_tags').value.trim(),
+    category: document.getElementById('c_category').value,
+    video_path: document.getElementById('c_video_path').value.trim(),
+    duration_seconds: parseInt(document.getElementById('c_duration').value) || 0
+  };
+  if (editingContentId) {
+    await fetch(`/publishing/api/content/${editingContentId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  } else {
+    await fetch('/publishing/api/content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  }
+  closeModal();
+  loadContent();
+}
+
+async function deleteContent() {
+  if (!editingContentId || !confirm('删除 this content?')) return;
+  await fetch(`/publishing/api/content/${editingContentId}`, { method:'DELETE' });
+  closeModal();
+  loadContent();
+}
+
+async function deleteContentById(id) {
+  if (!confirm('删除 this content?')) return;
+  await fetch(`/publishing/api/content/${id}`, { method:'DELETE' });
+  loadContent();
+}
+
+function scheduleContent(id) {
+  window.location.href = `/publishing/schedule?content_id=${id}`;
+}
+
+function closeModal() {
+  document.getElementById('contentModal').classList.remove('show');
+  editingContentId = null;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+loadContent();
+</script>
+</body>
+</html>

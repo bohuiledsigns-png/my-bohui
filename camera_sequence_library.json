@@ -1,0 +1,152 @@
+[
+  {
+    "id": "template_01",
+    "name": "逆袭之路",
+    "name_en": "Comeback Story",
+    "category": "story_transformation",
+    "description": "从困境到成功的完整情感旅程，适合改造/对比/翻新类场景",
+    "suitable_scenes": ["commercial street", "shop", "storefront", "普通"],
+    "suitable_products": ["all"],
+    "total_duration": 29,
+    "pacing": [
+      {"phase": "困境建立", "duration_range": "0-6s", "tempo": "slow"},
+      {"phase": "转折与制作", "duration_range": "6-18s", "tempo": "medium"},
+      {"phase": "成果展示", "duration_range": "18-29s", "tempo": "fast"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "wide/establishing", "visual": "Empty street, run-down storefront with old dim sign", "mood": "低落、困顿", "lighting": "冷色调，环境光不足", "camera_movement": "static push-in", "duration": 2, "transition": "fade_in"},
+      {"id": 2, "shot_type": "close-up", "visual": "Store owner's worried face looking at empty shop", "mood": "忧虑、无奈", "lighting": "柔和的侧光，突出表情", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 3, "shot_type": "insert/close-up", "visual": "Poor revenue numbers on receipt or ledger", "mood": "绝望、焦虑", "lighting": "阴影笼罩数字", "camera_movement": "static", "duration": 1, "transition": "cut"},
+      {"id": 4, "shot_type": "medium", "visual": "Owner and designer discussing new sign plan at desk", "mood": "希望、期待", "lighting": "温暖的台灯灯光", "camera_movement": "slight zoom", "duration": 3, "transition": "cut"},
+      {"id": 5, "shot_type": "close-up/macro", "visual": "Laser cutting metal with sparks flying, precision edges", "mood": "专业、力量", "lighting": "火花亮光与背景暗部对比", "camera_movement": "static", "duration": 2, "transition": "cut"},
+      {"id": 6, "shot_type": "medium close-up", "visual": "Craftsman hand-polishing sign surface with fine tools", "mood": "专注、专业", "lighting": "柔和的顶光", "camera_movement": "slow orbit", "duration": 3, "transition": "cut"},
+      {"id": 7, "shot_type": "extreme close-up", "visual": "LED bead installation on letter frame, precise soldering", "mood": "精密、专业", "lighting": "微弱的LED光", "camera_movement": "static", "duration": 2, "transition": "cut"},
+      {"id": 8, "shot_type": "medium", "visual": "Worker testing sign brightness in workshop", "mood": "严谨、专业", "lighting": "招牌发出的光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 9, "shot_type": "wide/full", "visual": "Sign being lifted and installed on storefront facade", "mood": "庄严、成就", "lighting": "自然光", "camera_movement": "slow tilt up", "duration": 4, "transition": "cut"},
+      {"id": 10, "shot_type": "close-up", "visual": "Sign lights up instantly — dramatic glow transition", "mood": "震撼、惊喜", "lighting": "强烈的光线对比，暗→亮爆发", "camera_movement": "static", "duration": 2, "transition": "hard_cut"},
+      {"id": 11, "shot_type": "wide", "visual": "Customers gathering, attracted by the glowing sign", "mood": "热闹、成功", "lighting": "温暖的夜景灯光，人流剪影", "camera_movement": "static wide", "duration": 3, "transition": "cut"},
+      {"id": 12, "shot_type": "close-up", "visual": "Store owner's satisfied smile, sign light reflecting on face", "mood": "满足、幸福", "lighting": "招牌的光映照脸上", "camera_movement": "static", "duration": 2, "transition": "fade_out"}
+    ]
+  },
+  {
+    "id": "template_02",
+    "name": "匠心工艺",
+    "name_en": "Craftsmanship",
+    "category": "craft_showcase",
+    "description": "聚焦制造工艺和品质细节，适合展示生产实力和工艺水平",
+    "suitable_scenes": ["craft", "工艺", "factory", "production", "manufacturing", "quality"],
+    "suitable_products": ["stainless steel", "acrylic", "titanium", "metal"],
+    "total_duration": 27,
+    "pacing": [
+      {"phase": "设计选材", "duration_range": "0-5s", "tempo": "medium"},
+      {"phase": "精密制造", "duration_range": "5-20s", "tempo": "fast"},
+      {"phase": "成品验收", "duration_range": "20-27s", "tempo": "medium"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "medium close-up", "visual": "Designer sketching letter blueprint on tablet, professional workspace", "mood": "创意、专业", "lighting": "明亮的桌面灯光", "camera_movement": "slow push", "duration": 3, "transition": "fade_in"},
+      {"id": 2, "shot_type": "close-up/macro", "visual": "Premium material selection — brushed metal surface texture close-up", "mood": "品质、质感", "lighting": "锐利的侧光，突出纹理", "camera_movement": "static", "duration": 2, "transition": "cut"},
+      {"id": 3, "shot_type": "macro", "visual": "Laser beam cutting through metal with precision, clean edge forming", "mood": "精密、力量", "lighting": "激光蓝光与金属反光", "camera_movement": "static", "duration": 4, "transition": "cut"},
+      {"id": 4, "shot_type": "extreme close-up", "visual": "Fine polishing of letter edge, mirror finish reflection", "mood": "极致、专注", "lighting": "柔和的顶光，抛光面反光", "camera_movement": "slow pan", "duration": 5, "transition": "cut"},
+      {"id": 5, "shot_type": "close-up", "visual": "Waterproof sealing application, rubber edge pressing", "mood": "严谨、可靠", "lighting": "明亮的作业灯光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 6, "shot_type": "extreme close-up", "visual": "LED chip placement on PCB, tiny solder points", "mood": "精密、科技", "lighting": "微弱的LED光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 7, "shot_type": "medium", "visual": "Full sign unit testing — brightness and color check", "mood": "专业、严格", "lighting": "测试室均匀灯光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 8, "shot_type": "macro", "visual": "Final detail inspection — every letter perfect from every angle", "mood": "完美、自豪", "lighting": "旋转展示灯光", "camera_movement": "slow orbit around letter", "duration": 2, "transition": "cut"},
+      {"id": 9, "shot_type": "medium", "visual": "Customer smiling while examining finished sign, giving thumbs up", "mood": "满意、信任", "lighting": "自然温馨光线", "camera_movement": "static", "duration": 2, "transition": "fade_out"}
+    ]
+  },
+  {
+    "id": "template_03",
+    "name": "品质见证",
+    "name_en": "Quality Witness",
+    "category": "durability_showcase",
+    "description": "通过时间跨度和对比展示产品耐用性，适合强调品质和可靠性的场景",
+    "suitable_scenes": ["durability", "quality", "weather", "outdoor", "见证", "户外", "long lasting"],
+    "suitable_products": ["waterproof", "outdoor", "stainless steel", "all"],
+    "total_duration": 24,
+    "pacing": [
+      {"phase": "问题对比", "duration_range": "0-8s", "tempo": "slow"},
+      {"phase": "品质验证", "duration_range": "8-16s", "tempo": "medium"},
+      {"phase": "客户背书", "duration_range": "16-24s", "tempo": "slow"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "wide", "visual": "Competitor signs in harsh weather — rust, fading, water damage visible", "mood": "失望、质疑", "lighting": "阴天色温，偏冷", "camera_movement": "static", "duration": 3, "transition": "fade_in"},
+      {"id": 2, "shot_type": "medium", "visual": "Our sign still perfect in same conditions — immediate visual contrast", "mood": "惊喜、信赖", "lighting": "晴朗自然光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 3, "shot_type": "close-up", "visual": "Direct color comparison under sunlight — our sign vibrant, others faded", "mood": "自信、品质", "lighting": "明亮的日光", "camera_movement": "static side-by-side", "duration": 2, "transition": "cut"},
+      {"id": 4, "shot_type": "medium", "visual": "Customer revisit scene — shop owner showing sign to visitor", "mood": "自豪、满意", "lighting": "温暖的室内灯光", "camera_movement": "static", "duration": 3, "transition": "cut"},
+      {"id": 5, "shot_type": "close-up", "visual": "Sign close-up years later — still bright, no rust, no fading", "mood": "可靠、持久", "lighting": "自然柔光", "camera_movement": "slow pan across letter surface", "duration": 3, "transition": "cut"},
+      {"id": 6, "shot_type": "close-up", "visual": "Customer nodding with satisfaction, pointing at sign", "mood": "满意、认可", "lighting": "自然光线", "camera_movement": "static", "duration": 2, "transition": "cut"},
+      {"id": 7, "shot_type": "montage/wide", "visual": "Four seasons time-lapse — sign through rain, snow, sun, wind, still pristine", "mood": "震撼、永恒", "lighting": "四季自然光变化", "camera_movement": "static time-lapse", "duration": 5, "transition": "dissolve"},
+      {"id": 8, "shot_type": "wide", "visual": "Sign still bright and beautiful after all seasons — final testament to quality", "mood": "成就、信任", "lighting": "黄金时段暖光", "camera_movement": "slow push", "duration": 3, "transition": "fade_out"}
+    ]
+  },
+  {
+    "id": "template_04",
+    "name": "老店改造",
+    "name_en": "Old Shop Renovation",
+    "category": "store_renovation",
+    "description": "老店门头改造故事，适合改造升级客户，从痛点→方案→效果完整叙事",
+    "suitable_scenes": ["renovation", "改造", "升级", "对比", "storefront", "shop"],
+    "suitable_products": ["all"],
+    "total_duration": 30,
+    "pacing": [
+      {"phase": "痛点展示", "duration_range": "0-8s", "tempo": "slow"},
+      {"phase": "方案与生产", "duration_range": "8-20s", "tempo": "medium"},
+      {"phase": "成果展示", "duration_range": "20-30s", "tempo": "fast"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "wide/establishing", "visual": "Old greasy storefront with faded sign, shop looks dim and outdated", "mood": "破旧、暗淡", "lighting": "冷色调，阴天光线", "camera_movement": "static", "duration": 3, "transition": "fade_in", "voiceover_hint": "Customer comments about terrible old sign"},
+      {"id": 2, "shot_type": "medium", "visual": "Digital character — store owner looking frustrated, complaining sign doesn't attract customers at night", "mood": "无奈、焦虑", "lighting": "柔和的侧光", "camera_movement": "static", "duration": 3, "transition": "cut", "voiceover_hint": "Factory responds with solution"},
+      {"id": 3, "shot_type": "close-up", "visual": "AI rendered 3D effect preview — same storefront with premium new sign, dramatic improvement", "mood": "惊艳、期待", "lighting": "高级光影渲染，暖色调", "camera_movement": "slow orbit", "duration": 4, "transition": "dissolve", "voiceover_hint": "Wisdom narration about LED technology"},
+      {"id": 4, "shot_type": "montage", "visual": "Factory production: laser cutting → polishing → sealing → LED assembly → light test", "mood": "专业、高效", "lighting": "车间照明，火花与灯光交替", "camera_movement": "dynamic cuts", "duration": 6, "transition": "montage", "voiceover_hint": "Factory explains precision manufacturing"},
+      {"id": 5, "shot_type": "wide", "visual": "Completed sign installed — daytime texture, evening glow, full storefront view", "mood": "震撼、完美", "lighting": "从日光→黄昏→夜晚的过渡", "camera_movement": "slow push", "duration": 6, "transition": "dissolve", "voiceover_hint": "Customer amazed by transformation"},
+      {"id": 6, "shot_type": "medium", "visual": "Digital character — customer traffic visibly increased, store looks upscale", "mood": "满意、骄傲", "lighting": "暖色店内灯光", "camera_movement": "static", "duration": 4, "transition": "cut", "voiceover_hint": "Wisdom summarizes business impact"},
+      {"id": 7, "shot_type": "wide", "visual": "Split screen before/after comparison with factory logo and call to action", "mood": "成就、升华", "lighting": "明亮对比光", "camera_movement": "static split", "duration": 4, "transition": "fade_out", "voiceover_hint": "Factory final offer: factory-direct custom solution"}
+    ]
+  },
+  {
+    "id": "template_05",
+    "name": "新店开业",
+    "name_en": "New Store Opening",
+    "category": "luxury_opening",
+    "description": "高端新店品牌形象展示，适合美容院/ lounge /酒吧等注重格调的客户",
+    "suitable_scenes": ["luxury", "高端", "开业", "new store", "beauty", "bar", "lounge", "night club", "salon"],
+    "suitable_products": ["titanium", "stainless steel", "acrylic", "color electroplated", "iridescent"],
+    "total_duration": 26,
+    "pacing": [
+      {"phase": "问题提出", "duration_range": "0-6s", "tempo": "slow"},
+      {"phase": "方案探索", "duration_range": "6-16s", "tempo": "medium"},
+      {"phase": "成果与转化", "duration_range": "16-26s", "tempo": "slow"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "wide", "visual": "Blank store exterior, no signage, monotonous and cold feel", "mood": "单调、冷清", "lighting": "中性光，缺乏焦点", "camera_movement": "static", "duration": 3, "transition": "fade_in", "voiceover_hint": "Customer question about branding"},
+      {"id": 2, "shot_type": "medium", "visual": "Digital character — new store owner asking how to match signage with premium brand image", "mood": "期待、追求", "lighting": "柔和的暖光", "camera_movement": "static", "duration": 4, "transition": "cut", "voiceover_hint": "Customer wants premium matching sign"},
+      {"id": 3, "shot_type": "montage", "visual": "AI multi-version comparison: backlit letter / borderless / mini letter — three styles side by side", "mood": "精致、多样", "lighting": "专业展示灯光", "camera_movement": "slow push between versions", "duration": 4, "transition": "dissolve", "voiceover_hint": "Factory shows style options"},
+      {"id": 4, "shot_type": "close-up macro", "visual": "Factory precision craft: drilling, waterproof sealing detail close-ups", "mood": "精密、品质", "lighting": "高亮度细节光", "camera_movement": "static macro", "duration": 4, "transition": "cut", "voiceover_hint": "Factory on quality craftsmanship"},
+      {"id": 5, "shot_type": "wide", "visual": "Completed installation — daytime elegant texture, evening uniform glow matching store interior", "mood": "典雅、和谐", "lighting": "白天→黄昏→夜晚渐变", "camera_movement": "slow reveal", "duration": 5, "transition": "dissolve", "voiceover_hint": "Wisdom on brand consistency"},
+      {"id": 6, "shot_type": "medium", "visual": "Digital character monologue — sign perfectly matches store decor, passersby stop to admire", "mood": "满意、自豪", "lighting": "暖色氛围光", "camera_movement": "static", "duration": 3, "transition": "cut", "voiceover_hint": "Customer delight about result"},
+      {"id": 7, "shot_type": "wide", "visual": "Call to action: send your store layout for free 3D design preview", "mood": "期待、行动", "lighting": "明亮专业光", "camera_movement": "static with overlay", "duration": 3, "transition": "fade_out", "voiceover_hint": "Factory offer: free 3D design"}
+    ]
+  },
+  {
+    "id": "template_06",
+    "name": "海外连锁",
+    "name_en": "Overseas Chain",
+    "category": "chain_store",
+    "description": "连锁品牌标准化 signage 方案，适合经销商/连锁店/批量采购客户",
+    "suitable_scenes": ["chain", "连锁", "批量", "franchise", "dealer", "wholesale", "multiple locations"],
+    "suitable_products": ["all"],
+    "total_duration": 20,
+    "pacing": [
+      {"phase": "问题展示", "duration_range": "0-6s", "tempo": "fast"},
+      {"phase": "工厂能力展示", "duration_range": "6-14s", "tempo": "fast"},
+      {"phase": "统一方案与转化", "duration_range": "14-20s", "tempo": "medium"}
+    ],
+    "shots": [
+      {"id": 1, "shot_type": "montage", "visual": "Multiple franchise locations with inconsistent signage — different fonts, colors, sizes", "mood": "杂乱、担忧", "lighting": "各种环境光", "camera_movement": "quick cuts between locations", "duration": 3, "transition": "fast_cuts", "voiceover_hint": "Problem: inconsistent brand image"},
+      {"id": 2, "shot_type": "medium", "visual": "Digital character — dealer worried about quality variance and high cost for multiple locations", "mood": "焦虑、犹豫", "lighting": "中性光", "camera_movement": "static", "duration": 3, "transition": "cut", "voiceover_hint": "Customer concern about cost/quality"},
+      {"id": 3, "shot_type": "wide", "visual": "Factory production line — batch material processing, standardized assembly line", "mood": "规模、专业", "lighting": "明亮的工业照明", "camera_movement": "tracking shot along assembly line", "duration": 4, "transition": "cut", "voiceover_hint": "Factory shows mass production capability"},
+      {"id": 4, "shot_type": "wide", "visual": "AI rendered standardized signage — same font, color, size across all storefronts", "mood": "统一、专业", "lighting": "一致的展示光", "camera_movement": "static comparison", "duration": 5, "transition": "dissolve", "voiceover_hint": "AI preview of standardized result"},
+      {"id": 5, "shot_type": "medium", "visual": "Call to action: brand owner directly connects with source factory, skip middlemen", "mood": "信任、行动", "lighting": "明亮自信的光线", "camera_movement": "static with graphics", "duration": 5, "transition": "fade_out", "voiceover_hint": "Factory direct: bulk discount + skip middlemen"}
+    ]
+  }
+]

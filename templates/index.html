@@ -948,6 +948,9 @@ function detailNewQuote() {
       <button id="waAutoReplyBtn" class="btn btn-ghost btn-sm" onclick="toggleAutoReply()" style="font-size:10px;padding:2px 8px;border-radius:6px" title="AI自动回复开关">
         <i class="fas fa-robot"></i> <span id="waAutoReplyLabel">AI回复...</span>
       </button>
+      <button id="reviewQueueBtn" class="btn btn-ghost btn-sm" onclick="showReviewQueue()" style="font-size:10px;padding:2px 8px;border-radius:6px;display:none" title="待审核回复">
+        <i class="fas fa-check-double"></i> <span id="reviewQueueBadge">0</span>
+      </button>
       <span id="styleBadge" style="display:none;font-size:9px;color:#555"><i class="fas fa-brain"></i> 学习中</span>
     </div>
   </div>
@@ -1644,6 +1647,21 @@ function detailNewQuote() {
   <div id="adminCasesEmpty" style="display:none;text-align:center;padding:60px;color:var(--muted)">
     <div style="font-size:40px;margin-bottom:8px"><i class="fas fa-building"></i></div>
     <div>暂无案例</div>
+  </div>
+</div>
+
+<!-- ======== AI回复审核队列 ======== -->
+<div class="modal" id="reviewQueueModal">
+  <div class="modal-box" style="max-width:700px">
+    <h3><i class="fas fa-check-double" style="color:var(--cyan)"></i> AI回复审核队列
+      <span id="reviewQueueCount" style="font-size:12px;color:var(--muted);margin-left:8px"></span>
+    </h3>
+    <div id="reviewQueueList" style="margin-top:12px;max-height:60vh;overflow-y:auto">
+      <div style="text-align:center;padding:40px;color:var(--muted)">加载中...</div>
+    </div>
+    <div style="margin-top:10px;text-align:right">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('reviewQueueModal')">关闭</button>
+    </div>
   </div>
 </div>
 
@@ -7691,6 +7709,101 @@ function updateAutoReplyBtn(r) {
 }
 
 checkAutoReplyStatus();
+
+// ====== AI回复审核队列 ======
+let reviewQueueRefreshTimer = null;
+
+async function showReviewQueue() {
+  document.getElementById('reviewQueueModal').classList.add('modal-open');
+  await refreshReviewQueue();
+}
+
+async function refreshReviewQueue() {
+  try {
+    const r = await api('/api/review-queue?status=pending');
+    const list = document.getElementById('reviewQueueList');
+    const count = document.getElementById('reviewQueueCount');
+    count.textContent = r.pending_count > 0 ? `${r.pending_count} 条待审核` : '';
+    if (r.items.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-check-circle" style="font-size:32px;display:block;margin-bottom:8px;color:var(--green)"></i>全部已审核</div>';
+      return;
+    }
+    list.innerHTML = r.items.map(item => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:var(--bg-card)">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <strong>${item.customer_name}</strong>
+          <span style="font-size:11px;color:var(--muted)">${item.created_at.slice(0,16).replace('T',' ')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">客户消息:</div>
+        <div style="font-size:13px;color:var(--fg);background:var(--bg);padding:6px 10px;border-radius:6px;margin-bottom:8px">${escapeHtml(item.original_message.slice(0,100))}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">AI回复 (${item.reply_en.length > 60 ? 'EN' : 'en'}):</div>
+        <div style="font-size:13px;color:var(--cyan);background:var(--bg);padding:6px 10px;border-radius:6px;margin-bottom:10px" id="rev-text-${item.id}">${escapeHtml(item.reply_en)}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-success btn-xs" onclick="approveReview('${item.id}')"><i class="fas fa-check"></i> 批准</button>
+          <button class="btn btn-ghost btn-xs" onclick="editAndApprove('${item.id}')"><i class="fas fa-edit"></i> 编辑后批准</button>
+          <button class="btn btn-ghost btn-xs" onclick="rejectReview('${item.id}')" style="color:#ef4444"><i class="fas fa-times"></i> 驳回</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('Review queue error:', e); }
+}
+
+async function approveReview(id) {
+  if (!confirm('批准此回复并发送？')) return;
+  try {
+    const r = await api('/api/review-queue/'+id+'/approve', {method:'POST'});
+    if (r.ok) { await refreshReviewQueue(); updateReviewQueueBadge(); }
+    else alert('操作失败: '+(r.error||''));
+  } catch(e) { alert('请求失败'); }
+}
+
+async function rejectReview(id) {
+  if (!confirm('驳回此回复？')) return;
+  try {
+    const r = await api('/api/review-queue/'+id+'/reject', {method:'POST'});
+    if (r.ok) { await refreshReviewQueue(); updateReviewQueueBadge(); }
+    else alert('操作失败: '+(r.error||''));
+  } catch(e) { alert('请求失败'); }
+}
+
+async function editAndApprove(id) {
+  const el = document.getElementById('rev-text-'+id);
+  const current = el.textContent;
+  const edited = prompt('编辑回复内容:', current);
+  if (!edited || edited === current) return;
+  if (!confirm('发送编辑后的回复？')) return;
+  try {
+    const r = await api('/api/review-queue/'+id+'/approve', {
+      method:'POST', body: JSON.stringify({edit_en: edited})
+    });
+    if (r.ok) { await refreshReviewQueue(); updateReviewQueueBadge(); }
+    else alert('操作失败: '+(r.error||''));
+  } catch(e) { alert('请求失败'); }
+}
+
+async function updateReviewQueueBadge() {
+  try {
+    const r = await api('/api/review-queue?status=pending');
+    const badge = document.getElementById('reviewQueueBadge');
+    const btn = document.getElementById('reviewQueueBtn');
+    if (r.pending_count > 0) {
+      badge.textContent = r.pending_count;
+      btn.style.display = 'inline-flex';
+    } else {
+      btn.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// 每30秒刷新审核队列计数
+setInterval(updateReviewQueueBadge, 30000);
+updateReviewQueueBadge();
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text || '';
+  return d.innerHTML;
+}
 
 // 风格学习状态
 async function checkStyleLearning() {

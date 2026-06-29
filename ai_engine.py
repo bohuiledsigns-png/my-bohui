@@ -2241,7 +2241,7 @@ def generate_video_jimeng_spliced(prompts_and_durations, quality="720p",
             # 仅一段，直接拷贝
             subprocess.run(
                 ["ffmpeg", "-y", "-i", segment_paths[0], "-c", "copy", output_path],
-                capture_output=True, timeout=120
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120
             )
         else:
             # 多段：用 FFmpeg concat 协议拼接（硬切，段间无过渡）
@@ -2254,7 +2254,7 @@ def generate_video_jimeng_spliced(prompts_and_durations, quality="720p",
                 ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
                  "-i", filelist_path,
                  "-c", "copy", output_path],
-                capture_output=True, timeout=180
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=180
             )
             if result.returncode != 0:
                 # 硬复制失败，fallback 到 re-encode
@@ -2264,7 +2264,7 @@ def generate_video_jimeng_spliced(prompts_and_durations, quality="720p",
                      "-i", filelist_path,
                      "-c:v", "libx264", "-preset", "fast", "-crf", "23",
                      "-c:a", "aac", output_path],
-                    capture_output=True, timeout=300
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300
                 )
                 if result.returncode != 0:
                     return None, f"FFmpeg 拼接失败: {result.stderr.decode()[:300]}"

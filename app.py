@@ -53,6 +53,7 @@ from whatsapp_engine import send_text, send_image_clipboard, send_media_file, re
 from lead_state_engine import update_lead_state, get_lead_state, init_customer_state
 from decision_engine import decide_action
 from action_router import execute_action, register_action, log_action
+import review_queue
 
 # Publishing Manager（多平台视频发布管理系统）
 from publishing_manager import init_publishing
@@ -172,6 +173,25 @@ def _delete_content_file(directory, filename):
     if os.path.exists(path):
         os.remove(path)
     return True
+
+# ========= 健康检查 =========
+@app.route("/health")
+def health_check():
+    """系统健康检查端点"""
+    db_ok = os.path.exists(os.path.join(BASE_DIR, "crm_data.db"))
+    wa_ok = False
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:15789/health", timeout=2) as r:
+            wa_ok = True
+    except:
+        pass
+    return jsonify({
+        "status": "ok" if db_ok else "degraded",
+        "database": "ok" if db_ok else "missing",
+        "whatsapp": "connected" if wa_ok else "disconnected",
+        "timestamp": datetime.now().isoformat(),
+    })
 
 # 知识库
 @app.route("/api/knowledge", endpoint="knowledge_list")
@@ -1198,31 +1218,40 @@ def _do_auto_reply(cid, chat_name, reply_en, reply_cn):
     """在独立线程中执行自动回复，不阻塞事件循环
     - 等待1-5分钟（不定时，模拟真人）
     - 发前检查是否已被手动回复
+    - 将回复加入审核队列（需管理员批准后才发送）
     """
     try:
         # 1-5分钟不定时，模拟真人回复节奏
         wait = random.uniform(60, 300)
-        print(f"[Auto] 等待{wait:.0f}秒后回复 {chat_name}...")
+        print(f"[Auto] 等待{wait:.0f}秒后审核 {chat_name}...")
         time.sleep(wait)
 
         # ===== 防冲突检查：等待期间是否有人工回复 =====
         latest = get_messages(cid, limit=3)
         if latest:
-            # get_messages返回按时间升序，最后一条是最新的
             last = latest[-1]
             if last["direction"] == "sent":
                 print(f"[Auto] ⏭ {chat_name} 等待期间已被回复，跳过AI自动回复")
                 _add_wa_activity("skipped", cid, chat_name, "AI等待期间已被手动回复，跳过")
                 return
 
-        # 真正发送
-        send_text(reply_en, contact_name=chat_name)
-        add_message(cid, "sent", reply_cn, reply_en)
-        _add_wa_activity("replied", cid, chat_name, f"已自动回复: {reply_en[:50]}...")
-        print(f"[Auto] ✅ 已回复 {chat_name}")
+        # ===== 加入审核队列，不直接发送 =====
+        original = ""
+        if latest and latest[-1]["direction"] == "received":
+            original = latest[-1].get("content_en", "") or latest[-1].get("content_cn", "")
+        entry = review_queue.enqueue(
+            customer_id=cid,
+            customer_name=chat_name,
+            reply_en=reply_en,
+            reply_cn=reply_cn,
+            original_message=original,
+        )
+        _add_wa_activity("replied", cid, chat_name,
+                         f"AI回复待审核: {reply_en[:50]}...")
+        print(f"[Auto] 📋 {chat_name} 回复已加入审核队列 ({entry['id']})")
     except Exception as e:
-        _add_wa_activity("error", cid, chat_name, f"自动回复失败: {e}")
-        print(f"[Auto] 回复出错: {e}")
+        _add_wa_activity("error", cid, chat_name, f"审核入队失败: {e}")
+        print(f"[Auto] 审核入队出错: {e}")
 
 
 def _whatsapp_message_handler(chat_name, messages):
@@ -1391,6 +1420,50 @@ def api_wa_auto_reply():
         print(f"[Auto] AI自动回复已{status}")
         _add_wa_activity("toggle", 0, "系统", f"AI自动回复已{status}")
     return jsonify({"enabled": _auto_reply_enabled})
+
+
+# ========= API: AI回复审核队列 =========
+@app.route("/api/review-queue", methods=["GET"])
+def api_review_queue_list():
+    """获取审核队列列表"""
+    status = request.args.get("status", "pending")
+    if status == "all":
+        items = review_queue.list_all(limit=100)
+    else:
+        items = review_queue.list_pending()
+    return jsonify({
+        "items": items,
+        "count": len(items),
+        "pending_count": review_queue.pending_count(),
+    })
+
+
+@app.route("/api/review-queue/<review_id>/approve", methods=["POST"])
+def api_review_queue_approve(review_id):
+    """批准（可选编辑后）"""
+    data = request.json or {}
+    edit_en = data.get("edit_en")
+    edit_cn = data.get("edit_cn")
+    entry = review_queue.approve(review_id, edit_en=edit_en, edit_cn=edit_cn)
+    if not entry:
+        return jsonify({"error": "not found or already processed"}), 404
+    # 发送回复（使用编辑后的内容）
+    send_text(edit_en or entry["reply_en"],
+              contact_name=entry["customer_name"])
+    from database import add_message
+    add_message(entry["customer_id"], "sent",
+                edit_cn or entry["reply_cn"],
+                edit_en or entry["reply_en"])
+    return jsonify({"ok": True, "entry": entry})
+
+
+@app.route("/api/review-queue/<review_id>/reject", methods=["POST"])
+def api_review_queue_reject(review_id):
+    """驳回回复"""
+    entry = review_queue.reject(review_id)
+    if not entry:
+        return jsonify({"error": "not found or already processed"}), 404
+    return jsonify({"ok": True})
 
 
 # ========= API: 客户简报 =========
@@ -7049,7 +7122,7 @@ def _ensure_single_instance(port):
             # 检查进程是否还在
             if sys.platform == "win32":
                 chk = subprocess.run(f"tasklist /FI \"PID eq {old_pid}\" /NH",
-                                     shell=True, capture_output=True, text=True)
+                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                 if str(old_pid) in chk.stdout:
                     print(f"[启动] 发现旧进程 PID={old_pid}，正在终止...")
                     subprocess.run(f"taskkill /F /PID {old_pid}", shell=True)
@@ -7105,7 +7178,7 @@ def _kill_orphan_playwright():
         if sys.platform == "win32":
             result = subprocess.run(
                 'wmic process where "name=\'chrome.exe\'" get commandline /format:csv',
-                shell=True, capture_output=True, text=True, timeout=10
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=10
             )
             for line in result.stdout.split("\n"):
                 if "playwright" in line.lower() and "persistent_profile" in line:
@@ -7115,7 +7188,7 @@ def _kill_orphan_playwright():
                         print(f"[启动] 发现残留Playwright: {pid_line[:80]}...")
                         subprocess.run(
                             'wmic process where "name=\'chrome.exe\'" delete',
-                            shell=True, capture_output=True, timeout=10
+                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10
                         )
                         break
     except Exception:
@@ -7678,6 +7751,27 @@ if __name__ == "__main__":
     atexit.register(_cleanup)
     if sys.platform != "win32":
         signal.signal(signal.SIGTERM, lambda *a: _cleanup() or sys.exit(0))
+
+    # 启动审核队列自动发送线程
+    def _review_auto_send_loop():
+        """每分钟检查是否有超时未审核的回复，自动发送"""
+        while True:
+            try:
+                expired = review_queue.get_expired()
+                for entry in expired:
+                    print(f"[ReviewQueue] ⏰ 超时自动发送: {entry['id']} -> {entry['customer_name']}")
+                    send_text(entry["reply_en"], contact_name=entry["customer_name"])
+                    from database import add_message
+                    add_message(entry["customer_id"], "sent",
+                                entry["reply_cn"], entry["reply_en"])
+                    review_queue.mark_auto_sent(entry["id"])
+                if expired:
+                    print(f"[ReviewQueue] 自动发送了 {len(expired)} 条超时回复")
+            except Exception as e:
+                print(f"[ReviewQueue] auto-send error: {e}")
+            time.sleep(60)
+    t = threading.Thread(target=_review_auto_send_loop, daemon=True)
+    t.start()
 
     print(f"GLOWFORGE CRM 启动中: http://localhost:{port}")
     webbrowser.open(f"http://localhost:{port}")

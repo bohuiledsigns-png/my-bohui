@@ -1,0 +1,11 @@
+{
+  "version": "3.0.0",
+  "last_updated": null,
+  "latest_run": null,
+  "runs": [],
+  "learning_state": {
+    "weight_adjustments": [],
+    "effectiveness_history": [],
+    "last_learning_cycle": null
+  }
+}

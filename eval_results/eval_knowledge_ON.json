@@ -1,0 +1,324 @@
+[
+  {
+    "id": "S01",
+    "type": "比价",
+    "message": "Hi, I need stainless steel letters for my storefront. Can you give me a price?",
+    "intent": "询价",
+    "response": "Imagine your storefront at night with crisp, illuminated stainless steel letters that make your brand stand out. I can definitely help you get that premium look.\n\nHere is the real pricing structure most retail storefronts choose for stainless steel channel letters:\n👉 A) Standard storefront setup (approx. 6-8 letters) → USD 495–580\n👉 B) High-visibility premium setup (approx. 9-12 letters) → USD 590–720\n👉 C) Large-scale flagship facade (12+ letters / custom finish) → USD 750–950\n\nEach option already includes:\n✔ Full 304 stainless steel illuminated letter system (MOQ 1 set)\n✔ IP65 waterproof outdoor setup\n✔ Installation-ready design with mounting hardware\n✔ 10–15 day production timeline\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact final price based on your wall space\n✔ Show you the exact design style and lighting effect\n✔ Confirm the production slot for your timeline\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否先问尺寸/图纸才报价",
+        "是否问到安装环境",
+        "是否给出材质选项"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 40.0
+  },
+  {
+    "id": "S02",
+    "type": "比价",
+    "message": "Your price is too high. Another supplier quoted me $2.8/cm for acrylic letters.",
+    "intent": "询价",
+    "response": "I hear you on the price. But let me be direct: a sign isn't just an expense — it's your 24/7 salesperson. \n\n$2.8/cm gets you a basic, short-term setup. If you want a stable, premium look that actually pulls customers in, here is the real pricing structure our clients choose (MOQ 1 set, 10-15 day production):\n\n👉 A) Standard commercial setup → USD 270–320\n👉 B) Premium storefront sign → USD 350–480\n👉 C) High-visibility flagship sign → USD 500–650\n\nEach option includes:\n✔ Complete illuminated acrylic system\n✔ Weatherproof outdoor build\n✔ Installation-ready hardware\n\nOnce you choose, I will:\n✔ Lock your exact final price\n✔ Recommend the best design style for your space\n✔ Secure your production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否专业应对比价",
+        "是否强调质量差异",
+        "是否给出材质等级选项"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 56.9
+  },
+  {
+    "id": "S03",
+    "type": "询价",
+    "message": "How much for a set of LED channel letters, about 40cm height, 10 letters, for a restaurant?",
+    "intent": "询价",
+    "response": "Got it — 10 letters at 40cm height is a great size for a restaurant facade. Imagine your storefront at night with a crisp, glowing sign that instantly draws people in. That is exactly what we build.\n\nBased on similar 10-letter restaurant projects, here is the pricing structure most clients choose:\n👉 A) Standard front-lit setup (Clean & highly visible) → USD 380–450\n👉 B) Premium backlit / halo-lit setup (High-end elegant look) → USD 480–580\n👉 C) Dynamic RGB setup (Color-changing for a vibrant vibe) → USD 600–750\n\nEach option already includes:\n✔ Full 10-letter illuminated sign system (40cm height)\n✔ Waterproof outdoor setup\n✔ Installation-ready design with mounting hardware\n✔ 10–15 day production timeline\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact final price\n✔ Show you the best design style for your restaurant\n✔ Confirm the production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否给出合理价格区间",
+        "是否问到安装方式",
+        "是否建议配置"
+      ],
+      "scores": {
+        "行业术语": 6.0,
+        "B2B思维": 2.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 42.8
+  },
+  {
+    "id": "S04",
+    "type": "问工艺",
+    "message": "What's the difference between stainless steel 201 and 304 for outdoor signs?",
+    "intent": "问工艺",
+    "response": "Got it. Let me give you the straight answer.\n\nFor outdoor signs, the difference is simple:\n• 201 Stainless Steel: Fine for indoor. Outdoors, it will start rusting in 6-12 months, especially with rain or coastal air.\n• 304 Stainless Steel: The industry standard for outdoor. Rust-free for 8-10 years, and we provide a material test report.\n\nI'd strongly recommend 304 for any outdoor project. It costs slightly more upfront but saves you from replacing a rusty sign next year.\n\nSince you are planning an outdoor sign, let's get you a solid estimate. We support MOQ 1 set, and standard production takes 10-15 days.\n\nTo give you an exact number, just tell me your storefront scale:\n👉 Which best describes your outdoor space?\nA) Small setup (under 15 ft wide) → USD 280–350\nB) Standard storefront (15–30 ft wide) → USD 380–520\nC) Large / premium facade (30+ ft wide) → USD 550–750\n\nEach option already includes:\n✔ Full 304 stainless steel illuminated letter system\n✔ IP65 waterproof outdoor setup\n✔ Installation-ready design with mounting hardware\n✔ 10–15 day production timeline\n\nOnce you choose, I will:\n→ Lock your exact final price\n→ Recommend the best font and lighting style\n→ Confirm the production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否准确说明304耐腐蚀性",
+        "是否建议户外用304",
+        "是否用到行业术语"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 4.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 40.2
+  },
+  {
+    "id": "S05",
+    "type": "问工艺",
+    "message": "I need acrylic signs that are UV resistant and waterproof for outdoor use. What material do you recommend?",
+    "intent": "问工艺",
+    "response": "Got it — you're asking the exact right questions. Imagine your sign looking brand new 5 years from now while others turn yellow and leak. That’s what we build.\n\nFor outdoor use, I strictly recommend imported cast acrylic with high UV resistance. We pair it with IP65 waterproof LEDs and structural silicone sealing (the same grade used in glass curtain walls) to guarantee zero yellowing and zero water damage for years.\n\nBased on typical outdoor storefronts, most clients invest around USD 280–550.\n\nLet's find the exact fit for your space:\n👉 How large is the area where you plan to install this sign?\nA) Small storefront / compact space (under 4 ft wide) → USD 280–350\nB) Standard main entrance (4–8 ft wide) → USD 380–520\nC) Large facade or prominent outdoor wall (8+ ft wide) → USD 550–850\n\nEach option already includes:\n✔ UV-resistant imported cast acrylic\n✔ IP65 waterproof outdoor LED system\n✔ Installation-ready design with mounting hardware\n✔ 10–15 day production timeline\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact final price\n✔ Show you the recommended design style\n✔ Confirm your production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否推荐正确材质",
+        "是否提到UV防护工艺",
+        "是否问到具体使用环境"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 45.2
+  },
+  {
+    "id": "S06",
+    "type": "问工艺",
+    "message": "Can you make GLOWFORGE chromatic signs? How does the color-changing effect work under sunlight?",
+    "intent": "问工艺",
+    "response": "Got it — yes, GLOWFORGE chromatic signs are our patented specialty. \n\nLet me be completely transparent about the sunlight effect: During broad daylight, the physical texture of the sign (like brushed metal or specialized tinted acrylic) takes the lead, giving your brand a premium, solid look. The true dual-channel color-changing magic fully activates during dusk, night, or in shaded areas. We use high-brightness Epistar LEDs to ensure the colors still punch through even when the sun is going down.\n\nSince the setup changes based on your environment, here is the real pricing structure most clients choose:\n👉 A) Indoor or fully shaded storefront (Focus on ultra-smooth color transitions) → USD 280–400\n👉 B) Standard outdoor storefront (High-brightness LEDs for strong dusk visibility) → USD 420–580\n👉 C) Premium large-scale outdoor (Max brightness + heavy-duty weather-sealed dual channels) → USD 600–850\n\nEach option already includes:\n✔ Full GLOWFORGE dual-channel chromatic system\n✔ Smart controller for custom patterns and speeds\n✔ Waterproof outdoor setup (if B or C)\n✔ 10–15 day production + shipping prep\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact final price for your specific letter count\n✔ Send you a real video of that exact setup working at night\n✔ Confirm your production slot\n\nNext step: Reply A, B, or C",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否准确解释幻彩原理",
+        "是否提到防水等级",
+        "是否用到炫彩专业技术术语"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 6.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 52.8
+  },
+  {
+    "id": "S07",
+    "type": "要样品",
+    "message": "Do you offer free samples? I want to check the quality before placing a bulk order.",
+    "intent": "要样品",
+    "response": "Checking quality before a bulk order is exactly what I would do.\n\nTo be transparent: we don't send free samples upfront. Instead, you pay for the sample now, and we **100% refund the sample fee** against your first bulk order. This ensures we only work with serious partners while keeping it risk-free for you.\n\nSince you are planning for bulk, we also offer neutral packaging and strict client protection so your business is secure.\n\nTo get your sample into production, which style do you want to test?\n👉 A) Standard 3D Stainless Steel Backlit Letter (Most popular for outdoor storefronts)\n👉 B) Premium Acrylic Edge-Lit Letter (High-end look for boutiques and salons)\n👉 C) Custom sample with your specific logo (Perfect for showing your own clients)\n\nOnce you choose, I will immediately:\n✔ Quote the exact refundable sample cost\n✔ Confirm the 3-5 day production schedule\n✔ Calculate the fastest shipping option to your door\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否专业解释样品政策",
+        "是否引导到正式订单",
+        "是否说明定制样收费"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 6.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 41.8
+  },
+  {
+    "id": "S08",
+    "type": "问交期",
+    "message": "What's the lead time for 50 sets of acrylic letters to Melbourne?",
+    "intent": "问工艺",
+    "response": "Got it — I'll give you the exact timeline so you can plan your project properly.\n\nFor 50 sets of custom acrylic letters, our standard production lead time is 10–15 working days after design confirmation. \n\nSince it's shipping to Melbourne, the total door-to-door time depends entirely on the logistics route. To give you the exact arrival date, I need to know your project schedule:\n\n👉 Which timeline fits your rollout best?\nA) Urgent (Need it in 2-3 weeks total) → Air Express\nB) Standard (Have 4-5 weeks) → Sea Freight DDP (most cost-effective for 50 sets)\nC) Flexible (Just checking options for now) → I'll show you both time and cost comparisons\n\nEach option includes:\n✔ 10–15 day production with daily photo updates\n✔ Export-grade wooden crate packing for safe transit\n✔ Full customs clearance documents for Australia\n\nOnce you pick A, B, or C, I will immediately:\n✔ Calculate the exact shipping days to Melbourne\n✔ Recommend the best shipping method for your volume\n✔ Lock in your production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否给出合理交期范围",
+        "是否问到具体工艺要求",
+        "是否提到海运时间"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 10.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 55.8
+  },
+  {
+    "id": "S09",
+    "type": "售后",
+    "message": "The LED lights in the sign I bought from you stopped working after 2 months. What can you do?",
+    "intent": "问工艺",
+    "response": "Let me take care of this right away. A 2-month failure is definitely not the standard we stand by, and your sign is fully covered under our 5-year LED and power supply warranty.\n\nTo pinpoint the exact issue (whether it's the power supply, a loose connection, or the LED strip itself), I just need two quick things from you:\n👉 A short video showing the sign when it's turned on (and the power supply box if visible).\n👉 Your order number or the name it was shipped under so I can pull up your production file.\n\nOnce I see the video, I will immediately arrange the solution. If it's a hardware fault, we will ship replacement parts via DHL express (3-7 days delivery) completely free of charge.\n\nSend the video over, and we'll get this sorted today.\n\n---\n让我马上来处理这件事。2个月就出问题绝对不是我们的标准，您的招牌完全在我们的LED和电源5年质保范围内。\n\n为了准确定位问题（是电源、接线松动还是LED灯带本身），我只需要您提供两个快速的信息：\n👉 一段短视频，展示招牌通电时的状态（如果能看到电源盒也拍一下）。\n👉 您的订单号或收件人姓名，以便我调出您的生产档案。\n\n一旦我看到视频，我会立即安排解决方案。如果是硬件故障，我们将通过DHL快递（3-7天交货）完全免费寄送替换部件。\n\n把视频发过来吧，我们今天就把这事解决。",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否先安抚",
+        "是否要求提供照片/视频",
+        "是否给出保修说明"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 2.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 38.7
+  },
+  {
+    "id": "S10",
+    "type": "询价",
+    "message": "I need 200pcs acrylic display stands for my retail store. Dimensions: 15cm x 10cm. Can you quote?",
+    "intent": "询价",
+    "response": "Got it — imagine your retail products sitting on crystal-clear, diamond-polished acrylic stands that make every single item look premium. That’s the exact vibe we create for stores.\n\nFor an order of 200 pieces at 15x10cm, most retail clients invest between USD 650 and 1,400 depending on the display style. Volume pricing for 200pcs is already applied here.\n\nInstead of guessing, just pick the setup that fits your products:\n👉 Which display style do you need?\nA) Basic Retail Setup (Standard thickness, simple L-bend or flat riser) → USD 650–750 total\nB) Premium Brand Setup (Thicker build, diamond-polished edges, custom logo print) → USD 850–1,050 total\nC) High-End Custom Setup (Extra thick, full-color UV print, multi-tier or special slots) → USD 1,100–1,400 total\n\nEach option already includes:\n✔ 100% imported cast acrylic (crystal clear, no yellowing)\n✔ Safe individual packaging ready for retail\n✔ 10–15 day production timeline\n✔ Full display and handling guide\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact unit price\n✔ Send a quick visual layout for your approval\n✔ Reserve your production slot\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否直接报价",
+        "是否问到厚度要求",
+        "是否问到包装要求"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 55.9
+  },
+  {
+    "id": "S11",
+    "type": "合作",
+    "message": "I'm a sign company in Dubai. We're looking for a reliable OEM partner for our projects. Can you handle large volumes?",
+    "intent": "其他",
+    "response": "Got it. As a 15-year direct factory, handling large-volume OEM projects for overseas sign companies is exactly what we do best.\n\nWhen you partner with us, you get three strict guarantees:\n✔ 100% Client Protection: We never contact your end clients. Neutral packaging is standard.\n✔ Batch Consistency: We use precision jigs so every letter in a large batch is identical.\n✔ Stable Capacity: From 1 set MOQ to full container loads, with T/T 30%+70% and FOB Shenzhen terms.\n\nTo give you the right tiered pricing and production plan, let's narrow down your focus:\n👉 What type of projects are you mostly bidding on right now?\nA) Storefront channel letters (Typical OEM batch: USD 180–350 per set)\nB) Large outdoor building signs (Typical OEM batch: USD 450–800 per sqm)\nC) Indoor commercial displays (Typical OEM batch: USD 120–280 per piece)\n\nEach option already includes:\n✔ Full illuminated sign system (Meanwell certified)\n✔ 100% neutral packaging and strict client protection\n✔ 10–15 day production timeline for standard volumes\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock in your exact tiered OEM price list\n✔ Show you our batch consistency QC process\n✔ Confirm the fastest shipping schedule\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否专业回应OEM合作",
+        "是否提到产能和规模",
+        "是否问到具体项目需求"
+      ],
+      "scores": {
+        "行业术语": 8.0,
+        "B2B思维": 10.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 53.1
+  },
+  {
+    "id": "S12",
+    "type": "要目录",
+    "message": "Can you send me your full product catalog and price list?",
+    "intent": "询价",
+    "response": "Got it. I'll send our full product catalog over to you right now. We cover 3D LED signs, acrylic displays, and custom acrylic furniture.\n\nAbout the price list — since almost everything we make is fully custom, a fixed price sheet doesn't work. Your final cost depends on the exact size, material thickness, and LED specs. \n\nTo make sure I send you the right examples, let's narrow it down:\n👉 What type of project are you focusing on right now?\nA) Storefront illuminated signs (3D LED letters / backlit signs)\nB) Indoor displays & acrylic furniture\nC) Custom brand logos & corporate wall signs\n\nPick A, B, or C, and I'll send the exact catalog section plus a realistic price range for that category. \n\nAs a quick heads-up: our MOQ is just 1 set, and standard lead time is 10-15 days.\n\nNext step: Reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否解释价格按图纸定制",
+        "是否发送关键分类",
+        "是否引导具体需求"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 4.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 56.8
+  },
+  {
+    "id": "S13",
+    "type": "比价",
+    "message": "I found cheaper options on Alibaba for similar quality signs. Why should I choose you?",
+    "intent": "询价",
+    "response": "Understood. I'll keep this very simple for you.\n\nAt this stage, there is only one real decision:\n👉 Do you want a sign built for short-term lowest cost,\n   or one designed for stable daily business use?\n\nBoth options exist in the market.\nThe difference is not appearance — it is operational stability over time.\n\nJust send me ONE of the following:\n✔ your logo\nor\n✔ a photo of your storefront wall\n\nThen I will:\n→ confirm exact size\n→ finalize design layout\n→ prepare production file for you\n\nNo extra steps needed.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否突出差异化优势",
+        "是否提到品质/保修/服务",
+        "是否自信而不贬低对手"
+      ],
+      "scores": {
+        "行业术语": 0.0,
+        "B2B思维": 2.0,
+        "主动引导": 0.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 27.5
+  },
+  {
+    "id": "S14",
+    "type": "问工艺",
+    "message": "What's the best material for a beachfront hotel sign near the ocean? It needs to handle salt air.",
+    "intent": "问工艺",
+    "response": "For a beachfront hotel facing salt air, standard materials will rust within months. I strictly recommend 316 marine-grade stainless steel with anti-UV acrylic — it guarantees 10-15 years of zero rust in coastal environments.\n\nTo give you a clear picture for a typical hotel exterior sign (around 3m wide, channel letters), here is the investment structure most coastal properties choose:\n\n👉 A) Standard Coastal Setup (304 SS + marine coating) → USD 750 – 950\n👉 B) Premium Marine Setup (316 SS + anti-UV acrylic) → USD 1,100 – 1,450\n👉 C) Luxury Illuminated Facade (316 SS + dynamic lighting) → USD 1,500 – 1,800\n\nEach option already includes:\n✔ Full illuminated sign system with certified Meanwell power supply\n✔ IP67 waterproof & structural silicone sealing\n✔ Installation-ready design with mounting hardware\n✔ 10-15 day production + secure wooden crate shipping\n\nOnce you pick A, B, or C, I will immediately:\n✔ Lock your exact final price based on your specific layout\n✔ Show you the exact material specs and design style\n✔ Confirm the production slot for your timeline\n\nNext step: Just reply A, B, or C.",
+    "analysis": {
+      "passed": [],
+      "failed": [],
+      "missed_checks": [
+        "是否推荐316不锈钢或耐候材质",
+        "是否提到盐雾腐蚀问题",
+        "是否问到具体安装条件"
+      ],
+      "scores": {
+        "行业术语": 10.0,
+        "B2B思维": 6.0,
+        "主动引导": 2.0,
+        "自信专业": 10.0
+      }
+    },
+    "elapsed": 51.9
+  }
+]

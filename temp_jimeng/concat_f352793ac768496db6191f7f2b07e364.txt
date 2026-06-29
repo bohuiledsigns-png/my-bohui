@@ -1,0 +1,5 @@
+file 'D:\Bohui_Global_Push\GLOWFORGE_CRM\temp_jimeng\seg_Customer_c1c5d9cd738746119f57deae1ef6df18.wav'
+file 'D:\Bohui_Global_Push\GLOWFORGE_CRM\temp_jimeng\silence_ba36362b0b684bdd876c8c273126c885.wav'
+file 'D:\Bohui_Global_Push\GLOWFORGE_CRM\temp_jimeng\seg_Factory_92291f949811448c9b6ceb2be576d758.wav'
+file 'D:\Bohui_Global_Push\GLOWFORGE_CRM\temp_jimeng\silence_ba36362b0b684bdd876c8c273126c885.wav'
+file 'D:\Bohui_Global_Push\GLOWFORGE_CRM\temp_jimeng\seg_Wisdom_abaecde2eeb346428554ff9161b099cc.wav'
