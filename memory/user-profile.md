@@ -24,7 +24,7 @@ metadata:
 - **Cline** (v4.0.8) — 已安装并配置 DeepSeek API，有 Computer Use 能力，可操作桌面
 - **Codex CLI** (v0.144.1) — 已安装但需要协议转换才能连 DeepSeek
 - **后端模型**：DeepSeek-V4-Flash（通过 DeepSeek API 连接）
-- **API Key**：DeepSeek `sk-c886b4158e024bb8bc6926f6492cbaab`（存储在 settings.json 和 bashrc 中）
+- **API Key**：已配置在 settings.json 和 bashrc 中（敏感信息不提交）
 - **DeepSeek 基础 URL**：`https://api.deepseek.com`
 
 ## 为什么不用官方 Claude

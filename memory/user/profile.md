@@ -23,6 +23,13 @@ metadata:
 - 国内无法购买 Anthropic 官方 API
 - 没有美元账户
 
+## GitHub
+- **用户名**：bohuiledsigns-png
+- **仓库**：my-bohui（记忆系统 + 项目代码）
+- **SSH Key**：已配置，可以推送代码
+- **连接方式**：SSH（git@github.com）
+
 ## 偏好
 - 记东西不要简单笔记，要系统化的
 - 要做正经大项目
+- 做事不要随便换方案，一条路走到底

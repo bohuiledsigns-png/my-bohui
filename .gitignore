@@ -1,0 +1,9 @@
+# Claude Code 项目文件 - 不要提交
+*.jsonl
+*.txt
+*.log
+fc81c567-43fe-4f58-a608-b5ecffad66a8/
+
+# 敏感配置
+.claude/settings.json
+.claude/settings.local.json
