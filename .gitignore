@@ -1,0 +1,39 @@
+# 敏感配置
+GLOWFORGE_CRM/.env
+GLOWFORGE_CRM/.secret_key
+GLOWFORGE_CRM/*.db
+
+# 浏览器会话
+GLOWFORGE_CRM/.whatsapp_session/
+
+# 大文件：视频/音频/图片
+*.mp4
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.zip
+*.tar
+*.tar.gz
+*.psd
+*.ai
+
+# 临时目录
+GLOWFORGE_CRM_temp/
+frames/
+frames_small/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+pw_log.txt
+
+# 运行临时文件
+curl_out.txt
+extract_log.txt
+flclash_*.txt
