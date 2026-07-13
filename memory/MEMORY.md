@@ -5,6 +5,7 @@
 
 ## 📂 项目
 - [项目目录](projects/_index.md)
+- [博汇GLOWFORGE全栈项目](projects/bohui-glowforge.md)
 
 ## 📚 知识库
 - [知识目录](knowledge/_index.md)
