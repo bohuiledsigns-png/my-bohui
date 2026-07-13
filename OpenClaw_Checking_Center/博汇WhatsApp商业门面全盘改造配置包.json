@@ -1,0 +1,27 @@
+{
+  "mission": "博汇广告官方WhatsApp商业门面全盘改造",
+  "auth_level": "最高长官杨经理特批",
+  "timestamp": "2026-05-16",
+  "sections": {
+    "about": {
+      "title": "商业简介栏（About）",
+      "content": "Premium Channel Letters & Kinetic LED Signage for Sign Shops Worldwide.\nFactory-Direct Support from China's Precision Engineering Hub.\nShipped via Pre-Wired Raceway Systems — Plug & Play to slash 40% of your local site installation labor costs.\nDrop your vector files below."
+    },
+    "catalog_item_1": {
+      "title": "相册目录第一项",
+      "product_name": "01. Patent GLOWFORGE Kinetic LED Signage",
+      "description": "Premium dual-channel fluid illumination systems designed exclusively for Sign Shops worldwide.\n\nFactory-direct customization from China's precision signage engineering hub.\nPatented kinetic independent control — smooth fluid motions with zero lighting dead zones.\nFully shipped via Pre-Wired Raceway Systems — Plug & Play on-site to slash 40% of your local installation labor costs.\n\nDrop your vector design files (AI/PDF/SVG) below for a free 3D fluid animation rendering.",
+      "origin_country": "CHINA",
+      "price_display": "Quote on request — engineered per project"
+    },
+    "media_assets": {
+      "local_path": "D:\\Bohui_Global_Push\\Video_Assets",
+      "primary_video": "大字D幻彩发光字实物视频",
+      "secondary_video": "SUPERWING跑色视频",
+      "source_folders": [
+        "G:\\炫彩字效果\\炫彩字视频素材",
+        "D:\\Bohui_Global_Push\\00_Video_Library"
+      ]
+    }
+  }
+}

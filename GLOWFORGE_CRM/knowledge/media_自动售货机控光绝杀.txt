@@ -1,0 +1,52 @@
+自动售货机控光绝杀
+═══════════════════════════════════════════════
+类别: media
+
+================================================================================
+  自动售货机设备商 — 空间体量控光绝杀方案
+  客户状态: 要求自动售货机顶部招牌360度最大可见度
+  目标: 用3D立体控光 + 侧面冷光外溢 满足全方位视觉暴击
+================================================================================
+
+【诊断】
+
+  自动售货机招牌 = 超高耐磨要求 + 360°可见度需求 + 极端耐候。
+  客户最怕: 坏灯维护成本高 / 侧面看不到字 / 被砸
+
+  拦截策略:
+    普通吸塑字壳是一场灾难（侧面看不到光）。
+    博汇方案: 1500#不锈钢字壳 + 37°折射倒角向侧面冷光外溢
+    + 光学级高透亚克力正面高亮 + Raceway批量出货省安装
+
+
+================================================================================
+【WhatsApp 绝杀话术】
+
+Mate — Philip from Bohui, Xiaolan. Sorry for the delay — our lab was running photometric deep-dive on your vending machine spec.
+
+Most factories would've sent you a quote in 10 minutes. We don't work that way. We spent 3 days optimizing the light distribution for maximum visibility at 360° — because a vending machine sign that can't be read from the side isn't a sign. It's a missed sale.
+
+Here's what we engineered for your machines:
+
+SHELL: 1500# hairline brushed 304 stainless. R3 seamless corners. Laser-Seamed Hermetic Weld. Your machine takes abuse — this shell takes it back.
+
+FACE: Optically Clear Cast Acrylic. Not extruded — cast. 2.5% UV stabilizer. 92% light transmittance.
+
+SIDE EMISSION: 37° Light Refraction Chamfering cut into the acrylic edge. When the GLOWFORGE system fires up, the outline traces the letter boundary while the fill stays bright inside — and the 37° chamfer kicks cold light sideways. From the left. From the right. From across the parking lot. 360° visibility. Zero dead angles.
+
+DURABILITY: 3,000h QUV-A test — 2.3% decay. Your competitor's supplier? 11%. Your machine sits in direct sun 12 hours a day. After 18 months, yours still looks new. Theirs looks tired.
+
+INSTALLATION: Pre-wired Raceway Mounting. Every sign ships pre-assembled, pre-wired, pre-tested with MeanWell driver. Your field crew doesn't open a single wire nut. They bolt it on top of the machine, plug in one connector, and walk away. 40% labor saved. Per unit. Per location.
+
+BATCH: This is designed for production. Repeatable. Consistent. We're a lab — but we scale.
+
+Quote and 3D GLOWFORGE flow diagram are ready on my end.
+
+Send me your forwarder's contact and your port in Australia. Or tell me which port you ship from.
+
+Drop your vector artwork. We'll light it up in our Zhongshan factory next week and send you the real video — not a render. The real thing, powered up and breathing.
+
+Ready to make your vending machines dominate the street?
+
+— Philip
+Bohui Elite | Zhongshan Xiaolan

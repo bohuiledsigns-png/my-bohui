@@ -1,0 +1,13 @@
+亚克力家具·高端商业空间
+═══════════════════════════════════
+类别: 生图 / 亚克力展示
+场景: 室内空间
+最佳尺寸: 1024*1024
+
+提示词:
+Elegant acrylic furniture in a modern minimalist office interior. A clear acrylic desk with polished edges catching natural light from large windows. Beside it a transparent acrylic display shelf with integrated subtle LED strip lighting. The material is crystal clear with a slight blue edge glow. Modern white walls, potted plant, warm wood floor accents, soft natural lighting, architectural photography style, 8K sharp, photorealistic.
+
+变体:
+- 展示柜: acrylic display case with internal product lighting
+- 收银台: acrylic cashier counter with logo integration
+- 家具组合: full acrylic office furniture set (desk, shelf, chair)

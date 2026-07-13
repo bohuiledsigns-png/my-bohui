@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>评论管理 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1200px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px;transition:color .15s}
+.header .nav a:hover{color:#e8e8ed}
+.controls{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.controls button,.controls select{padding:8px 14px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:12px;transition:all .15s}
+.controls select{min-width:100px}
+.controls button:hover,.controls select:hover{border-color:#555;background:#1e1e2a}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-secondary{background:#2a2a35;color:#ccc}.btn-secondary:hover{background:#3a3a45}
+.btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-outline{background:transparent;border:1px solid #2a2a35;color:#aaa}.btn-outline:hover{border-color:#555;color:#e8e8ed}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.main-layout{display:grid;grid-template-columns:1fr 320px;gap:16px}
+
+.comment-item{background:#16161f;border:1px solid #2a2a35;border-radius:10px;padding:14px;margin-bottom:8px;transition:border-color .15s;position:relative}
+.comment-item:hover{border-color:#555}
+.comment-item.flagged{border-color:#dc262655}
+.comment-item .cb{position:absolute;top:14px;left:14px;display:none}
+.comment-item.bulk-mode .cb{display:block}
+.comment-item.bulk-mode{padding-left:40px}
+.comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px}
+.comment-author{font-weight:600;color:#e8e8ed}
+.comment-author .author-label{font-size:10px;color:#888;font-weight:400;margin-left:4px}
+.comment-meta{color:#888;font-size:11px;white-space:nowrap}
+.comment-platform{font-size:11px;color:#888;margin-bottom:4px}
+.platform-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px;background:#1a1a24}
+.platform-tag.tiktok{color:#ff0050}
+.platform-tag.youtube{color:#ff0000}
+.platform-tag.instagram{color:#e4405f}
+.platform-tag.facebook{color:#1877f2}
+.platform-tag.linkedin{color:#0a66c2}
+.comment-text{font-size:13px;line-height:1.5;margin-bottom:6px;word-break:break-word;cursor:pointer}
+.comment-text.expandable{max-height:48px;overflow:hidden;position:relative}
+.comment-text.expandable::after{content:'...more';position:absolute;bottom:0;right:0;background:#16161f;padding:0 4px;font-size:11px;color:#888}
+.comment-text.expanded{max-height:none}
+.comment-text.expanded::after{display:none}
+.comment-footer{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.comment-reply{background:#0f0f13;border-radius:8px;padding:10px;margin-top:8px;display:none}
+.comment-reply.show{display:block}
+.comment-reply textarea{width:100%;padding:8px 10px;background:#16161f;border:1px solid #2a2a35;border-radius:6px;color:#e8e8ed;font-size:12px;resize:vertical;min-height:54px;font-family:inherit}
+.comment-reply textarea:focus{outline:none;border-color:#555}
+.reply-actions{display:flex;gap:6px;margin-top:6px;justify-content:flex-end;flex-wrap:wrap}
+.template-suggestions{margin-top:6px}
+.template-suggestions summary{font-size:11px;color:#888;cursor:pointer;padding:2px 0}
+.template-suggestions summary:hover{color:#aaa}
+.template-chip{display:inline-block;padding:3px 8px;background:#1a1a24;border:1px solid #2a2a35;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;margin:2px 4px 2px 0;transition:all .15s}
+.template-chip:hover{border-color:#2563eb;color:#e8e8ed}
+
+.sentiment-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
+.sentiment-badge.positive{background:#34d39933;color:#34d399}
+.sentiment-badge.negative{background:#ef444433;color:#ef4444}
+.sentiment-badge.neutral{background:#88888833;color:#888}
+
+.sidebar-panel{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:16px;margin-bottom:12px}
+.sidebar-panel h3{font-size:13px;color:#aaa;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.stat-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #1a1a24}
+.stat-row:last-child{border-bottom:none}
+.stat-row .label{color:#888}
+.stat-row .value{font-weight:600}
+
+.template-item{padding:8px 0;border-bottom:1px solid #1a1a24;font-size:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.template-item:last-child{border-bottom:none}
+.template-item .t-text{color:#ccc;margin-bottom:2px}
+.template-item .t-meta{color:#888;font-size:10px}
+.template-item .t-del{color:#555;cursor:pointer;padding:2px 4px;border:none;background:none;font-size:12px}
+.template-item .t-del:hover{color:#ef4444}
+
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100;justify-content:center;align-items:center}
+.modal.show{display:flex}
+.modal-content{background:#1a1a24;border:1px solid #2a2a35;border-radius:16px;padding:24px;width:500px;max-width:90vw;max-height:80vh;overflow-y:auto}
+.modal-content h2{font-size:16px;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:#888;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;background:#0f0f13;border:1px solid #2a2a35;border-radius:8px;color:#e8e8ed;font-size:13px;font-family:inherit}
+.form-group textarea{min-height:60px;resize:vertical}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+.empty-msg{text-align:center;padding:60px 20px;color:#555}
+.empty-msg h3{margin-bottom:4px;color:#777}
+.empty-msg p{font-size:13px}
+
+#toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.4);animation:slideIn .2s ease;min-width:260px}
+.toast.success{background:#16a34a;color:#fff}
+.toast.error{background:#dc2626;color:#fff}
+.toast.info{background:#2563eb;color:#fff}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.bulk-bar{display:none;align-items:center;gap:10px;padding:8px 12px;background:#1a1a24;border:1px solid #2a2a35;border-radius:8px;margin-bottom:12px;font-size:12px}
+.bulk-bar.show{display:flex}
+.pagination{display:flex;justify-content:center;gap:6px;margin-top:16px}
+.pagination button{padding:6px 12px;background:#16161f;border:1px solid #2a2a35;border-radius:6px;color:#ccc;cursor:pointer;font-size:12px}
+.pagination button.active{background:#2563eb;border-color:#2563eb;color:#fff}
+.pagination button:hover:not(.active){border-color:#555}
+</style></head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-comments"></i> 评论收件箱</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/content">内容管理</a>
+    <a href="/publishing/analytics">数据分析</a>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="loadComments();loadCommentStats()"><i class="fas fa-sync"></i> 刷新</button>
+  <button class="btn-primary" onclick="seedComments()"><i class="fas fa-flask"></i> 播种</button>
+  <select id="platformFilter" onchange="loadComments()">
+    <option value="">全平台</option>
+    <option value="tiktok">TikTok</option><option value="youtube">YouTube</option>
+    <option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="linkedin">LinkedIn</option>
+  </select>
+  <select id="sentimentFilter" onchange="loadComments()">
+    <option value="">全部情感</option>
+    <option value="positive">积极</option><option value="negative">消极</option><option value="neutral">中性</option>
+  </select>
+  <select id="statusFilter" onchange="loadComments()">
+    <option value="">全部状态</option>
+    <option value="unreplied">未回复</option><option value="replied">已回复</option><option value="flagged">已标记</option>
+  </select>
+  <span id="commentStatus" style="font-size:12px;color:#888;margin-left:auto"></span>
+  <button class="btn btn-sm btn-outline" onclick="toggle批量Mode()" id="bulkToggle"><i class="fas fa-check-square"></i> 批量</button>
+</div>
+
+<div class="bulk-bar" id="bulkBar">
+  <span id="bulkCount" style="color:#888">0 selected</span>
+  <button class="btn btn-sm btn-success" onclick="bulkMark已回复()"><i class="fas fa-check"></i> Mark 已回复</button>
+  <button class="btn btn-sm btn-danger" onclick="bulk删除()"><i class="fas fa-trash"></i> 删除</button>
+  <button class="btn btn-sm btn-secondary" onclick="clear批量Selection()">Clear</button>
+</div>
+
+<div class="main-layout">
+  <div id="commentList">
+    <div class="empty-msg"><div style="font-size:32px;margin-bottom:10px"><i class="fas fa-spinner fa-pulse"></i></div><p>Loading comments...</p></div>
+  </div>
+  <div>
+    <div class="sidebar-panel">
+      <h3><i class="fas fa-chart-simple"></i> 概览</h3>
+      <div id="commentStats"><div class="stat-row"><span class="label">Loading...</span></div></div>
+    </div>
+    <div class="sidebar-panel">
+      <h3><i class="fas fa-reply"></i> 自动回复模板</h3>
+      <div id="templateList"><div style="font-size:12px;color:#555">Loading...</div></div>
+      <div style="margin-top:8px"><button class="btn btn-sm btn-secondary" onclick="showNewTemplate()"><i class="fas fa-plus"></i> 添加模板</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="templateModal">
+  <div class="modal-content">
+    <h2 id="templateModalTitle">新建自动回复模板</h2>
+    <div class="form-group">
+      <label>Platform</label>
+      <select id="t_platform">
+        <option value="">全平台</option>
+        <option value="tiktok">TikTok</option><option value="youtube">YouTube</option>
+        <option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="linkedin">LinkedIn</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>关键词模式 <span style="color:#555;font-weight:400">(comma-separated)</span></label>
+      <input id="t_keywords" placeholder="e.g. price, cost, quote">
+    </div>
+    <div class="form-group">
+      <label>情感筛选</label>
+      <select id="t_sentiment"><option value="">Any</option><option value="positive">积极</option><option value="negative">消极</option><option value="neutral">中性</option></select>
+    </div>
+    <div class="form-group">
+      <label>回复模板</label>
+      <textarea id="t_template" placeholder="Thank you for your comment! Please contact us at..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeTemplateModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+let bulkMode = false;
+let selectedIds = new Set();
+let currentPage = 0;
+let totalPages = 0;
+
+async function loadComments(page) {
+  currentPage = page || 0;
+  const sentiment = document.getElementById('sentimentFilter').value;
+  const platform = document.getElementById('platformFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  let url = '/publishing/api/comments?limit=50&offset='+(currentPage*50);
+  if (sentiment) url += '&sentiment='+sentiment;
+  if (platform) url += '&platform='+platform;
+
+  const list = document.getElementById('commentList');
+  list.innerHTML = '<div class="empty-msg"><div style="font-size:32px;margin-bottom:10px"><i class="fas fa-spinner fa-pulse"></i></div><p>Loading comments...</p></div>';
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    const items = data.items || [];
+    const total = data.total || 0;
+    totalPages = Math.ceil(total / 50);
+    renderComments(items);
+    document.getElementById('commentStatus').textContent = total+' comments'+(bulkMode?' · bulk mode':'');
+    renderPagination();
+  } catch(e) {
+    list.innerHTML = '<div class="empty-msg"><h3>Error loading</h3><p>'+e.message+'</p><button class="btn btn-sm btn-primary" style="margin-top:12px" onclick="loadComments()">Retry</button></div>';
+  }
+}
+
+async function loadCommentStats() {
+  try {
+    const r = await fetch('/publishing/api/analytics/summary');
+    const d = await r.json();
+  } catch(e){} // silent
+  try {
+    const r = await fetch('/publishing/api/comments?limit=0');
+    const data = await r.json();
+  } catch(e){}
+}
+
+function renderComments(comments) {
+  const container = document.getElementById('commentList');
+  if (comments.length === 0) {
+    container.innerHTML = '<div class="empty-msg"><h3>No comments found</h3><p>Try changing filters or seed sample data.</p></div>';
+    return;
+  }
+  container.innerHTML = comments.map(c => {
+    const time = c.created_at ? new Date(c.created_at*1000).toLocaleString() : '-';
+    const replied = c.is_replied ? `<span style="color:#34d399;font-size:11px"><i class="fas fa-check-circle"></i> 已回复</span>` : '';
+    const flagIcon = c.flagged ? `<span style="color:#dc2626;font-size:11px;margin-left:6px"><i class="fas fa-flag"></i></span>` : '';
+    const platformClass = (c.platform||'').toLowerCase();
+    const checked = selectedIds.has(c.id);
+    return `<div class="comment-item ${c.flagged?'flagged':''} ${bulkMode?'bulk-mode':''}" id="comment-${c.id}">
+      <input type="checkbox" class="cb" ${checked?'checked':''} onchange="toggleSelect(${c.id})">
+      <div class="comment-header">
+        <span class="comment-author"><i class="fas fa-user-circle"></i> ${esc(c.author_name||'Anonymous')} <span class="author-label">${esc(c.customer_type||'')}</span></span>
+        <span class="comment-meta">${time}</span>
+      </div>
+      <div class="comment-platform">
+        <span class="platform-tag ${platformClass}">${esc(c.platform||'')}</span>
+        ${esc(c.content_title||'未命名')} ${replied} ${flagIcon}
+      </div>
+      <div class="comment-text expandable" onclick="this.classList.toggle('expanded')">${esc(c.text||'')}</div>
+      <div class="comment-footer">
+        <span class="sentiment-badge ${c.sentiment||'neutral'}">${c.sentiment||'neutral'}${c.sentiment_score ? ' '+Number(c.sentiment_score).toFixed(2) : ''}</span>
+        ${c.conversion_stage ? `<span style="font-size:10px;color:#555">· ${esc(c.conversion_stage||'')}</span>` : ''}
+        <button class="btn btn-sm ${c.is_replied?'btn-secondary':'btn-primary'}" onclick="toggle回复(${c.id})" style="margin-left:auto">
+          <i class="fas fa-reply"></i> ${c.is_replied?'编辑':'回复'}
+        </button>
+      </div>
+      <div class="comment-reply ${c.is_replied?'show':''}" id="reply-${c.id}">
+        <textarea id="replyText-${c.id}" placeholder="输入回复内容..." oninput="suggestTemplates(${c.id},this.value)">${esc(c.reply_text||'')}</textarea>
+        <details class="template-suggestions" id="suggestions-${c.id}">
+          <summary><i class="fas fa-magic"></i> Template suggestions</summary>
+          <div id="suggestionsContent-${c.id}"></div>
+        </details>
+        <div class="reply-actions">
+          <button class="btn btn-sm btn-secondary" onclick="toggle回复(${c.id})">取消</button>
+          <button class="btn btn-sm btn-success" onclick="send回复(${c.id})"><i class="fas fa-paper-plane"></i> 发送</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const container = document.getElementById('commentList');
+  if (totalPages <= 1) return;
+  let html = '<div class="pagination">';
+  html += `<button ${currentPage===0?'disabled':''} onclick="loadComments(${currentPage-1})"><i class="fas fa-chevron-left"></i></button>`;
+  for (let i = Math.max(0,currentPage-2); i <= Math.min(totalPages-1,currentPage+2); i++) {
+    html += `<button class="${i===currentPage?'active':''}" onclick="loadComments(${i})">${i+1}</button>`;
+  }
+  html += `<button ${currentPage>=totalPages-1?'disabled':''} onclick="loadComments(${currentPage+1})"><i class="fas fa-chevron-right"></i></button>`;
+  html += '</div>';
+  container.insertAdjacentHTML('beforeend', html);
+}
+
+function toggle批量Mode() {
+  bulkMode = !bulkMode;
+  document.getElementById('bulkToggle').style.borderColor = bulkMode ? '#2563eb' : '';
+  document.getElementById('bulkBar').classList.toggle('show', bulkMode);
+  selectedIds.clear();
+  update批量Count();
+  document.querySelectorAll('.comment-item').forEach(el => el.classList.toggle('bulk-mode', bulkMode));
+}
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+  update批量Count();
+}
+
+function clear批量Selection() { selectedIds.clear(); update批量Count(); document.querySelectorAll('.cb').forEach(cb=>cb.checked=false); }
+
+function update批量Count() {
+  document.getElementById('bulkCount').textContent = selectedIds.size + ' selected';
+  document.getElementById('bulkBar').classList.toggle('show', bulkMode && selectedIds.size > 0);
+}
+
+async function bulkMark已回复() {
+  if (selectedIds.size === 0) return toast('No comments selected','error');
+  const ids = Array.from(selectedIds);
+  for (const id of ids) {
+    await fetch('/publishing/api/comments/reply', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({comment_id:id,reply_text:'[批量 replied]'})});
+  }
+  toast('Marked '+ids.length+' comments as replied','success');
+  clear批量Selection();
+  loadComments(currentPage);
+  loadTemplates();
+}
+
+async function bulk删除() {
+  if (selectedIds.size === 0) return toast('No comments selected','error');
+  const ids = Array.from(selectedIds);
+  for (const id of ids) {
+    await fetch('/publishing/api/comments/'+id, {method:'DELETE'});
+  }
+  toast('删除d '+ids.length+' comments','success');
+  clear批量Selection();
+  loadComments(currentPage);
+}
+
+function toggle回复(id) {
+  const el = document.getElementById('reply-'+id);
+  el.classList.toggle('show');
+  if (el.classList.contains('show')) {
+    setTimeout(()=>{ const ta = el.querySelector('textarea'); if(ta) ta.focus(); },100);
+    suggestTemplates(id, document.getElementById('replyText-'+id).value);
+  }
+}
+
+async function send回复(id) {
+  const text = document.getElementById('replyText-'+id).value.trim();
+  if (!text) return toast('Please enter a reply.','error');
+  const btn = document.querySelector(`#reply-${id} .btn-success`);
+  if(btn) btn.disabled = true;
+  try {
+    await fetch('/publishing/api/comments/reply', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({comment_id:id,reply_text:text})});
+    toast('回复 sent!','success');
+    loadComments(currentPage);
+  } catch(e) {
+    toast('失败 to send reply','error');
+    if(btn) btn.disabled = false;
+  }
+}
+
+async function suggestTemplates(commentId, text) {
+  const container = document.getElementById('suggestionsContent-'+commentId);
+  if (!container) return;
+  try {
+    const r = await fetch('/publishing/api/reply-templates');
+    const templates = await r.json();
+    const words = text.toLowerCase();
+    let matched = templates.filter(t => {
+      if (!t.is_active) return false;
+      if (t.platform) {
+        const commentEl = document.getElementById('comment-'+commentId);
+        if (commentEl && !commentEl.textContent.toLowerCase().includes(t.platform)) return false;
+      }
+      if (t.keyword_pattern) {
+        const keywords = t.keyword_pattern.split(',').map(k=>k.trim().toLowerCase());
+        return keywords.some(k => words.includes(k));
+      }
+      return true;
+    });
+    if (matched.length === 0) { container.innerHTML = '<span style="font-size:11px;color:#555">No matching templates</span>'; return; }
+    container.innerHTML = matched.map(t =>
+      `<span class="template-chip" onclick="useTemplate(${commentId},'${escAttr(t.reply_template)}')">${esc(t.reply_template||'').substring(0,40)}${(t.reply_template||'').length>40?'…':''}</span>`
+    ).join('');
+  } catch(e) {}
+}
+
+function useTemplate(commentId, template) {
+  const ta = document.getElementById('replyText-'+commentId);
+  if (ta) { ta.value = template; ta.focus(); }
+}
+
+async function seedComments() {
+  const btn = event.target.closest('button') || event.target;
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 播种ing...';
+  try {
+    const r = await fetch('/publishing/api/comments/seed', {method:'POST'});
+    const d = await r.json();
+    toast('播种ed '+d.seeded+' comments!','success');
+    loadComments();
+  } catch(e) { toast('播种 failed','error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-flask"></i> 播种';
+}
+
+async function loadTemplates() {
+  try {
+    const r = await fetch('/publishing/api/reply-templates');
+    const templates = await r.json();
+    const el = document.getElementById('templateList');
+    if (templates.length === 0) { el.innerHTML = '<div style="font-size:12px;color:#555">暂无模板. <button class="btn btn-sm btn-secondary" style="margin-top:4px" onclick="showNewTemplate()">Create one</button></div>'; return; }
+    const 活跃 = templates.filter(t=>t.is_active).length;
+    el.innerHTML = templates.map(t => `<div class="template-item">
+      <div style="flex:1">
+        <div class="t-text">${esc(t.reply_template||'').substring(0,60)}${(t.reply_template||'').length>60?'…':''}</div>
+        <div class="t-meta"><i class="fas fa-${t.platform?'globe':'asterisk'}"></i> ${t.platform||'all'} · ${t.sentiment_filter||'any'} · ${t.is_active?'<span style="color:#34d399">活跃</span>':'<span style="color:#888">未激活</span>'}</div>
+      </div>
+      <button class="t-del" onclick="deleteTemplate(${t.id})" title="删除"><i class="fas fa-times"></i></button>
+    </div>`).join('');
+  } catch(e) {
+    document.getElementById('templateList').innerHTML = '<div style="font-size:12px;color:#555">Error loading templates</div>';
+  }
+}
+
+async function deleteTemplate(id) {
+  if (!confirm('删除 this template?')) return;
+  await fetch('/publishing/api/reply-templates/'+id, {method:'DELETE'});
+  toast('Template deleted','info');
+  loadTemplates();
+}
+
+function showNewTemplate() {
+  ['t_platform','t_keywords','t_sentiment','t_template'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('templateModalTitle').textContent = '新建自动回复模板';
+  document.getElementById('templateModal').classList.add('show');
+}
+
+async function saveTemplate() {
+  const body = {
+    platform: document.getElementById('t_platform').value,
+    keyword_pattern: document.getElementById('t_keywords').value.trim(),
+    sentiment_filter: document.getElementById('t_sentiment').value,
+    reply_template: document.getElementById('t_template').value.trim(),
+    is_active: 1
+  };
+  if (!body.reply_template) return toast('回复 template is required.','error');
+  const btn = document.querySelector('#templateModal .btn-primary');
+  btn.disabled = true;
+  try {
+    await fetch('/publishing/api/reply-templates', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    closeTemplateModal();
+    loadTemplates();
+    toast('Template saved!','success');
+  } catch(e) { toast('保存 failed','error'); }
+  btn.disabled = false;
+}
+
+function closeTemplateModal() { document.getElementById('templateModal').classList.remove('show'); }
+
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.innerHTML = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function initStatsPoll() {
+  fetch('/publishing/api/analytics/summary').then(r=>r.json()).then(d=>{
+    const el = document.getElementById('commentStats');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="stat-row"><span class="label">内容总数</span><span class="value">${d.total_items||0}</span></div>
+      <div class="stat-row"><span class="label">已发布</span><span class="value" style="color:#34d399">${d.total_published||0}</span></div>
+      <div class="stat-row"><span class="label">总播放量</span><span class="value">${(d.total_views||0).toLocaleString()}</span></div>`;
+  }).catch(()=>{});
+}
+
+loadComments();
+loadTemplates();
+loadCommentStats();
+initStatsPoll();
+</script>
+</body>
+</html>

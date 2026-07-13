@@ -1,0 +1,17 @@
+Short Lead Time Reality
+═══════════════════════════════════
+场景: automated assembly line in factory
+类别: 中外认知冲突反转
+关键词: lead time, bulk order, assembly line, production flow, efficiency
+风格: dialogue, reversal, efficiency
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据中外认知冲突反转类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（疑惑提问）
+老外: How can you finish customized bulk orders in such a short cycle?
+工厂: Complete standardized assembly line and mature export production flow.
+旁白: Local sign makers lack the scale to match Chinese factory production efficiency.
+

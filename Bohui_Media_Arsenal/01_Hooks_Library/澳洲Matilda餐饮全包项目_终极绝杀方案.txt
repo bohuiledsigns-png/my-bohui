@@ -1,0 +1,140 @@
+================================================================================
+  澳洲 Matilda 餐饮全包项目 — 终极全店绝杀方案
+  Matilda Italian Restaurant — Full Venue Brand Harmonization
+
+  客户: Cindy / Matilda 高端意式餐厅
+  需求: 门头招牌(1.5m) + 内墙打卡字(1.4m) + 侧面玻璃业态导视(2m×2.5m)
+  前期踩坑: 工程师报价太急，客户说"you didn't understand what I need"
+  策略: 用3大空间×3种工艺的精准重组，反败为胜
+================================================================================
+
+
+================================================================================
+【WhatsApp 终极挽回话术】
+================================================================================
+
+Hi Cindy — Philip from Bohui, Zhongshan Xiaolan.
+
+Our lab just finished the photometric and architectural deep-dive on Matilda's
+three spaces. Let me lay out exactly what we'd build for each one.
+
+I owe you a clearer picture last time. Our engineer was too focused
+on the installation logistics and skipped the design story.
+You're not buying a sign — you're curating a dusk-to-midnight experience.
+Let me reset that.
+
+---
+
+【SCENE 1 · Street Entry — 1.5m "Matilda"】
+
+Most restaurants hang a backlit acrylic box and call it done.
+Matilda deserves more than a light bulb behind a plastic face.
+
+We build this in 1500# hairline brushed 304 stainless steel.
+R3 seamless corners. Laser-seamed hermetic weld.
+The shell has weight. It has presence. Your guests will touch it
+before they read it — and that touch tells them this place is different.
+
+Inside: 32 layers of step engraving at 0.3mm depth.
+37° refraction chamfer — the light bends twice before it exits.
+GLOWFORGE Dual-Channel Independent Outline & Fill Control.
+
+At 6pm when the dinner rush starts:
+→ The outline traces "Matilda" at a slow, breathing 0.8Hz pulse
+→ The fill holds steady — warm, rich, readable from across the street
+→ The stainless edge catches the spill light and throws it back
+
+It doesn't turn on. It wakes up. And it makes every other
+restaurant sign on your block look like a nightlight.
+
+Installation: Pre-wired Raceway Mounting. One 6063-T5 aluminum raceway.
+Your handyman: 4 bolts, 1 plug, 15 minutes.
+Zero wall damage. Zero electrician overtime.
+
+---
+
+【SCENE 2 · Interior Feature Wall — 1.4m "Stay a While"】
+
+This is your Instagram wall. It needs to photograph beautifully
+and feel premium to the touch.
+
+We spec Dimensional Acrylic Lettering — laser step-engraved,
+Optically Clear Cast Acrylic, edge-polished on all sides.
+
+Not backlit. Internally refracted.
+The light enters from the mounting bracket and walks through
+the acrylic via micro-step engraving. Soft. Warm. No hot spots.
+When your guests take photos, the camera catches the letter
+— not a blinding white reflection behind it.
+
+The edge polish catches ambient candlelight from the tables.
+It glows without being plugged in.
+
+---
+
+【SCENE 3 · Side Glass Facade — 2m × 2.5m Wayfinding】
+
+Large glass panel. Full sun exposure. Needs to be readable
+from the sidewalk and the parking lot.
+
+Two options, both engineered by us:
+
+Option A — Push-Through Acrylic:
+ACM back panel with precision-machined slots.
+Acrylic letters pushed through 8mm from the surface.
+Shadow gap creates depth. 1500# brushed stainless frame.
+GLOWFORGE edge-lit — the glass itself becomes the light diffuser.
+
+Option B — Flexible LED Neon on Optically Clear Acrylic:
+0.3mm micro-step engraved acrylic substrate.
+Flexible LED Neon traced along the letter path.
+R3 bend radius at every corner — zero dark gaps, zero hot spots.
+Side-emission technology: readable from 90° angle.
+Your业态 guide is visible to pedestrians AND drivers.
+
+Both options: MeanWell driver (UL/CE). IP65 enclosure.
+3,000h QUV-A test — 2.3% photometric decay.
+Your glass sign faces direct sun. It will not yellow. It will not dim.
+The competitor's glass sign? 11% decay in 4 months.
+
+---
+
+【THE PACKAGE — Brand Harmonization】
+
+Three spaces. Three materials. ONE visual language.
+
+  Street entry:   Brushed stainless + breathing outline
+  Interior wall:  Crystal acrylic + candlelight capture
+  Glass facade:   ACM + neon + push-through depth
+
+All powered by GLOWFORGE. All pre-wired with Raceway.
+All running MeanWell. All tested to 2.3% UV decay.
+All assembled in our Zhongshan lab. All shipped as one order.
+
+---
+
+【NEXT STEP — Zero Pressure】
+
+The $520 you saw was a baseline for a single indoor standard unit.
+It does not reflect the full-venue brand harmonization engineering
+that Matilda deserves.
+
+Here's what I need from you:
+
+  → Your restaurant logo (vector AI/PDF preferred, or clean PNG)
+  → A photo of your full facade (street + glass side + interior wall)
+  → Or just tell me which scene is most urgent
+
+I'll have our R&D team render a full 3D GLOWFORGE flow animation —
+all three scenes, synchronized, the light moving from the street sign
+through the interior wall to the glass facade — and send you
+the video within 48 hours.
+
+Free. No obligation.
+
+You'll see Matilda lit up before a single dollar changes hands.
+
+Ready to make your restaurant the most photographed corner in town?
+
+— Philip
+Bohui Elite | Zhongshan Xiaolan

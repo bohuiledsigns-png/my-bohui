@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOWFORGE · WhatsApp 多号管理</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c14;--card:#12162a;--card2:#181e3a;--border:#1e2448;--gold:#D4AF37;--cyan:#00f2ff;--pink:#ff0050;--orange:#ff8c00;--green:#22c55e;--text:#e0e0e0;--text-bright:#f0f0f0;--muted:#667;--radius:12px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1100px;margin:0 auto}
+
+h1{font-size:20px;font-weight:700;color:var(--text-bright);margin-bottom:4px}
+h1 small{font-size:12px;color:var(--muted);font-weight:400}
+
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.btn{padding:8px 18px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.btn:active{transform:scale(0.95)}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000}
+.btn-orange{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-pink{background:linear-gradient(135deg,var(--pink),#cc0040);color:#fff}
+.btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+.btn-xs{padding:3px 10px;font-size:10px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600;border:none;display:inline-flex;align-items:center;gap:4px}
+
+/* account cards */
+.acct-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px}
+.acct-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all 0.2s}
+.acct-card:hover{border-color:rgba(0,242,255,0.12)}
+.acct-card.active{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,242,255,0.08)}
+.acct-card.offline{border-color:var(--pink);opacity:0.7}
+.acct-card.disabled{border-color:var(--muted);opacity:0.5}
+.acct-card.standby{border-color:var(--orange)}
+
+.acct-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.acct-name{font-size:16px;font-weight:700;color:var(--text-bright)}
+.acct-badge{padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-active{background:var(--cyan);color:#000}
+.badge-standby{background:var(--orange);color:#fff}
+.badge-offline{background:var(--pink);color:#fff}
+.badge-disabled{background:var(--muted);color:#000}
+
+.acct-info{font-size:12px;color:var(--muted);margin-bottom:10px}
+.acct-info span{margin-right:16px}
+
+.acct-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric{text-align:center;padding:8px;border-radius:8px;background:var(--card2)}
+.metric .val{font-size:16px;font-weight:700}
+.metric .lbl{font-size:9px;color:var(--muted);margin-top:2px}
+.metric.ok .val{color:var(--green)}
+.metric.fail .val{color:var(--pink)}
+
+.acct-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.section h2{font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:8px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1f3a;border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:2000;display:none;max-width:360px}
+.toast.show{display:block;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.toast.ok{border-left:3px solid var(--green)}
+.toast.err{border-left:3px solid var(--pink)}
+
+.loading{padding:40px;text-align:center;color:var(--muted)}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fw{font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>
+  <i class="fab fa-whatsapp" style="color:var(--green)"></i>
+  WhatsApp 多号管理
+  <small>多账号轮换 · 自动 Failover · 独立限速</small>
+</h1>
+
+<div class="bar">
+  <span id="ts" style="font-size:12px;color:var(--muted)">—</span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-orange btn-sm" onclick="manualFailover()"><i class="fas fa-arrow-right-arrow-left"></i> 手动切换</button>
+    <button class="btn btn-cyan btn-sm" onclick="refresh()"><i class="fas fa-rotate"></i> 刷新</button>
+  </div>
+</div>
+
+<div id="acct-grid" class="acct-grid"><div class="loading"><span class="spinner"></span>加载中...</div></div>
+
+<div class="section">
+  <h2><i class="fas fa-info-circle" style="color:var(--cyan)"></i> 使用说明</h2>
+  <ol style="font-size:13px;color:var(--muted);line-height:1.8;padding-left:16px">
+    <li>首次启动会在 <code>.whatsapp_session/accounts/</code> 创建 3 个 Chrome profile</li>
+    <li>打开各账号的 Chrome 窗口（启动时会自动弹出）</li>
+    <li>手动扫码登录 WhatsApp Web（每号只需登录一次）</li>
+    <li>登录成功后页面自动检测状态 → 标记为 standby → 系统自动激活主号</li>
+    <li>活跃号断线 → 60 秒内自动切换到备用号，消息发送不中断</li>
+  </ol>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.className = 'toast ' + type + ' show'
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3000)
+}
+
+async function refresh() {
+  try {
+    const resp = await (await fetch('/api/reality/wa/status')).json()
+    const accounts = resp.accounts || []
+    const activeId = resp.active_id
+
+    let html = ''
+    accounts.forEach(a => {
+      const isActive = a.id === activeId
+      const statusClass = isActive ? 'active' : a.status
+      const badgeClass = isActive ? 'badge-active' :
+        a.status === 'standby' ? 'badge-standby' :
+        a.status === 'offline' ? 'badge-offline' : 'badge-disabled'
+      const statusLabel = isActive ? '活跃中' :
+        a.status === 'standby' ? '待命中' :
+        a.status === 'offline' ? '离线' :
+        a.status === 'disabled' ? '已禁用' : '未启动'
+
+      const aliveClass = a.logged_in ? 'ok' : 'fail'
+
+      html += `<div class="acct-card ${statusClass}">
+        <div class="acct-header">
+          <span class="acct-name">${a.name}</span>
+          <span class="acct-badge ${badgeClass}">${statusLabel}</span>
+        </div>
+        <div class="acct-info">
+          <span>🔌 端口 ${a.cdp_port}</span>
+          <span>📁 ${a.profile_dir}</span>
+          <span>🎯 优先级 ${a.priority}</span>
+        </div>
+        <div class="acct-metrics">
+          <div class="metric ${a.logged_in ? 'ok' : 'fail'}">
+            <div class="val">${a.logged_in ? '✅' : '❌'}</div>
+            <div class="lbl">登录状态</div>
+          </div>
+          <div class="metric ${a.alive ? 'ok' : 'fail'}">
+            <div class="val">${a.alive ? '✅' : '❌'}</div>
+            <div class="lbl">引擎运行</div>
+          </div>
+          <div class="metric ${a.heartbeat_ago < 120 ? 'ok' : 'fail'}">
+            <div class="val">${a.heartbeat_ago < 999 ? (a.heartbeat_ago + 's') : '—'}</div>
+            <div class="lbl">心跳</div>
+          </div>
+        </div>
+        <div class="acct-actions">
+          ${isActive ? '<span class="btn btn-xs" style="background:var(--cyan);color:#000"><i class="fas fa-check"></i> 当前活跃</span>' : ''}
+          <button class="btn btn-xs" style="background:#333;color:var(--text)" onclick="toggleAccount(${a.id}, this)">${a.status === 'disabled' ? '启用' : '禁用'}</button>
+        </div>
+      </div>`
+    })
+
+    document.getElementById('acct-grid').innerHTML = html
+    document.getElementById('ts').textContent = '更新于 ' + new Date().toLocaleTimeString()
+  } catch(e) {
+    document.getElementById('acct-grid').innerHTML = '<div class="loading">加载失败: ' + e.message + '</div>'
+  }
+}
+
+async function toggleAccount(id, btn) {
+  btn.disabled = true
+  try {
+    const resp = await fetch('/api/reality/wa/account/' + id + '/toggle', {method: 'POST'})
+    const d = await resp.json()
+    if (!resp.ok) throw new Error(d.error || '操作失败')
+    toast('已' + (d.status === 'disabled' ? '禁用' : '启用'), 'ok')
+    refresh()
+  } catch(e) {
+    toast(e.message, 'err')
+  }
+  btn.disabled = false
+}
+
+async function manualFailover() {
+  try {
+    const resp = await fetch('/api/reality/wa/failover', {method: 'POST'})
+    const d = await resp.json()
+    if (!resp.ok) throw new Error(d.error || '切换失败')
+    toast('已切换到 #' + d.to, 'ok')
+    refresh()
+  } catch(e) {
+    toast('切换失败: ' + e.message, 'err')
+  }
+}
+
+refresh()
+setInterval(refresh, 15000)
+</script>
+</body>
+</html>

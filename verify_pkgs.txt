@@ -1,0 +1,5 @@
+<string>:1: DeprecationWarning: The '__version__' attribute is deprecated and will be removed in Flask 3.2. Use feature detection or 'importlib.metadata.version("flask")' instead.
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+AttributeError: module 'playwright' has no attribute '__version__'
+flask: 3.1.3

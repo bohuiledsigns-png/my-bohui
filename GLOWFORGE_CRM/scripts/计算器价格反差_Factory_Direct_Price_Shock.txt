@@ -1,0 +1,17 @@
+Factory Direct Price Shock
+═══════════════════════════════════
+场景: foreign customer at factory, calculating costs
+类别: 计算器价格反差
+关键词: price, calculator, direct factory, no middleman, cost saving
+风格: dialogue, price contrast, calculator reveal, factory direct
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（震惊，模拟按计算器）
+老外: How can custom store sign letters be this cheap?
+工厂: Direct factory supply, no middleman markup.
+旁白: Overseas buyers never imagine this price gap between retail and source factory.
+

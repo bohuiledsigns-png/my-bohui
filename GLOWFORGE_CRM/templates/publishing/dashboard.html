@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发布仪表板 — GLOWFORGE</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background:#0f0f13; color:#e8e8ed; min-height:100vh; }
+.dashboard { max-width:1400px; margin:0 auto; padding:24px; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid #2a2a35; }
+.header h1 { font-size:24px; font-weight:600; background:linear-gradient(135deg,#fff,#888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.header .nav { display:flex; gap:12px; flex-wrap:wrap; }
+.header .nav a { color:#888; text-decoration:none; font-size:13px; padding:6px 14px; border:1px solid #2a2a35; border-radius:8px; transition:all .2s; }
+.header .nav a:hover { color:#fff; border-color:#555; background:#1a1a24; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card { background:#16161f; border:1px solid #2a2a35; border-radius:12px; padding:20px; }
+.stat-card .label { font-size:12px; color:#666; text-transform:uppercase; letter-spacing:0.5px; }
+.stat-card .value { font-size:32px; font-weight:700; margin-top:8px; }
+.stat-card .value.views { color:#60a5fa; }
+.stat-card .value.scheduled { color:#fbbf24; }
+.stat-card .value.published { color:#34d399; }
+.stat-card .value.content { color:#a78bfa; }
+.platform-bar { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.platform-tag { font-size:11px; padding:2px 10px; border-radius:12px; background#2a2a35; color:#aaa; }
+.section-title { font-size:16px; font-weight:600; margin-bottom:16px; color:#ccc; }
+.recent-table { width:100%; border-collapse:collapse; }
+.recent-table th { text-align:left; font-size:11px; color:#666; text-transform:uppercase; padding:8px 12px; border-bottom:1px solid #2a2a35; }
+.recent-table td { padding:10px 12px; border-bottom:1px solid #1e1e28; font-size:13px; }
+.status-badge { display:inline-block; padding:2px 10px; border-radius:10px; font-size:11px; }
+.status-badge.pending { background:#fbbf2433; color:#fbbf24; }
+.status-badge.success { background:#34d39933; color:#34d399; }
+.status-badge.failed { background:#ef444433; color:#ef4444; }
+.status-badge.publishing { background:#60a5fa33; color:#60a5fa; }
+.placeholder { text-align:center; padding:60px 20px; color:#555; }
+.placeholder h3 { font-size:18px; margin-bottom:8px; color:#888; }
+.placeholder p { font-size:14px; line-height:1.6; }
+.placeholder .btn { display:inline-block; margin-top:16px; padding:10px 24px; background:#2563eb; color:#fff; border:none; border-radius:8px; text-decoration:none; font-size:14px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="header">
+    <h1>📊 发布仪表板</h1>
+    <div class="nav">
+      <a href="/publishing/dashboard">仪表板</a>
+      <a href="/publishing/accounts">账号s</a>
+      <a href="/publishing/schedule">发布排期</a>
+      <a href="/publishing/content">内容管理</a>
+      <a href="/publishing/analytics">数据分析</a>
+      <a href="/publishing/comments">评论管理</a>
+      <a href="/publishing/reports">报表</a>
+      <a href="/publishing/work-time">工时管理</a>
+      <a href="/publishing/ai-insights">AI 洞察</a>
+      <a href="/" style="color:#555;border-color:#2a2a35;">← CRM</a>
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="label">内容数量</div><div class="value content" id="statContent">—</div></div>
+    <div class="stat-card"><div class="label">待发布</div><div class="value scheduled" id="statScheduled">—</div></div>
+    <div class="stat-card"><div class="label">已发布</div><div class="value published" id="statPublished">—</div></div>
+    <div class="stat-card"><div class="label">总播放量</div><div class="value views" id="statViews">—</div></div>
+  </div>
+
+  <div id="platform账号s" class="platform-bar" style="margin-bottom:32px;"></div>
+
+  <div class="section-title">最近动态</div>
+  <div id="recentContent">
+    <div class="placeholder">
+      <h3>🚀 Welcome to Publishing Manager</h3>
+      <p>Manage your multi-platform video publishing from one place.<br>
+      Add platform accounts, import videos from the video tool,<br>
+      schedule posts, and track performance — all here.</p>
+      <a href="/publishing/accounts" class="btn">添加平台账号</a>
+      <a href="/publishing/content" class="btn" style="background:#2a2a35;margin-left:8px;">导入视频</a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+    <div>
+      <div class="section-title"><i class="fas fa-clock"></i> 即将发布</div>
+      <div id="upcomingSchedules" style="background:#16161f;border:1px solid #2a2a35;border-radius:10px;padding:16px;min-height:100px">
+        <div style="color:#555;font-size:13px;text-align:center;padding:20px">Loading...</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title"><i class="fas fa-rocket"></i> 快捷操作</div>
+      <div style="background:#16161f;border:1px solid #2a2a35;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px">
+        <a href="/publishing/schedule" class="btn" style="background:#2563eb;color:#fff;text-decoration:none;text-align:center;padding:12px"><i class="fas fa-calendar-plus"></i> 新建排期</a>
+        <a href="/publishing/content" class="btn" style="background:#2a2a35;color:#ccc;text-decoration:none;text-align:center;padding:12px"><i class="fas fa-upload"></i> 从视频工具导入</a>
+        <a href="/publishing/accounts/add" class="btn" style="background:#2a2a35;color:#ccc;text-decoration:none;text-align:center;padding:12px"><i class="fas fa-link"></i> 添加平台账号</a>
+        <a href="/publishing/reports" class="btn" style="background:#2a2a35;color:#ccc;text-decoration:none;text-align:center;padding:12px"><i class="fas fa-file-alt"></i> 生成报表</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadStats() {
+  try {
+    const r = await fetch('/publishing/api/stats');
+    const data = await r.json();
+    document.getElementById('statContent').textContent = data.total_content;
+    document.getElementById('statScheduled').textContent = data.total_scheduled;
+    document.getElementById('statPublished').textContent = data.total_published;
+    document.getElementById('statViews').textContent = data.total_views.toLocaleString();
+    const platDiv = document.getElementById('platform账号s');
+    if (data.accounts && Object.keys(data.accounts).length > 0) {
+      platDiv.innerHTML = '<span style="font-size:12px;color:#666;margin-right:8px;">平台:</span> ' +
+        Object.entries(data.accounts).map(([p,c]) =>
+          `<span class="platform-tag">${p} (${c})</span>`
+        ).join('');
+    } else {
+      platDiv.innerHTML = '';
+    }
+    if (data.recent && data.recent.length > 0) {
+      const html = `<table class="recent-table"><tr><th>内容管理</th><th>Platform</th><th>待发布</th><th>Status</th></tr>
+        ${data.recent.map(r => `<tr>
+          <td>${r.title || '未命名'}</td>
+          <td>${r.platform || '-'}</td>
+          <td>${r.scheduled_at ? new Date(r.scheduled_at*1000).toLocaleString() : '-'}</td>
+          <td><span class="status-badge ${r.status}">${r.status}</span></td>
+        </tr>`).join('')}
+      </table>`;
+      document.getElementById('recentContent').innerHTML = html;
+    }
+  } catch(e) { console.error('Stats load error:', e); }
+}
+
+async function loadUpcoming() {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const end = now + 86400 * 14;
+    const r = await fetch(`/publishing/api/schedules?start_at=${now}&end_at=${end}`);
+    const schedules = await r.json();
+    const wrap = document.getElementById('upcomingSchedules');
+    const pending = schedules.filter(s => s.status === 'pending' || s.status === 'publishing');
+    if (pending.length === 0) {
+      wrap.innerHTML = '<div style="color:#555;font-size:13px;text-align:center;padding:20px">No upcoming schedules</div>';
+      return;
+    }
+    let html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    pending.sort((a,b) => (a.scheduled_at||0) - (b.scheduled_at||0)).slice(0, 8).forEach(s => {
+      const icons = {tiktok:'🎵', youtube:'📺', instagram:'📸', facebook:'👍', linkedin:'💼'};
+      const icon = icons[s.platform] || '🌐';
+      const time = s.scheduled_at ? new Date(s.scheduled_at*1000).toLocaleString() : '-';
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#0f0f13;border-radius:6px;font-size:12px">
+        <span>${icon}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.content_title||'未命名'}</span>
+        <span style="color:#888;font-size:11px">${time}</span>
+        <span class="status-badge ${s.status}" style="font-size:10px">${s.status}</span>
+      </div>`;
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
+  } catch(e) {
+    document.getElementById('upcomingSchedules').innerHTML = '<div style="color:#555;font-size:13px;text-align:center;padding:20px">失败 to load</div>';
+    console.error('Upcoming load error:', e);
+  }
+}
+
+loadStats();
+loadUpcoming();
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发布排期 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:20px;max-width:1400px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px}
+.controls{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.controls button,.controls select{padding:8px 16px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:13px}
+.controls button:hover{border-color:#555;background:#1e1e2a}
+.controls .month-label{font-size:16px;font-weight:600;min-width:200px;text-align:center}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:24px}
+.cal-header{padding:8px;text-align:center;font-size:11px;color:#666;font-weight:600}
+.cal-day{background:#16161f;border:1px solid #2a2a35;border-radius:8px;min-height:100px;padding:6px;cursor:pointer;transition:all .15s}
+.cal-day:hover{border-color:#555}
+.cal-day.other-month{opacity:0.3}
+.cal-day.today{border-color:#60a5fa}
+.cal-day .day-num{font-size:12px;color:#888;margin-bottom:4px}
+.cal-day.today .day-num{color:#60a5fa;font-weight:700}
+.cal-sched{font-size:10px;padding:2px 4px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.cal-sched.pending{background:#fbbf2433;color:#fbbf24}
+.cal-sched.success{background:#34d39933;color:#34d399}
+.cal-sched.failed{background:#ef444433;color:#ef4444}
+.cal-sched.publishing{background:#60a5fa33;color:#60a5fa}
+.schedule-list{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:20px}
+.schedule-list .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.schedule-list .list-header h3{font-size:14px;color:#aaa}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;color:#666;padding:8px 12px;border-bottom:1px solid #2a2a35;font-weight:600}
+td{padding:10px 12px;border-bottom:1px solid #1a1a24;font-size:13px}
+tr:hover td{background:#1a1a24}
+.status-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:500}
+.status-badge.pending{background:#fbbf2433;color:#fbbf24}
+.status-badge.success{background:#34d39933;color:#34d399}
+.status-badge.failed{background:#ef444433;color:#ef4444}
+.status-badge.publishing{background:#60a5fa33;color:#60a5fa}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100;justify-content:center;align-items:center}
+.modal.show{display:flex}
+.modal-content{background:#1a1a24;border:1px solid #2a2a35;border-radius:16px;padding:28px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto}
+.modal-content h2{font-size:17px;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:#888;margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;background:#0f0f13;border:1px solid #2a2a35;border-radius:8px;color:#e8e8ed;font-size:13px}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#555}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-secondary{background:#2a2a35;color:#ccc}.btn-secondary:hover{background:#3a3a45}
+.btn-sm{padding:4px 10px;font-size:11px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.freq-badge{font-size:10px;color:#888}
+.empty-msg{text-align:center;padding:60px 20px;color:#555}
+.today-badge{display:inline-block;background:#2563eb22;color:#60a5fa;padding:2px 10px;border-radius:10px;font-size:11px;margin-left:8px;font-weight:500}
+#toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.4);animation:slideIn .2s ease;min-width:260px}
+.toast.success{background:#16a34a;color:#fff}.toast.error{background:#dc2626;color:#fff}.toast.info{background:#2563eb;color:#fff}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-calendar-days"></i> 发布排期</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/content">内容管理</a>
+    <a href="/publishing/analytics">数据分析</a>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+  <span class="month-label" id="monthLabel">2026年6月</span>
+  <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+  <button onclick="goToday()"><i class="fas fa-calendar-day"></i> 今天</button>
+  <select id="platformFilter" onchange="loadSchedules()">
+    <option value="">全平台</option>
+    <option value="tiktok">TikTok</option>
+    <option value="youtube">YouTube</option>
+    <option value="instagram">Instagram</option>
+    <option value="facebook">Facebook</option>
+    <option value="linkedin">LinkedIn</option>
+  </select>
+  <select id="statusFilter" onchange="loadSchedules()">
+    <option value="">全部状态</option>
+    <option value="pending">待发布</option>
+    <option value="success">已发布</option>
+    <option value="failed">失败</option>
+  </select>
+  <button onclick="showAddSchedule()" style="background:#2563eb;color:#fff;border-color:#2563eb;"><i class="fas fa-plus"></i> 新建排期</button>
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="schedule-list">
+  <div class="list-header">
+    <h3><i class="fas fa-list"></i> 排期列表</h3>
+    <span id="schedCount" style="font-size:12px;color:#555">0 项</span>
+  </div>
+  <div id="scheduleTableWrap">
+    <div class="empty-msg">暂无排期</div>
+  </div>
+</div>
+
+<div class="modal" id="scheduleModal">
+  <div class="modal-content">
+    <h2 id="modalTitle">新建排期</h2>
+    <div class="form-group">
+      <label>选择内容</label>
+      <select id="s_content_id"><option value="">请选择内容...</option></select>
+    </div>
+    <div class="form-group">
+      <label>选择账号</label>
+      <select id="s_account_id"><option value="">请选择账号...</option></select>
+    </div>
+    <div class="form-group">
+      <label>日期时间</label>
+      <input id="s_scheduled_at" type="datetime-local">
+    </div>
+    <div class="form-group">
+      <label>频率分组（可选 — 用于频率控制）</label>
+      <input id="s_freq_group" placeholder="例如：每日发布、每周展示">
+    </div>
+    <div class="form-group">
+      <label>优先级</label>
+      <select id="s_priority">
+        <option value="0">普通</option>
+        <option value="1">高</option>
+        <option value="2">紧急</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteSchedule()">删除</button>
+      <button class="btn btn-primary" onclick="saveSchedule()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+let currentDate = new Date();
+let currentYear = currentDate.getFullYear();
+let currentMonth = currentDate.getMonth();
+let editingScheduleId = null;
+
+const MONTHS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+const DAYS = ['日','一','二','三','四','五','六'];
+const PLATFORM_ICONS = { tiktok:'🎵', youtube:'📺', instagram:'📸', facebook:'👍', linkedin:'💼' };
+const STATUS_NAMES = { pending:'待发布', success:'已发布', failed:'失败', publishing:'发布中' };
+
+function prevMonth() { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} render(); }
+function nextMonth() { currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} render(); }
+function goToday() { const t=new Date(); currentYear=t.getFullYear(); currentMonth=t.getMonth(); render(); }
+
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.innerHTML = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+async function render() {
+  document.getElementById('monthLabel').textContent = currentYear + '年' + MONTHS[currentMonth];
+  await loadSchedules();
+}
+
+async function loadSchedules() {
+  const cal = document.getElementById('calendar');
+  cal.style.opacity = '0.4';
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  const startTs = Math.floor(firstDay.getTime() / 1000) - 86400 * 7;
+  const endTs = Math.floor(lastDay.getTime() / 1000) + 86400 * 7;
+
+  let url = `/publishing/api/schedules?start_at=${startTs}&end_at=${endTs}`;
+  const pf = document.getElementById('platformFilter').value;
+  const sf = document.getElementById('statusFilter').value;
+  if (pf) url += `&platform=${pf}`;
+  if (sf) url += `&status=${sf}`;
+
+  try {
+    const r = await fetch(url);
+    const schedules = await r.json();
+    renderCalendar(schedules);
+    renderList(schedules);
+  } catch(e) { toast('加载排期失败', 'error'); }
+  cal.style.opacity = '1';
+}
+
+function renderCalendar(schedules) {
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const startDay = firstDay.getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const daysInPrev = new Date(currentYear, currentMonth, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  const byDate = {};
+  schedules.forEach(s => {
+    if (!s.scheduled_at) return;
+    const d = new Date(s.scheduled_at * 1000);
+    const key = d.toISOString().slice(0,10);
+    if (!byDate[key]) byDate[key] = [];
+    byDate[key].push(s);
+  });
+
+  let html = '';
+  DAYS.forEach(d => { html += `<div class="cal-header">${d}</div>`; });
+
+  for (let i = startDay - 1; i >= 0; i--) {
+    const day = daysInPrev - i;
+    html += `<div class="cal-day other-month"><div class="day-num">${day}</div></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const is今天 = dateStr === todayStr;
+    const scheds = byDate[dateStr] || [];
+
+    html += `<div class="cal-day ${is今天?'today':''}" onclick="showAddSchedule('${dateStr}')">`;
+    html += `<div class="day-num">${d}</div>`;
+    scheds.slice(0, 3).forEach(s => {
+      const icon = PLATFORM_ICONS[s.platform] || '🌐';
+      html += `<div class="cal-sched ${s.status}" title="${s.content_title||'未命名'}">${icon} ${(s.content_title||'未命名').substring(0,15)}</div>`;
+    });
+    if (scheds.length > 3) {
+      html += `<div style="font-size:9px;color:#888;padding:2px 4px;">+${scheds.length-3} 更多</div>`;
+    }
+    html += `</div>`;
+  }
+
+  const totalCells = startDay + daysInMonth;
+  const remaining = (7 - totalCells % 7) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    html += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+  }
+
+  document.getElementById('calendar').innerHTML = html;
+}
+
+function renderList(schedules) {
+  const now = Math.floor(Date.now() / 1000);
+  const weekAgo = now - 86400 * 7;
+  const filtered = schedules.filter(s =>
+    (s.status === 'pending' || s.status === 'publishing' || s.scheduled_at >= weekAgo)
+  );
+
+  const wrap = document.getElementById('scheduleTableWrap');
+  document.getElementById('schedCount').textContent = filtered.length + ' 项';
+
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayEnd = new Date(); todayEnd.setHours(23,59,59,0);
+  const todayTsStart = Math.floor(todayStart.getTime()/1000);
+  const todayTsEnd = Math.floor(todayEnd.getTime()/1000);
+  const todayCount = schedules.filter(s =>
+    s.status === 'pending' && s.scheduled_at >= todayTsStart && s.scheduled_at <= todayTsEnd
+  ).length;
+
+  let badge = document.getElementById('todayBadge');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'todayBadge';
+    badge.className = 'today-badge';
+    document.querySelector('.controls .month-label').after(badge);
+  }
+  badge.textContent = todayCount > 0 ? '今天 ' + todayCount + ' 项' : '';
+  badge.style.display = todayCount > 0 ? 'inline-block' : 'none';
+
+  if (filtered.length === 0) {
+    wrap.innerHTML = '<div class="empty-msg">暂无排期</div>';
+    return;
+  }
+
+  let html = `<table><thead><tr><th>内容</th><th>平台</th><th>排期时间</th><th>状态</th><th>操作</th></tr></thead><tbody>`;
+  filtered.sort((a,b) => (b.scheduled_at||0) - (a.scheduled_at||0));
+  filtered.forEach(s => {
+    const icon = PLATFORM_ICONS[s.platform] || '🌐';
+    const time = s.scheduled_at ? new Date(s.scheduled_at*1000).toLocaleString() : '-';
+    const statusName = STATUS_NAMES[s.status] || s.status;
+    html += `<tr>
+      <td>${s.content_title || '未命名'}</td>
+      <td>${icon} ${s.platform||'-'} ${s.platform_account_name||''}</td>
+      <td>${time}</td>
+      <td><span class="status-badge ${s.status}">${statusName}</span></td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="editSchedule(${s.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSched(${s.id})"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+}
+
+async function showAddSchedule(dateStr) {
+  editingScheduleId = null;
+  document.getElementById('modalTitle').textContent = '新建排期';
+  document.getElementById('deleteBtn').style.display = 'none';
+  await loadFormOptions();
+
+  const params = new URL搜索Params(window.location.search);
+  const preselectedContent = params.get('content_id');
+  if (preselectedContent) {
+    document.getElementById('s_content_id').value = preselectedContent;
+  }
+
+  if (dateStr) {
+    document.getElementById('s_scheduled_at').value = dateStr + 'T10:00';
+  } else {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('s_scheduled_at').value = now.toISOString().slice(0,16);
+  }
+  document.getElementById('s_freq_group').value = '';
+  document.getElementById('s_priority').value = '0';
+
+  document.getElementById('scheduleModal').classList.add('show');
+}
+
+(function() {
+  const params = new URL搜索Params(window.location.search);
+  if (params.get('content_id')) {
+    setTimeout(() => showAddSchedule(), 500);
+  }
+})();
+
+async function editSchedule(id) {
+  editingScheduleId = id;
+  document.getElementById('modalTitle').textContent = '编辑排期';
+  document.getElementById('deleteBtn').style.display = 'inline-block';
+
+  await loadFormOptions();
+
+  const r = await fetch(`/publishing/api/schedules?id=${id}`);
+  const items = await r.json();
+  const s = items[0];
+  if (!s) return;
+
+  document.getElementById('s_content_id').value = s.content_item_id;
+  document.getElementById('s_account_id').value = s.platform_account_id;
+  if (s.scheduled_at) {
+    const d = new Date(s.scheduled_at * 1000);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    document.getElementById('s_scheduled_at').value = d.toISOString().slice(0,16);
+  }
+  document.getElementById('s_freq_group').value = s.frequency_group || '';
+  document.getElementById('s_priority').value = s.priority || 0;
+
+  document.getElementById('scheduleModal').classList.add('show');
+}
+
+async function loadFormOptions() {
+  const cr = await fetch('/publishing/api/content');
+  const cd = await cr.json();
+  const items = cd.items || [];
+  const contentSel = document.getElementById('s_content_id');
+  contentSel.innerHTML = '<option value="">请选择内容...</option>' +
+    items.map(i => `<option value="${i.id}">${i.title||'未命名'} (${i.status})</option>`).join('');
+
+  const ar = await fetch('/publishing/api/accounts');
+  const accounts = await ar.json();
+  const accSel = document.getElementById('s_account_id');
+  accSel.innerHTML = '<option value="">请选择账号...</option>' +
+    accounts.map(a => `<option value="${a.id}">${PLATFORM_ICONS[a.platform]||'🌐'} ${a.account_name||a.platform}</option>`).join('');
+}
+
+async function saveSchedule() {
+  const body = {
+    content_item_id: parseInt(document.getElementById('s_content_id').value) || null,
+    platform_account_id: parseInt(document.getElementById('s_account_id').value) || null,
+    scheduled_at: Math.floor(new Date(document.getElementById('s_scheduled_at').value).getTime() / 1000) || Math.floor(Date.now()/1000),
+    frequency_group: document.getElementById('s_freq_group').value,
+    priority: parseInt(document.getElementById('s_priority').value) || 0
+  };
+  if (!body.content_item_id || !body.platform_account_id) {
+    toast('请选择内容和账号', 'error');
+    return;
+  }
+  const btn = document.querySelector('#scheduleModal .btn-primary');
+  if(btn) btn.disabled = true;
+  try {
+    if (editingScheduleId) {
+      await fetch(`/publishing/api/schedules/${editingScheduleId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      toast('排期已更新！', 'success');
+    } else {
+      await fetch('/publishing/api/schedules', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      toast('排期已创建！', 'success');
+    }
+    closeModal();
+    render();
+  } catch(e) { toast('保存失败：'+e.message, 'error'); }
+  if(btn) btn.disabled = false;
+}
+
+async function deleteSchedule() {
+  if (!editingScheduleId || !confirm('确定删除该排期？')) return;
+  await fetch(`/publishing/api/schedules/${editingScheduleId}`, { method:'DELETE' });
+  closeModal();
+  toast('排期已删除', 'info');
+  render();
+}
+
+function deleteSched(id) {
+  if (!confirm('确定删除该排期？')) return;
+  fetch(`/publishing/api/schedules/${id}`, { method:'DELETE' }).then(() => {
+    toast('排期已删除', 'info');
+    render();
+  });
+}
+
+function closeModal() {
+  document.getElementById('scheduleModal').classList.remove('show');
+  editingScheduleId = null;
+}
+
+render();
+</script>
+</body>
+</html>

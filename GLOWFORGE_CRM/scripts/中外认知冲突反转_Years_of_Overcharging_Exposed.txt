@@ -1,0 +1,17 @@
+Years of Overcharging Exposed
+═══════════════════════════════════
+场景: customer showing photos of previous bad signs
+类别: 中外认知冲突反转
+关键词: overcharged, local vendor, rough product, price bubble
+风格: dialogue, reversal, past experience
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据中外认知冲突反转类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（满心委屈）
+老外: I was overcharged and supplied rough products by local vendors for years.
+工厂: The overseas signage market has serious price bubbles for a long time.
+旁白: Information asymmetry keeps loyal customers trapped in unfair pricing cycles.
+

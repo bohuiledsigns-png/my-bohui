@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOWFORGE · 审批管理</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c14;--card:#12162a;--card2:#181e3a;--border:#1e2448;--gold:#D4AF37;--cyan:#00f2ff;--pink:#ff0050;--orange:#ff8c00;--green:#22c55e;--text:#e0e0e0;--text-bright:#f0f0f0;--muted:#667;--radius:12px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1400px;margin:0 auto}
+
+/* header */
+h1{font-size:20px;font-weight:700;color:var(--text-bright);margin-bottom:4px}
+h1 small{font-size:12px;color:var(--muted);font-weight:400}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.tabs{display:flex;gap:2px;background:var(--card);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.tab{padding:8px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--muted);transition:all 0.2s}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--cyan);color:#000;box-shadow:0 0 12px rgba(0,242,255,0.2)}
+.btn{padding:8px 18px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.btn:active{transform:scale(0.95)}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.btn-orange{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-pink{background:linear-gradient(135deg,var(--pink),#cc0040);color:#fff}
+.btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+.btn-xs{padding:3px 10px;font-size:10px;border-radius:4px}
+
+/* stats */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all 0.2s}
+.card:hover{transform:translateY(-2px)}
+.card .num{font-size:24px;font-weight:700}
+.card .label{font-size:11px;color:var(--muted);margin-top:2px}
+.card.cyan .num{color:var(--cyan)}
+.card.gold .num{color:var(--gold)}
+.card.green .num{color:var(--green)}
+.card.orange .num{color:var(--orange)}
+.card.pink .num{color:var(--pink)}
+
+/* section */
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.section h2{font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section h2 .badge{background:var(--pink);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.section h2 .badge.green{background:var(--green)}
+.section h2 .badge.orange{background:var(--orange)}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap}
+td{padding:8px 6px;border-bottom:1px solid rgba(30,36,72,0.25);vertical-align:middle}
+tr:hover td{background:rgba(0,242,255,0.03)}
+tr.risk-critical td{background:rgba(255,0,80,0.04)}
+tr.risk-high td{background:rgba(255,140,0,0.03)}
+
+/* status tags */
+.tag{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;display:inline-block;white-space:nowrap}
+.tag-ok{background:rgba(34,197,94,0.15);color:var(--green)}
+.tag-warn{background:rgba(255,140,0,0.15);color:var(--orange)}
+.tag-critical{background:rgba(255,0,80,0.15);color:var(--pink)}
+.tag-info{background:rgba(0,242,255,0.12);color:var(--cyan)}
+.tag-muted{background:rgba(102,102,119,0.15);color:var(--muted)}
+
+/* inline status edit */
+.status-group{display:flex;gap:3px;flex-wrap:wrap}
+.status-btn{padding:2px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:transparent;color:var(--muted);transition:all 0.15s}
+.status-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.status-btn.active{background:var(--cyan);color:#000;border-color:var(--cyan);font-weight:600}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:1000;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card2);border:1px solid var(--border-bright,var(--border));border-radius:16px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;color:var(--text-bright);margin-bottom:16px}
+.modal .field{margin-bottom:12px}
+.modal .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.modal .field .val{font-size:14px;color:var(--text)}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+
+/* empty */
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1f3a;border:1px solid var(--border-bright,var(--border));border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:2000;display:none;max-width:360px}
+.toast.show{display:block;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.toast.ok{border-left:3px solid var(--green)}
+.toast.err{border-left:3px solid var(--pink)}
+.loading{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<h1>
+  <i class="fas fa-clipboard-check" style="color:var(--cyan)"></i>
+  小王 / 老板审批端
+  <small>订单履约管理 · 纠纷处理 · 资金追踪</small>
+</h1>
+
+<div class="bar">
+  <div class="tabs">
+    <button class="tab active" data-tab="tasks" onclick="switchTab('tasks')"><i class="fas fa-list"></i> 待处理</button>
+    <button class="tab" data-tab="all" onclick="switchTab('all')"><i class="fas fa-box"></i> 全部订单</button>
+    <button class="tab" data-tab="payment" onclick="switchTab('payment')"><i class="fas fa-dollar-sign"></i> 资金</button>
+  </div>
+  <button class="btn btn-cyan btn-sm" onclick="refreshAll()"><i class="fas fa-rotate"></i> 刷新</button>
+</div>
+
+<!-- stats -->
+<div class="grid" id="stats-grid"></div>
+
+<!-- ============ Tab: 待处理 ============ -->
+<div class="tab-content" id="tab-tasks">
+  <div class="section">
+    <h2><i class="fas fa-exclamation-triangle" style="color:var(--pink)"></i> <span id="task-title">待处理任务</span></h2>
+    <div id="tasks-list"><div class="loading"><span class="spinner"></span>加载中...</div></div>
+  </div>
+  <!-- 待发送付款链接：AI 自动生成，小王手动发送 -->
+  <div class="section" id="payment-links-section" style="display:none">
+    <h2><i class="fas fa-link" style="color:var(--gold)"></i> 待发送付款链接 <span class="badge orange" id="pl-badge" style="background:var(--orange);display:none">0</span></h2>
+    <div id="payment-links-list"><div class="loading"><span class="spinner"></span>加载中...</div></div>
+  </div>
+</div>
+
+<!-- ============ Tab: 全部订单 ============ -->
+<div class="tab-content" id="tab-all" style="display:none">
+  <div class="section">
+    <h2><i class="fas fa-box"></i> 全部履约订单</h2>
+    <div id="all-list"><div class="loading"><span class="spinner"></span>加载中...</div></div>
+  </div>
+</div>
+
+<!-- ============ Tab: 资金 ============ -->
+<div class="tab-content" id="tab-payment" style="display:none">
+  <div class="section">
+    <h2><i class="fas fa-dollar-sign" style="color:var(--gold)"></i> 资金概览</h2>
+    <div id="payment-summary"></div>
+  </div>
+  <div class="section">
+    <h2><i class="fas fa-credit-card"></i> 资金明细</h2>
+    <div id="payment-list"></div>
+  </div>
+</div>
+
+<!-- ============ Modal: 纠纷处理 ============ -->
+<div class="modal-overlay" id="dispute-modal">
+  <div class="modal">
+    <h3><i class="fas fa-gavel" style="color:var(--orange)"></i> 纠纷处理</h3>
+    <div class="field"><label>订单</label><div class="val" id="dm-order">—</div></div>
+    <div class="field"><label>客户</label><div class="val" id="dm-customer">—</div></div>
+    <div class="field"><label>纠纷原因</label><div class="val" id="dm-reason" style="color:var(--pink)">—</div></div>
+    <div class="field"><label>处理方案</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        <button class="btn btn-pink btn-sm" onclick="resolveDispute('REFUND_FULL')">全额退款</button>
+        <button class="btn btn-orange btn-sm" onclick="resolveDispute('REFUND_PARTIAL')">部分退款</button>
+        <button class="btn btn-green btn-sm" onclick="resolveDispute('REISSUE')">补发替换</button>
+        <button class="btn btn-sm" style="background:#333;color:var(--text)" onclick="resolveDispute('NO_REFUND')">坚持立场</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>老板备注</label>
+      <input id="dm-note" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-family:inherit;font-size:13px" placeholder="可选：处理备注">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" style="background:#333;color:var(--text)" onclick="closeModal('dispute-modal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let tasksData = []
+let disputeTarget = null
+
+// ── Tab switching ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name))
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = el.id === 'tab-' + name ? 'block' : 'none')
+  if (name === 'all' && document.getElementById('all-list').innerHTML.includes('加载中')) loadAllOrders()
+  if (name === 'payment') loadPayment()
+}
+
+// ── Toast ──
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.className = 'toast ' + type + ' show'
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3000)
+}
+
+// ── Modal ──
+function openDisputeModal(orderId, customer, reason) {
+  disputeTarget = orderId
+  document.getElementById('dm-order').textContent = '#' + orderId
+  document.getElementById('dm-customer').textContent = customer || '—'
+  document.getElementById('dm-reason').textContent = reason || '—'
+  document.getElementById('dm-note').value = ''
+  document.getElementById('dispute-modal').classList.add('open')
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+document.getElementById('dispute-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal('dispute-modal')
+})
+
+// ── Resolve dispute ──
+async function resolveDispute(action) {
+  if (!disputeTarget) return
+  const note = document.getElementById('dm-note').value
+  try {
+    // 更新资金阶段 → CLOSED（如果是 refund 则退到 refunding）
+    const stage = (action === 'REFUND_FULL' || action === 'REFUND_PARTIAL') ? 'REFUNDING' : 'CLOSED'
+    await fetch('/api/reality/payment/' + disputeTarget + '/stage', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({stage, detail: {refund_reason: note || '纠纷处理'}})
+    })
+
+    // 更新履约备注
+    await fetch('/api/reality/fulfillment/' + disputeTarget, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({field:'payment_status', value:'CLOSED', note:'老板处理: ' + action + (note ? ' | ' + note : '')})
+    })
+
+    toast('纠纷已处理: ' + action, 'ok')
+    closeModal('dispute-modal')
+    refreshAll()
+  } catch(e) {
+    toast('处理失败: ' + e.message, 'err')
+  }
+}
+
+// ── Update fulfillment field ──
+async function updateStatus(orderId, field, value, note) {
+  try {
+    const resp = await fetch('/api/reality/fulfillment/' + orderId, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({field, value, note})
+    })
+    if (!resp.ok) { const d = await resp.json(); throw new Error(d.error || '更新失败') }
+    toast('已更新: ' + field + ' = ' + value, 'ok')
+    refreshAll()
+  } catch(e) { toast(e.message, 'err') }
+}
+
+// ── Set risk ──
+async function setRisk(orderId, level, reason) {
+  try {
+    await fetch('/api/reality/fulfillment/' + orderId + '/risk', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({level, reason})
+    })
+    toast('风险已设为 ' + level, 'ok')
+    refreshAll()
+  } catch(e) { toast(e.message, 'err') }
+}
+
+// ── Stats ──
+async function loadStats() {
+  const d = await (await fetch('/api/reality/fulfillment/dashboard')).json()
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="card orange"><div class="num">${d.overdue_count||0}</div><div class="label">超期未发</div></div>
+    <div class="card pink"><div class="num">${d.by_risk?.critical||0}</div><div class="label">严重风险</div></div>
+    <div class="card orange"><div class="num">${d.by_risk?.high||0}</div><div class="label">高风险</div></div>
+    <div class="card gold"><div class="num">${d.by_shipment?.delivered||0}</div><div class="label">已交付</div></div>
+    <div class="card green"><div class="num">${d.by_shipment?.shipped||0}</div><div class="label">运输中</div></div>
+    <div class="card cyan"><div class="num">${d.by_production?.in_progress||0}</div><div class="label">生产中</div></div>
+    <div class="card" style="border-color:rgba(255,0,80,0.3)"><div class="num" style="color:var(--pink)">${d.unfulfillable||0}</div><div class="label">无法履约</div></div>
+  `
+}
+
+// ── Tasks (待处理) ──
+async function loadTasks() {
+  const resp = await (await fetch('/api/reality/fulfillment/tasks')).json()
+  tasksData = resp.data || []
+
+  // Filter for items needing attention
+  const disputes = tasksData.filter(t => t.payment_status === 'DISPUTED')
+  const critical = tasksData.filter(t => t.risk_level === 'CRITICAL' && t.payment_status !== 'DISPUTED')
+  const high = tasksData.filter(t => t.risk_level === 'HIGH' && t.payment_status !== 'DISPUTED' && t.payment_status !== 'CRITICAL')
+
+  document.getElementById('task-title').innerHTML =
+    '待处理任务 <span class="badge">' + disputes.length + '</span> <span class="badge orange" style="background:var(--orange)">' + (critical.length + high.length) + '</span>'
+
+  let html = ''
+
+  // Disputes section
+  if (disputes.length) {
+    html += '<div style="margin-bottom:12px"><span style="font-size:12px;font-weight:600;color:var(--pink)">纠纷待处理</span></div>'
+    html += disputes.map(t => taskRow(t, true)).join('')
+  }
+
+  // Risk section
+  const risks = [...critical, ...high]
+  if (risks.length) {
+    html += '<div style="margin-bottom:12px;margin-top:' + (disputes.length ? '20px' : '0') + '"><span style="font-size:12px;font-weight:600;color:var(--orange)">超期/高风险订单</span></div>'
+    html += risks.map(t => taskRow(t)).join('')
+  }
+
+  if (!html) html = '<div class="empty"><i class="fas fa-check-circle" style="color:var(--green);font-size:20px"></i><br><br>暂无待处理任务</div>'
+  document.getElementById('tasks-list').innerHTML = html
+}
+
+function taskRow(t, isDispute) {
+  const riskTag = isDispute ? '<span class="tag tag-critical">纠纷</span>' :
+    t.risk_level === 'CRITICAL' ? '<span class="tag tag-critical">严重</span>' :
+    t.risk_level === 'HIGH' ? '<span class="tag tag-warn">高危</span>' : ''
+  const days = t.promised_delivery_date ? dayDiff(t.promised_delivery_date) : 0
+  const overdueTag = days > 0 ? `<span class="tag tag-critical">超期${days}天</span>` : days === 0 ? '<span class="tag tag-warn">今日到期</span>' : days > -3 ? '<span class="tag tag-warn">即将到期</span>' : ''
+
+  return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+      <div>
+        <strong style="color:var(--text-bright)">#${t.order_id}</strong>
+        ${t.order_no ? '<span style="color:var(--muted);font-size:11px">' + t.order_no + '</span>' : ''}
+        <span style="color:var(--muted);font-size:12px;margin-left:8px">${t.customer_name||'—'}</span>
+        ${t.total_amount ? '<span style="color:var(--gold);font-size:12px;margin-left:8px">$' + t.total_amount.toFixed(0) + '</span>' : ''}
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">${riskTag} ${overdueTag}</div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
+      <span>生产: <b style="color:${t.production_status==='IN_PROGRESS'?'var(--cyan)':'var(--muted)'}">${t.production_status}</b></span>
+      <span>质检: <b style="color:${t.qc_status==='PASSED'?'var(--green)':'var(--muted)'}">${t.qc_status}</b></span>
+      <span>发货: <b style="color:${t.shipment_status==='SHIPPED'||t.shipment_status==='DELIVERED'?'var(--green)':'var(--muted)'}">${t.shipment_status}</b></span>
+      <span>付款: <b style="color:${t.payment_status==='FULL_PAID'||t.payment_status==='CLOSED'?'var(--green)':'var(--muted)'}">${t.payment_status}</b></span>
+      ${t.promised_delivery_date ? '<span>交期: ' + t.promised_delivery_date + '</span>' : ''}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+      ${isDispute ? `<button class="btn btn-orange btn-xs" onclick="openDisputeModal(${t.order_id},'${(t.customer_name||'').replace(/'/g,"")}','${(t.payment_status==='DISPUTED'?'纠纷':t.internal_note||'').replace(/'/g,"")}')"><i class="fas fa-gavel"></i> 处理纠纷</button>` : ''}
+      <select class="status-btn" onchange="updateStatus(${t.order_id},'production_status',this.value,'小王更新')" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;background:var(--card);color:var(--text)">
+        <option value="">生产状态...</option>
+        <option value="PENDING">待排产</option>
+        <option value="SCHEDULED">已排产</option>
+        <option value="IN_PROGRESS">生产中</option>
+        <option value="COMPLETED">生产完成</option>
+      </select>
+      <select class="status-btn" onchange="updateStatus(${t.order_id},'qc_status',this.value,'小王更新')" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;background:var(--card);color:var(--text)">
+        <option value="">质检状态...</option>
+        <option value="PASSED">通过</option>
+        <option value="FAILED">不通过</option>
+        <option value="NOT_REQUIRED">免检</option>
+      </select>
+      <select class="status-btn" onchange="updateStatus(${t.order_id},'shipment_status',this.value,'小王更新')" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;background:var(--card);color:var(--text)">
+        <option value="">发货状态...</option>
+        <option value="BOOKED">已订舱</option>
+        <option value="SHIPPED">已发货</option>
+        <option value="DELIVERED">已签收</option>
+      </select>
+      ${!isDispute ? `<button class="btn btn-sm" style="background:#333;color:var(--muted);font-size:10px;padding:3px 8px" onclick="if(prompt('原因:'))setRisk(${t.order_id},'LOW',prompt('原因:'))">降低风险</button>` : ''}
+    </div>
+    ${t.internal_note ? '<div style="margin-top:6px;font-size:11px;color:var(--muted);border-top:1px solid rgba(30,36,72,0.3);padding-top:6px">📝 ' + t.internal_note + '</div>' : ''}
+  </div>`
+}
+
+function dayDiff(dateStr) {
+  if (!dateStr) return 999
+  const d = new Date(dateStr), t = new Date()
+  return Math.round((t - d) / 86400000)
+}
+
+// ── All orders ──
+async function loadAllOrders() {
+  const resp = await (await fetch('/api/reality/fulfillment/tasks')).json()
+  const data = resp.data || []
+  let html = `<table><tr>
+    <th>订单</th><th>客户</th><th>金额</th><th>生产</th><th>质检</th><th>发货</th><th>付款</th><th>风险</th><th>交期</th>
+  </tr>`
+  html += data.map(t => `<tr class="risk-${t.risk_level.toLowerCase()}">
+    <td><strong>#${t.order_id}</strong>${t.order_no?'<br><span style="font-size:10px;color:var(--muted)">'+t.order_no+'</span>':''}</td>
+    <td>${t.customer_name||'—'}</td>
+    <td style="color:var(--gold)">${t.total_amount?'$'+t.total_amount.toFixed(0):'—'}</td>
+    <td><span class="tag tag-${t.production_status==='COMPLETED'?'ok':t.production_status==='IN_PROGRESS'?'info':'muted'}">${t.production_status}</span></td>
+    <td><span class="tag tag-${t.qc_status==='PASSED'?'ok':t.qc_status==='FAILED'?'critical':'muted'}">${t.qc_status}</span></td>
+    <td><span class="tag tag-${t.shipment_status==='DELIVERED'?'ok':t.shipment_status==='SHIPPED'?'info':'muted'}">${t.shipment_status}</span></td>
+    <td><span class="tag tag-${t.payment_status==='FULL_PAID'||t.payment_status==='CLOSED'?'ok':t.payment_status==='DISPUTED'?'critical':'muted'}">${t.payment_status}</span></td>
+    <td><span class="tag tag-${t.risk_level==='CRITICAL'?'critical':t.risk_level==='HIGH'?'warn':'ok'}">${t.risk_level}</span></td>
+    <td style="font-size:11px">${t.promised_delivery_date||'—'}</td>
+  </tr>`).join('')
+  html += '</table>'
+  document.getElementById('all-list').innerHTML = html
+}
+
+// ── Payment tab ──
+async function loadPayment() {
+  const d = await (await fetch('/api/reality/payment/dashboard')).json()
+  if (d.error) { document.getElementById('payment-summary').innerHTML = '<div class="empty">暂无资金数据</div>'; return }
+
+  document.getElementById('payment-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+      <div class="card gold"><div class="num">$${(d.total_amount||0).toFixed(0)}</div><div class="label">总金额</div></div>
+      <div class="card green"><div class="num">$${(d.paid_amount||0).toFixed(0)}</div><div class="label">已收款</div></div>
+      <div class="card orange"><div class="num">$${(d.outstanding||0).toFixed(0)}</div><div class="label">未收款</div></div>
+      <div class="card" style="border-color:rgba(255,0,80,0.3)"><div class="num" style="color:var(--pink)">${d.active_disputes||0}</div><div class="label">活跃纠纷</div></div>
+    </div>
+  `
+  const stages = d.by_stage || {}
+  document.getElementById('payment-list').innerHTML = `<table><tr><th>阶段</th><th>数量</th></tr>
+    ${Object.entries(stages).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+  </table>`
+}
+
+// ── 待发送付款链接 ──
+let _autoGenerating = false
+
+async function loadPaymentLinks() {
+  try {
+    const resp = await (await fetch('/api/reality/payment/pending-sends')).json()
+    const needsGen = resp.needs_generation || []
+    const pendingSend = resp.pending_send || []
+
+    // AI 自动生成缺失的链接
+    const genPromises = needsGen.map(async (item) => {
+      try {
+        const r = await fetch('/api/reality/payment/' + item.order_id + '/generate-link', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({type: 'deposit'})
+        })
+        const d = await r.json()
+        if (r.ok) console.log('[AI] Generated link for order #' + item.order_id)
+        return d.ok ? item.order_id : null
+      } catch(e) {
+        console.warn('[AI] Auto-gen failed for #' + item.order_id, e)
+        return null
+      }
+    })
+
+    if (needsGen.length > 0) {
+      _autoGenerating = true
+      await Promise.all(genPromises)
+      _autoGenerating = false
+      // 重新获取已生成的数据
+      if (needsGen.length > 0) {
+        const r2 = await (await fetch('/api/reality/payment/pending-sends')).json()
+        pendingSend.push(...(r2.pending_send || []))
+      }
+    }
+
+    const total = pendingSend.length
+    const section = document.getElementById('payment-links-section')
+    const badge = document.getElementById('pl-badge')
+
+    if (total === 0) {
+      section.style.display = 'none'
+      return
+    }
+
+    section.style.display = 'block'
+    badge.textContent = total
+    badge.style.display = 'inline'
+
+    let html = ''
+    pendingSend.forEach(item => {
+      const amt = item.amount || 0
+      const cur = item.currency || 'USD'
+      const link = item.payment_link || ''
+      const shortLink = link.length > 40 ? link.substring(0, 40) + '...' : link
+
+      html += `<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+          <div>
+            <strong style="color:var(--text-bright)">#${item.order_id}</strong>
+            ${item.order_no ? '<span style="color:var(--muted);font-size:11px">' + item.order_no + '</span>' : ''}
+            <span style="color:var(--muted);font-size:12px;margin-left:8px">${item.customer_name||'—'}</span>
+            <span style="color:var(--gold);font-size:12px;margin-left:8px">${cur} ${amt.toFixed(2)}</span>
+            <span class="tag tag-info" style="margin-left:6px">50% 定金</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <input type="text" value="${link}" readonly
+              style="width:180px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--cyan);font-size:10px;font-family:inherit"
+              onclick="this.select();navigator.clipboard.writeText(this.value)">
+            <button class="btn btn-cyan btn-xs" onclick="sendPaymentLink(${item.order_id})">
+              <i class="fab fa-whatsapp"></i> 发送
+            </button>
+          </div>
+        </div>
+      </div>`
+    })
+
+    document.getElementById('payment-links-list').innerHTML = html
+    // 更新待处理任务标题计数
+    document.getElementById('task-title').innerHTML =
+      '待处理任务 <span class="badge orange" style="background:var(--orange)">' + total + '</span>'
+  } catch(e) {
+    console.warn('[PaymentLinks] Load failed:', e)
+  }
+}
+
+async function sendPaymentLink(orderId) {
+  try {
+    const resp = await fetch('/api/reality/payment/' + orderId + '/send-link', {method: 'POST'})
+    const d = await resp.json()
+    if (!resp.ok) throw new Error(d.error || '发送失败')
+    toast('付款链接已发送', 'ok')
+    loadPaymentLinks()
+  } catch(e) {
+    toast('发送失败: ' + e.message, 'err')
+  }
+}
+
+// ── Refresh all ──
+async function refreshAll() {
+  await Promise.all([loadStats(), loadTasks(), loadPaymentLinks()])
+}
+refreshAll()
+</script>
+</body>
+</html>

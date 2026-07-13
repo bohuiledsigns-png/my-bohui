@@ -1,0 +1,43 @@
+新品推荐模板
+═══════════════════════════════════
+场景: 新品推荐/开发
+适用国家: 通用
+语气: 专业推荐，提供价值
+
+=== 核心策略 ===
+1. 根据客户历史采购推荐相关新品
+2. 强调新品能为客户带来的价值
+3. 提供限时优惠或独家价格
+4. 附上效果图或案例照片
+5. 低门槛建议（先试一个）
+
+=== 中文模板 ===
+Hi【客户名】，给您介绍一款我们的新品！
+
+【新品名称/描述】
+【新品卖点：如超薄/变色/智能控制等】
+【应用场景】
+
+这款产品最近很受欢迎，以下是一些客户安装后的效果：
+【附照片或效果图】
+
+如果您感兴趣，我可以先给您报个优惠尝鲜价！首单还可享受【具体优惠】。
+
+=== English Template ===
+Hi [name], I'd like to introduce our latest product!
+
+[Product name/description]
+[Key features: ultra-thin/color-changing/smart control, etc.]
+[Application scenarios]
+
+This product has been very well received recently. Here are some installation photos:
+[Attach photos]
+
+If you're interested, I can offer a special introductory price! First order includes [specific offer].
+
+=== 国家变体提示 ===
+[US] 直接展示ROI和卖点
+[DE] 提供详细技术规格对比表
+[JP] 语气谦逊，先询问是否有兴趣
+[FR] 强调设计美学
+[RU] 直接推荐，强调性价比

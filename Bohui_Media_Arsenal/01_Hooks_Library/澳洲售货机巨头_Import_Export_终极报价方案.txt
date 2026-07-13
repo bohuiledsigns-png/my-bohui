@@ -1,0 +1,77 @@
+================================================================================
+  澳洲售货机巨头 Import Export — 终极报价方案
+  客户状态: 自动售货机顶部招牌批量大单（已读不回）
+  目标: 用工艺参数绝杀 + 批量交付能力 + Raceway省40%人工 逼单
+================================================================================
+
+【局势诊断】
+
+  自动售货机顶部招牌的工程痛点:
+    ① 360°可见度 — 顾客从侧面/斜角也要看到品牌，普通吸塑字壳侧面死黑
+    ② 极端耐候 — 售货机24小时户外暴晒，UV光衰是普通招牌的3倍
+    ③ 防砸防撞 — 售货机经常被推车/行李碰撞，亚克力面罩必须抗冲击
+    ④ 批量一致性 — 100台机器=100块招牌，每块必须完全一致，不可手工调
+    ⑤ 安装效率 — 每台机装一块招牌，人工贵，必须省到极致
+
+  客户已读不回的真正原因:
+    他在同时让博汇和其他3家中国工厂报价。谁先打破僵局谁赢。
+
+
+================================================================================
+【WhatsApp 绝杀话术】
+
+Mate — Philip from Bohui, Zhongshan Xiaolan.
+
+Let me cut through the noise. You've been sitting on our quote. I know why — you're waiting to see which factory gives you the lowest number. Fair enough.
+
+But let me reframe what you're actually buying.
+
+A vending machine sign isn't a sign. It's a 24/7 salesperson that works in direct sun, sideways rain, and the occasional shopping cart collision. If it goes dark, that machine loses sales until someone shows up with a lift.
+
+Here's exactly what we're quoting for Import Export:
+
+─  SHELL ─
+1500# hairline brushed 304 stainless steel. R3 seamless corners.
+Laser-Seamed Hermetic Weld — the shell is sealed. No moisture ingress.
+If a shopping cart hits it, the stainless dents before the weld fails.
+
+─  FACE ─
+Optically Clear Cast Acrylic (not extruded — ours won't yellow).
+37° Light Refraction Chamfering on every edge.
+When the GLOWFORGE Dual-Channel system fires up:
+  → Outline traces the letter boundary (side visibility)
+  → Fill glows steady from the face (front visibility)
+  → 37° chamfer kicks cold light sideways (360° visibility)
+Zero dead angles. Readable from every approach. This is how you dominate a parking lot.
+
+─  DURABILITY ─
+3,000h QUV-A test: 2.3% photometric decay.
+Your current supplier? 11%. In 18 months, your machines look new. Theirs look tired.
+Built-in MeanWell driver (UL/CE). MTBF >300,000 hours.
+Your maintenance team will forget these signs exist.
+
+─  INSTALLATION (THIS IS THE KILLER) ─
+Pre-wired Raceway Mounting. Every sign ships as a complete assembly.
+  → Pre-wired
+  → Pre-terminated with aviation connector
+  → Pre-mounted MeanWell driver inside the raceway
+  → Sealed. Tested. Ready.
+
+Your field crew: 4 bolts + 1 plug = 15 minutes per machine.
+No cable pulling. No wiring diagrams. No second visit.
+At 100 machines, that's 100 × 2 hours saved = 200 man-hours.
+At $120/h = $24,000 saved on installation alone.
+
+─  BATCH PRODUCTION ─
+We're a lab that scales. First piece takes 22 minutes. The 100th piece takes 22 minutes. Identical. Repeatable. Traceable.
+
+Quote with 3D GLOWFORGE flow render is already waiting.
+
+Send me your forwarder's details and your port — Sydney, Melbourne, Brisbane, I don't care. Drop the vector artwork.
+
+I'll have a real video — not a render — shot in our Zhongshan factory next week. You'll see the exact sign you're buying, powered up and breathing, before you commit a single dollar.
+
+Ready to make 100 machines dominate 100 parking lots?
+
+— Philip
+Bohui Elite | Zhongshan Xiaolan

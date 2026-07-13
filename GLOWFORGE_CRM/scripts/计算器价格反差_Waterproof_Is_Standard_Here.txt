@@ -1,0 +1,17 @@
+Waterproof Is Standard Here
+═══════════════════════════════════
+场景: foreign customer reading spec sheet
+类别: 计算器价格反差
+关键词: waterproof, IP65, outdoor, extra charge, standard
+风格: dialogue, price contrast, value surprise
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（皱眉核对报价）
+老外: Why waterproof outdoor signs don't charge extra fees here?
+工厂: Full sealing craft is our standard production step.
+旁白: Many factories add waterproof processing as an extra paid item overseas.
+

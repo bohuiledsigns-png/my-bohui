@@ -1,0 +1,11 @@
+[
+  {
+    "status": "ok",
+    "action": "screenshot",
+    "path": "D:\\Bohui_Global_Push\\_agent_mouse_check.png"
+  },
+  {
+    "status": "ok",
+    "action": "wait"
+  }
+]

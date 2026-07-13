@@ -1,0 +1,17 @@
+Low Cost Doesn't Mean Cheap
+═══════════════════════════════════
+场景: customer worried about quality
+类别: 计算器价格反差
+关键词: low price, material quality, lamp beads, stainless steel, standard
+风格: dialogue, price contrast, quality guarantee
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（顾虑重重）
+老外: I worried low price means shoddy lamp beads and thin steel.
+工厂: We never reduce material standards to cut prices.
+旁白: This is why countless foreign merchants abandon local suppliers.
+

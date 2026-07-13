@@ -1,0 +1,13 @@
+门头招牌综合效果·白天
+═══════════════════════════════════
+类别: 生图 / 招牌设计
+场景: 白天建筑外观
+最佳尺寸: 1024*1024
+
+提示词:
+A modern retail storefront in daytime with a custom illuminated sign installation. The facade features a combination of channel letter sign, acrylic panel signage, and architectural LED strip lighting. Clean modern building exterior, glass storefront, a customer entering the store. Bright natural daylight, blue sky, professional architectural photography, wide angle lens, high-end retail aesthetic, realistic.
+
+变体:
+- 转角铺: corner store location, sign visible from two streets
+- 商场内铺: indoor mall storefront with overhead signage
+- 独栋: standalone building with rooftop or projecting sign

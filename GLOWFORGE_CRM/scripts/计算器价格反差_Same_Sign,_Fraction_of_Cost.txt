@@ -1,0 +1,17 @@
+Same Sign, Fraction of Cost
+═══════════════════════════════════
+场景: comparing local and Chinese quotes
+类别: 计算器价格反差
+关键词: cost comparison, stainless steel, 304, local shop, retail price
+风格: dialogue, price contrast, material quality
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（不敢置信反复换算）
+老外: The same 304 stainless sign costs 10x more in my city!
+工厂: We process raw materials ourselves, cut all extra costs.
+旁白: Most local sign shops earn huge hidden profits from brand owners.
+

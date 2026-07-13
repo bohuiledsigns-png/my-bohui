@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOWFORGE · 付款链接管理</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c14;--card:#12162a;--card2:#181e3a;--border:#1e2448;--gold:#D4AF37;--cyan:#00f2ff;--pink:#ff0050;--orange:#ff8c00;--green:#22c55e;--text:#e0e0e0;--text-bright:#f0f0f0;--muted:#667;--radius:12px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1400px;margin:0 auto}
+
+h1{font-size:20px;font-weight:700;color:var(--text-bright);margin-bottom:4px}
+h1 small{font-size:12px;color:var(--muted);font-weight:400}
+
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.btn{padding:8px 18px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.btn:active{transform:scale(0.95)}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#00b8d4);color:#000}
+.btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+.btn-xs{padding:3px 10px;font-size:10px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600;border:none;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s}
+.btn-xs:active{transform:scale(0.93)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all 0.2s}
+.card:hover{transform:translateY(-2px)}
+.card .num{font-size:24px;font-weight:700}
+.card .label{font-size:11px;color:var(--muted);margin-top:2px}
+.card.cyan .num{color:var(--cyan)}
+.card.gold .num{color:var(--gold)}
+.card.green .num{color:var(--green)}
+.card.orange .num{color:var(--orange)}
+.card.pink .num{color:var(--pink)}
+
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.section h2{font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap}
+td{padding:8px 6px;border-bottom:1px solid rgba(30,36,72,0.25);vertical-align:middle}
+tr:hover td{background:rgba(0,242,255,0.03)}
+
+.tag{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;display:inline-block;white-space:nowrap}
+.tag-ok{background:rgba(34,197,94,0.15);color:var(--green)}
+.tag-warn{background:rgba(255,140,0,0.15);color:var(--orange)}
+.tag-critical{background:rgba(255,0,80,0.15);color:var(--pink)}
+.tag-info{background:rgba(0,242,255,0.12);color:var(--cyan)}
+.tag-gold{background:rgba(212,175,55,0.15);color:var(--gold)}
+.tag-muted{background:rgba(102,102,119,0.15);color:var(--muted)}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:1000;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:450px;width:90%}
+.modal h3{font-size:16px;font-weight:600;color:var(--text-bright);margin-bottom:16px}
+.modal .field{margin-bottom:14px}
+.modal .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+
+/* link row */
+.link-cell{display:flex;align-items:center;gap:6px;max-width:200px}
+.link-cell .url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--cyan);cursor:pointer;text-decoration:none}
+.link-cell .url:hover{text-decoration:underline}
+
+.copy-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;font-size:12px}
+.copy-btn:hover{color:var(--cyan)}
+
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1f3a;border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:2000;display:none;max-width:360px}
+.toast.show{display:block;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.toast.ok{border-left:3px solid var(--green)}
+.toast.err{border-left:3px solid var(--pink)}
+
+.loading{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>
+  <i class="fas fa-link" style="color:var(--cyan)"></i>
+  付款链接管理
+  <small>Stripe 支付链接生成与发送</small>
+</h1>
+
+<div class="bar">
+  <span class="ts" id="ts" style="font-size:12px;color:var(--muted)">—</span>
+  <button class="btn btn-cyan btn-sm" onclick="refresh()"><i class="fas fa-rotate"></i> 刷新</button>
+</div>
+
+<!-- Stats -->
+<div class="grid" id="stats-grid"></div>
+
+<!-- Table -->
+<div class="section">
+  <h2><i class="fas fa-credit-card" style="color:var(--gold)"></i> 付款链接列表</h2>
+  <div id="links-table"><div class="loading"><span class="spinner"></span>加载中...</div></div>
+</div>
+
+<!-- Modal: Generate Link -->
+<div class="modal-overlay" id="gen-modal">
+  <div class="modal">
+    <h3><i class="fas fa-link" style="color:var(--cyan)"></i> 生成付款链接</h3>
+    <div class="field">
+      <label>订单 #<span id="gm-order-id">—</span></label>
+      <div style="font-size:13px;color:var(--text)" id="gm-order-info">—</div>
+    </div>
+    <div class="field">
+      <label>付款类型</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-sm" style="background:#333;color:var(--text);flex:1" onclick="setGenType('deposit',this)">50% 定金</button>
+        <button class="btn btn-sm" style="background:#333;color:var(--text);flex:1" onclick="setGenType('balance',this)">50% 尾款</button>
+        <button class="btn btn-sm" style="background:#333;color:var(--text);flex:1" onclick="setGenType('full',this)">全额</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" style="background:#333;color:var(--text)" onclick="closeModal('gen-modal')">取消</button>
+      <button class="btn btn-cyan btn-sm" onclick="confirmGenerate()"><i class="fas fa-check"></i> 生成</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let genTarget = null
+let genTargetInfo = null
+let genType = 'deposit'
+let autoRefresh = null
+
+// ── Toast ──
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.className = 'toast ' + type + ' show'
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3000)
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+
+// ── Generate Link Modal ──
+function openGenModal(orderId, info) {
+  genTarget = orderId
+  genTargetInfo = info
+  genType = 'deposit'
+  document.getElementById('gm-order-id').textContent = orderId
+  document.getElementById('gm-order-info').textContent = info || ''
+  document.querySelectorAll('#gen-modal .modal-actions .btn-cyan').forEach(b => b.style.background = 'linear-gradient(135deg,var(--cyan),#00b8d4)')
+  document.getElementById('gen-modal').classList.add('open')
+}
+
+function setGenType(type, btn) {
+  genType = type
+  document.querySelectorAll('#gen-modal .modal-actions .btn-cyan').forEach(b => b.style.background = 'linear-gradient(135deg,var(--cyan),#00b8d4)')
+}
+
+async function confirmGenerate() {
+  if (!genTarget) return
+  document.querySelector('#gen-modal .btn-cyan').innerHTML = '<span class="spinner"></span> 生成中...'
+  try {
+    const resp = await fetch('/api/reality/payment/' + genTarget + '/generate-link', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({type: genType})
+    })
+    const d = await resp.json()
+    if (!resp.ok) throw new Error(d.error || '生成失败')
+    toast('链接已生成: $' + d.amount.toFixed(2), 'ok')
+    closeModal('gen-modal')
+    refresh()
+  } catch(e) {
+    toast('生成失败: ' + e.message, 'err')
+  }
+  document.querySelector('#gen-modal .btn-cyan').innerHTML = '<i class="fas fa-check"></i> 生成'
+}
+
+// ── Send WhatsApp ──
+async function sendLink(orderId) {
+  try {
+    const resp = await fetch('/api/reality/payment/' + orderId + '/send-link', {method: 'POST'})
+    const d = await resp.json()
+    if (!resp.ok) throw new Error(d.error || '发送失败')
+    toast('付款链接已通过 WhatsApp 发送', 'ok')
+    refresh()
+  } catch(e) {
+    toast('发送失败: ' + e.message, 'err')
+  }
+}
+
+// ── Copy Link ──
+async function copyLink(url) {
+  try {
+    await navigator.clipboard.writeText(url)
+    toast('链接已复制到剪贴板', 'ok')
+  } catch(e) {
+    toast('复制失败: ' + e.message, 'err')
+  }
+}
+
+// ── Refresh ──
+async function refresh() {
+  try {
+    const resp = await (await fetch('/api/reality/payment/links')).json()
+    const data = resp.data || []
+
+    // Stats
+    const total = data.length
+    const sent = data.filter(r => r.internal_note && r.internal_note.includes('sent') || r.stage !== 'COMMITMENT' && r.stage !== 'INTENT').length
+    const paid = data.filter(r => r.stage === 'DEPOSIT_PAID' || r.stage === 'FULL_PAID').length
+    const pending = data.filter(r => !r.payment_link).length
+
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="card cyan"><div class="num">${total}</div><div class="label">总链接</div></div>
+      <div class="card gold"><div class="num">${paid}</div><div class="label">已付款</div></div>
+      <div class="card orange"><div class="num">${pending}</div><div class="label">待生成</div></div>
+    `
+
+    if (data.length === 0) {
+      document.getElementById('links-table').innerHTML = '<div class="empty"><i class="fas fa-link" style="font-size:20px;color:var(--muted)"></i><br><br>暂无付款链接</div>'
+      document.getElementById('ts').textContent = '更新于 ' + new Date().toLocaleTimeString()
+      return
+    }
+
+    let html = `<table>
+      <tr><th>订单</th><th>客户</th><th>金额</th><th>类型</th><th>付款链接</th><th>阶段</th><th>状态</th><th>操作</th></tr>`
+
+    data.forEach(r => {
+      const stageLabel = r.stage || '—'
+      const stageTag = stageLabel === 'FULL_PAID' ? 'tag-ok' :
+                        stageLabel === 'DEPOSIT_PAID' ? 'tag-gold' :
+                        stageLabel === 'REFUNDING' ? 'tag-warn' :
+                        stageLabel === 'DISPUTED' ? 'tag-critical' : 'tag-muted'
+
+      const amt = r.amount || r.total_amount || 0
+      const cur = r.currency || 'USD'
+      const hasLink = r.payment_link ? true : false
+
+      html += `<tr>
+        <td><strong>#${r.order_id}</strong>${r.order_no ? '<br><span style="font-size:10px;color:var(--muted)">'+r.order_no+'</span>' : ''}</td>
+        <td>${r.customer_name || '—'}</td>
+        <td style="color:var(--gold)">${cur} ${amt.toFixed(2)}</td>
+        <td><span class="tag tag-info">${r.payment_link ? (r.payment_link.includes('deposit')||r.stage==='DEPOSIT_PAID'?'定金':r.stage==='FULL_PAID'?'尾款':'全额') : '—'}</span></td>
+        <td>
+          ${hasLink ? `<div class="link-cell">
+            <a class="url" href="${r.payment_link}" target="_blank" title="${r.payment_link}">${r.payment_link.substring(0,35)}...</a>
+            <button class="copy-btn" onclick="copyLink('${r.payment_link}')" title="复制链接"><i class="fas fa-copy"></i></button>
+          </div>` : '<span class="tag tag-muted">未生成</span>'}
+        </td>
+        <td><span class="tag ${stageTag}">${stageLabel}</span></td>
+        <td>${r.paid_at ? '<span class="tag tag-ok">已付款</span>' : hasLink ? '<span class="tag tag-warn">待付款</span>' : '<span class="tag tag-muted">待处理</span>'}</td>
+        <td>
+          <div style="display:flex;gap:4px">
+            ${!hasLink ? `<button class="btn-xs" style="background:var(--cyan);color:#000" onclick="openGenModal(${r.order_id},'${(r.customer_name||'')} / ${cur}${amt.toFixed(2)}')"><i class="fas fa-link"></i> 生成</button>` : ''}
+            ${hasLink ? `<button class="btn-xs" style="background:#333;color:var(--text)" onclick="sendLink(${r.order_id})"><i class="fab fa-whatsapp"></i></button>` : ''}
+          </div>
+        </td>
+      </tr>`
+    })
+
+    html += '</table>'
+    document.getElementById('links-table').innerHTML = html
+    document.getElementById('ts').textContent = '更新于 ' + new Date().toLocaleTimeString()
+  } catch(e) {
+    document.getElementById('links-table').innerHTML = '<div class="empty">加载失败: ' + e.message + '</div>'
+  }
+}
+
+// Auto-refresh
+refresh()
+autoRefresh = setInterval(refresh, 30000)
+</script>
+</body>
+</html>

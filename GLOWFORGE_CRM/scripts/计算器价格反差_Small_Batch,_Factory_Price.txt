@@ -1,0 +1,17 @@
+Small Batch, Factory Price
+═══════════════════════════════════
+场景: customer checking order form
+类别: 计算器价格反差
+关键词: small batch, custom, wholesale, minimum order, one piece
+风格: dialogue, price contrast, order quantity
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（反复敲击计算器）
+老外: Even small batch custom logo signs have factory wholesale price?
+工厂: One piece custom and bulk orders share the same cost system.
+旁白: Middlemen separate small orders and raise prices deliberately.
+

@@ -1,0 +1,57 @@
+================================================================================
+  澳洲汉堡店 Fizzy's Burgers — 斩首复活方案
+  客户状态: 装死不回 / 犹豫比价
+  目标: 用审美碾压 + 零压力免费渲染 打破僵局
+================================================================================
+
+【局势诊断】
+
+  Fizzy's Burgers 是一家需要夜间超高人流吸睛度的汉堡店。
+  老板看到了博汇的GLOWFORGE案例，来询了价但人消失了。
+
+  他的真实心理:
+    - 汉堡店白天靠路过客流，晚上靠招牌吸睛——招牌是他的印钞机
+    - 他担心: 价格太贵 / 安装太复杂 / 效果不如预期
+    - 他见过太多"通电亮一下"的廉价货，已经看麻木了
+
+  博汇的切入点:
+    不要跟他比价格——他需要的是"让街对面的吃货停下来抬头"的招牌。
+    告诉他普通的Backlight配不上他的汉堡店。
+    送他免费3D渲染——零风险，看一眼就回不去了。
+
+
+================================================================================
+【WhatsApp 复活话术】
+
+Hey mate — Philip from Bohui, Zhongshan.
+
+I saw you went quiet on the Fizzy's sign. No pressure.
+
+But let me tell you what I think. Your burgers — people line up for them at dusk. That's when they decide which shop to walk into. And right now, your sign is just sitting there. Flat. Backlit. Like every other shop on the block.
+
+That's not you.
+
+Your burger joint deserves something that does at dusk what your grill does at lunch.
+
+Here's what we'd build for Fizzy's:
+
+1500# brushed stainless steel shell. R3 corners. Laser-seamed weld — you can run your finger across the seam and feel nothing.
+
+The acrylic core? 32 layers of step engraving at 0.3mm depth. 37° refraction chamfer — the light doesn't sit behind the letter. It lives inside it.
+
+And our GLOWFORGE Dual-Channel system? The outline breathes at 0.8Hz while the fill stays steady. From across the street, it looks alive. Your competitor's sign? Still flat. Still boring.
+
+As for installation — forget everything your last Chinese supplier taught you. Pre-wired Raceway mounting. Your handyman hangs it, plugs it in, done in 15 minutes. We saved a shop in Melbourne $1,200 in installation labor last month.
+
+Don't worry about dimensions. Don't worry about the logo file. Don't worry about quotes.
+
+Just send me a photo of your storefront. Or a vector logo if you have one.
+
+I'll have my lab in Zhongshan render a 3D GLOWFORGE animation — your logo breathing, the stainless catching the light, the Raceway hidden behind the back panel — and send you the video in 48 hours.
+
+Free. No obligation.
+
+After you see it breathing, we can talk numbers.
+
+— Philip
+Bohui Elite | Zhongshan Xiaolan

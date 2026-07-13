@@ -1,0 +1,17 @@
+Budget Surprise for Premium Sign
+═══════════════════════════════════
+场景: foreign customer hesitant to ask price
+类别: 计算器价格反差
+关键词: budget, expensive, affordable, backlit, luxury concern
+风格: dialogue, price contrast, budget reveal
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（小心翼翼试探）
+老外: Is this high-end backlit sign out of my budget?
+工厂: The price is far lower than your expectation.
+旁白: Global shop owners always overestimate the cost of commercial luminous signage.
+

@@ -1,0 +1,17 @@
+Fine Polishing Included
+═══════════════════════════════════
+场景: customer inspecting polished edge
+类别: 计算器价格反差
+关键词: polishing, craft, finishing, export quality, premium
+风格: dialogue, price contrast, craftsmanship reveal
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据计算器价格反差类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（瞪大双眼）
+老外: Such delicate polishing craft, I thought it would cost a fortune.
+工厂: Fine polishing is mandatory for all export orders.
+旁白: Premium workmanship does not equal high cost at professional signage plant.
+

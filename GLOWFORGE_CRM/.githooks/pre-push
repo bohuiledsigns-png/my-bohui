@@ -1,0 +1,45 @@
+#!/bin/bash
+# ==========================================
+# Pre-Push Hook — 推送前验证
+# 安装: git config core.hooksPath .githooks
+# ==========================================
+set -e
+
+echo "[pre-push] Running pre-push checks..."
+
+APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$APP_DIR"
+
+FAILURES=0
+
+# 1. Python 语法检查（仅检查已修改的文件）
+while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$local_sha" = "$ZERO_SHA" ]; then
+        continue  # deleting branch
+    fi
+    for f in $(git diff --name-only "$local_sha" "$remote_sha" 2>/dev/null | grep '\.py$'); do
+        if [ -f "$f" ]; then
+            if ! python -m py_compile "$f" 2>/dev/null; then
+                echo "[pre-push] ERROR: Python syntax error in $f"
+                FAILURES=$((FAILURES + 1))
+            fi
+        fi
+    done
+done
+
+# 2. DB integrity check
+if command -v sqlite3 &>/dev/null && [ -f "$APP_DIR/crm_data.db" ]; then
+    CHECK=$(sqlite3 "$APP_DIR/crm_data.db" "PRAGMA quick_check;" 2>&1)
+    if [ "$CHECK" != "ok" ]; then
+        echo "[pre-push] ERROR: Database integrity check failed"
+        FAILURES=$((FAILURES + 1))
+    fi
+fi
+
+if [ "$FAILURES" -gt 0 ]; then
+    echo "[pre-push] FAILED: $FAILURES check(s) — push blocked"
+    exit 1
+fi
+
+echo "[pre-push] All checks passed"
+exit 0

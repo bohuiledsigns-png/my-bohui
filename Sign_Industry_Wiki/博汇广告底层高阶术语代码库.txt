@@ -1,0 +1,532 @@
+================================================================================
+  博汇广告底层高阶术语代码库
+  Bohui Premium Signage — Lexicon & Semantic Kernel
+
+  版本: V2.0 ｜ 封存: 2026-05-15
+  路径: D:\Bohui_Global_Push\Sign_Industry_Wiki\
+  性质: 【全景底层语义标准】— 博汇所有业务线强制抽调词典
+
+  本代码库覆盖四大工程板块:
+  (A) GLOWFORGE 核心流光层  —  博汇不传之秘
+  (B) 精工立体字壳层         —  中山小榄精密五金背书
+  (C) 材料与基材层           —  老外最关心的耐候与质感底牌
+  (D) 工艺与发光形式层       —  全行业看家本领
+  (E) 安装结构与海外工程规范 —  决定老外下单的信任暴击点
+  (F) 海外高阶审美与痛点层   —  用来降维打击老外的武器
+
+  规则: 提到发光字 = 强制从本库抽调词汇
+        语气 = 懂行人的傲气 + 搞怪 + 不准低价通俗
+        不准出现: 便宜 / 性价比 / 实惠 / 物美价廉 / 欢迎询价
+================================================================================
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块A · GLOWFORGE 核心流光层】                                      ║
+║   博汇不传之秘 · 灯活在字里，而非贴在字后                              ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+A1. Independent Outline & Fill Control
+    ── 轮廓与填充独立分层控制
+
+    定义: 将一个字型(Glyph)的外轮廓光效与内部填充光效拆分为
+          两个完全独立的 PWM 受控通道。轮廓层锁定字形的几何边界，
+          填充层负责光的呼吸与迁就。两层互不干扰，可独立编程
+          亮度曲线、呼吸频率和色温偏移。
+
+    工程级理解:
+    传统灯箱把"一个字"视为一块透光面 —— 灯开全亮,灯关全灭。
+    GLOWFORGE 把"一个字"拆成两套独立的神经系统:
+    - 轮廓神经: 走字壳边缘,负责"形体宣告"——"我在这里,长这样"
+    - 填充神经: 走芯板内部,负责"氛围营造"——"我有温度,我在呼吸"
+
+    实测印证 (5帧采样, 1280×720):
+    轮廓光像素: 帧1=6,681 → 帧5=8,345 (+24.9%, 单调递增锁定)
+    填充光像素: 帧1=372,472 → 帧5=374,041 (呼吸波动)
+    轮廓/填充比 ≈ 1:53
+
+    对外话术:
+    "Most sign shops light the letter. We neurologically separate
+     the letter's skeleton from its skin — independent dimming curves,
+     independent breathing frequencies, independent color temperatures."
+
+
+A2. Dual-Channel Illumination System
+    ── 双通道控光系统 · 告别传统发光字的死板平板感
+
+    定义: 两路独立恒流LED驱动，分别服务 Outline Controller
+          和 Fill Controller。每路均配备 200Hz+ PWM 调光、
+          200ms 软启动、独立呼吸曲线ROM。
+
+    工程参数:
+    通道1 (Outline): 亮度0-100%, 呼吸0.5-2.0Hz, 相位0-360°
+    通道2 (Fill):    亮度0-100%, 步进深度0.1-0.5mm, 色温2700-6500K
+    软启动: 200ms (防止冷启动电流冲击)
+    调光分辨率: 8-bit (256级), 选配12-bit (4096级)
+
+    对外话术:
+    "One channel draws the shape. One channel breathes the light.
+     Your eyes perceive it as one seamless glow. That's the illusion."
+
+
+A3. Dynamic Kinetic Light Sequences
+    ── 动态流光流向频率 · 让灯光在字壳里跳舞
+
+    定义: 双通道PWM信号按预设波形(正弦/三角/锯齿/自定义)
+          进行相位差调制，在字形表面产生从右到左或中心向外
+          的流水式亮度迁移。
+
+    实测呼吸波形 (5帧验证):
+    亮度序列: 73 → 69 → 67 → 73 → 75
+    波形特征: 非对称脉冲 (亮稍快于灭, 亮/灭比 ≈ 1.33)
+    等效频率: ~0.8 Hz (舒适慢闪, 人眼瞳孔无需调节)
+    帧间变化率: 平均 1.27%/帧
+    呼吸振幅: 7.7/255 = 3.0%
+
+    对外话术:
+    "We don't flash. We breathe. Two-second cycle, three percent
+     amplitude — the exact frequency that makes people stop and
+     stare without knowing why they stopped."
+
+
+A4. Fluid Luminescent Animation
+    ── 流体发光动画效果
+
+    定义: 结合轮廓与填充的相位差 + RGB三通道独立色温偏移，
+          在字形表面产生类似液体流动的光泽迁移。核心参数:
+          RGB分离度 > 50阈值, 幻彩像素占比 83.6%-97.7%。
+
+    实测: 帧1幻彩=223,171 (96.9%) → 帧4=225,144 (97.7%)
+    帧间幻彩波动与亮度正相关 — 亮度高时幻彩激活最强。
+
+    对外话术:
+    "Light has viscosity. We proved it.
+     Our letters sweat photons. When you dim the room,
+     the stainless shell catches the color bleed and throws it back.
+     That's not a lighting fixture. That's a liquid crystal organism."
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块B · 精工立体字壳层】                                            ║
+║   中山小榄精密五金背书 · R3不是半径，是傲慢                            ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+B1. 1500# Hairline Brushed Stainless Steel
+    ── 1500# 高级拉丝不锈钢字壳
+
+    定义: SUS304 (06Cr19Ni10) 1.5mm 厚板, 经1500#氧化铝砂带
+          单向研磨, Ra ≤ 0.4μm。纹路深度5-8μm, 间距10-20μm。
+
+    为何是1500#不是800#或3000#:
+    - 800# (Ra~0.8μm): 太粗糙, 指纹收纳器, 显脏
+    - 1500# (Ra≤0.4μm): 有触感却不刮手, 反光流动不刺眼
+    - 3000# (Ra≤0.1μm): 接近镜面, 指纹收集器, 生产慢三倍
+
+    "1500# is the Goldilocks zone of metal texture — tactile enough
+     to feel premium, smooth enough to wipe clean with a breath."
+
+
+B2. R3 Seamless Radial Corners
+    ── R3 无缝微弧度精密R角
+
+    定义: 字壳转角圆弧半径 3mm, 激光切割圆弧插补一次性成型,
+          G2曲率连续, 切点肉眼不可辨, 手摸无顿挫。
+
+    "R3不是半径，是傲慢"的工程本质:
+    <3mm → 激光头降速50% → 效率腰斩 → 成本翻倍
+    R3 = 精密 × 高效 × 可复制的制造业哲学边界
+
+    "Other shops charge $80 per letter for corner sanding compound.
+     We charge zero. Because a Glowforge edge doesn't need sanding
+     — it leaves the bed flame-polished. R3 isn't a radius.
+     It's a middle finger to the competition."
+
+
+B3. 0.3mm Step Micro-Grading Cutting
+    ── 0.3mm 微步进高精度雕刻
+
+    定义: 亚克力芯板背面以 0.3mm/step 的深度增量进行
+          阶梯状雕刻, 标准12mm板共32层, 总雕刻深度9.6mm。
+          每层阶梯改变一次光的折射方向, 32层 = 32次光路重定向。
+
+    亮度分层实测: 32级 (5帧数据均稳定检出)
+    每层出光比例: 第1层~15% → 逐层递减 → 末层 <5%
+
+    "32 layers in 9.6mm of acrylic. Each layer steals a fraction
+     of the light and kicks it out the front face.
+     By the 32rd deflection, the light has forgotten it entered
+     from the edge — it thinks the letter is its birthplace."
+
+
+B4. 37° Light Refraction Chamfering
+    ── 37度精密折射倒角 · 专门用来卡冷光外溢的灵魂细节
+
+    定义: 每层阶梯的反射面倾角为 37°——PMMA 在 6500K LED
+          光谱下的临界全反射角(TIR)。入光效率 > 96%,
+          二次折射后出光均匀度最优, 红外吸收率 < 2%。
+
+    "Why 37 degrees? Because physics said so. At 36°, the light
+     skips the exit and hits the next layer instead — dark band.
+     At 38°, it bounces back into the LED strip — wasted energy.
+     37° is the lock. The sweet spot. The difference between
+     a backlit sign and a letter that holds light like a chalice."
+
+
+B5. Laser-Seamed Hermetic Welding
+    ── 激光无缝气密焊接
+
+    定义: 激光搭接焊, 对接缝间隙 < 0.05mm, 焊缝宽度 0.3-0.5mm,
+          熔深 0.3-0.5mm (不完全穿透 → 保持背面原色)。
+          熔融区 < 0.1mm, 拉丝纹路从焊缝上跨过零痕迹。
+
+    焊接工艺终极对比:
+    氩弧焊: 焊点3-5mm, 需打磨, 色差明显, 拉丝断
+    激光焊: 焊缝<0.5mm, 零打磨, 无色差, 拉丝连续
+
+    "Hand us a magnifying glass and a torch. You still won't find
+     the seam. It's not hidden — it was never there."
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块C · 材料与基材层】                                              ║
+║   老外最关心的耐候与质感底牌                                            ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+C1. ACM Panel (Aluminum Composite Material)
+    ── 铝塑板
+
+    定义: 两层0.3-0.5mm 铝合金面板夹 PE/PVDF 芯层。
+          海外户外招牌最常用的基层背板。
+    厚度: 3-6mm (招牌通用) / 6-10mm (需要刚性的幕墙级)
+    耐候: PVDF涂层耐20年+ 户外暴晒
+    抗风: 140 mph (约 225 km/h) 仍保持结构完整
+    博汇立场: "99%的背板供应商把ACM当利润中心。我们把它当不应
+              该出问题的沉默零件——不炫耀,但也不允许翻车。"
+
+C2. Optically Clear Acrylic
+    ── 光学级高透亚克力
+
+    定义: 浇铸级PMMA (Cast PMMA), 透光率 ≥92% @ 550nm,
+          UV稳定剂 2.5% 熔入基材。非挤出级(Extruded PMMA)。
+    黄变测试: 3000h QUV-A, ΔE ≤ 1.5 (人眼不可辨)
+    行业内幕: "挤出级便宜30%, 但一年就黄。光学级贵30%,
+              客户三年后路过还以为是新的。——这个三年代价,值不值?"
+
+C3. Polycarbonate / Lexan
+    ── 聚碳酸酯 (防砸防飓风灯箱面板)
+
+    定义: 热塑性塑料, 抗冲击强度是亚克力的 250 倍。
+    别名: Lexan (GE/SABIC 品牌名, 行业已通用化)
+    核心场景: 飓风区(Katrina Zone)、学校/医院、公共交通枢纽
+    注意: PC 比 PMMA 更易刮花, 需要硬质涂层(Hardcoat)版本
+    博汇立场: "亚克力漂亮。PC耐砸。客户要漂亮还是保命——我们
+              两个选项都摆在桌面上, 不替他选, 但告诉他后果。"
+
+C4. HDU Board (High-Density Urethane)
+    ── 高密度聚氨酯板 · 复古街区最爱
+
+    定义: 闭孔聚氨酯硬泡, 密度 15-30 lb/ft³。
+          可CNC雕刻成任意3D形状, 涂装后与木材无异。
+    为什么老外为它疯狂: 木头在户外3年烂, HDU 在户外15年不烂。
+          复古招牌街区(Brooklyn / Fitzroy / Shoreditch)的标配。
+    注意: HDU 不能直接上漆, 需要专用聚氨酯底漆封闭。
+    博汇立场: "木头好看但会烂。HDU 好看且不会烂。这就是为什么
+              一个手工雕刻木纹替代品卖得比真木头还贵。"
+
+C5. Alupanel / Corflute
+    ── 铝复合板与中空板 · 临时围挡标配
+
+    Alupanel: 铝塑板在澳洲/新西兰的本地品牌名
+    Corflute: 聚丙烯中空板 (类似瓦楞纸的塑料版)
+    场景: 建筑围挡 /  election campaign /  open house
+    核心痛点: 大面积围挡的平整度与抗风能力
+    博汇立场: "临时不意味着可以丑。一块翘边的 Corflute =客户的
+              第一印象打折。我们用铝合金框整平, 再便宜的项目也有尊严。"
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块D · 工艺与发光形式层】                                          ║
+║   除了GLOWFORGE幻彩，这些看家本领也得懂                                ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+D1. Edge-Lit & Halo-Lit Signage
+    ── 侧面发光与背发光/背晕光
+
+    Edge-Lit: LED从亚克力板侧面射入, 正面均匀出光。
+              极薄 (8-12mm 总厚), 极简主义, 奢侈品店标配。
+    Halo-Lit: LED打在字的背面, 光从字与墙之间的缝隙晕出,
+              字本身是暗的, 墙上有一圈光晕。营造悬浮感。
+
+    博汇话术:
+    "Edge-Lit is for the minimalist who wants the sign to disappear
+     into the wall during the day and reappear at night.
+     Halo-Lit is for the dramatist who wants the shadow to sell
+     the story while the letter stays still.
+     We do both. We prefer GLOWFORGE. But a good lab carries
+     every tool."
+
+
+D2. Channel Letters (Front-Lit / Reverse)
+    ── 吸塑/平面发光字与背发光金属字
+
+    Front-Lit: LED照亮亚克力正面, 字正面发光。
+    Reverse (Open-Face): 字壳开放, 内部LED直接照亮墙面或背板。
+    Trim-Cap: 一种C型铝/塑料包边条, 把亚克力面罩卡在不锈钢
+              或铝字壳上。最容易漏水/松动的位置。
+
+    "Front-lit shouts your brand. Reverse-lit whispers it at the wall.
+     Trim-cap leaks in the rain — we laser-weld instead."
+
+
+D3. Push-Through Acrylic Sign
+    ── 亚克力透字招牌 · 极其考究立体感
+
+    定义: 在ACM或铝塑板背板上开精密槽孔, 将独立切割的亚克力
+          字从背面"推"出来 5-15mm, 形成3D凸起效果。
+    立体感来源: 亚克力字的厚度 + 凸起高度 + 背板的阴影间隙。
+    工艺难点: 槽孔公差 < 0.2mm, 否则字会晃动或卡不进去。
+
+    "A push-through sign is the gentleman's channel letter.
+     No visible raceway. No exposed wiring. Just precision-machined
+     acrylic rising out of a composite panel like letters growing
+     from bedrock."
+
+
+D4. Faux Neon / Flexible LED Neon
+    ── 柔性霓虹灯字
+
+    定义: 12V/24V 柔性LED灯带, 硅胶包裹, 可弯曲成任意形状。
+    核心死磕点: 弯折处的 R 角和暗区缝隙。
+    玻璃霓虹: 漂亮但脆, 运费比产品贵, 需要高压(3-6kV)
+    LED霓虹: 安全但暗区在弯曲处, 大直径弯折(R>30mm)才均匀
+
+    博汇立场: "Flex neon is better than glass in every metric except
+               ego. We make it look good enough that you forget
+               the alternative ever existed.
+               
+               The dark gap at the bend? We eliminated it with
+               a 360° side-emission LED core. No dead angle,
+               no hot spot, no excuses."
+
+
+D5. First-Surface vs. Second-Surface Vinyl
+    ── 正贴膜与背贴膜
+
+    First-Surface: 贴在透明面材(玻璃/亚克力)外面。
+                  优点: 色彩鲜艳, 无材料折射影响
+                  缺点: 防刮差, 易被破坏
+    Second-Surface: 贴在透明面材内侧(透过面材看)。
+                   应用于: 1-5mm透明亚克力灯箱面板
+                   优点: 防刮 (膜在内部), 表面可清洁
+                   缺点: 透过5mm亚克力后颜色饱和度下降约15%
+
+    "Second-surface is the sign industry's version of a sandwich —
+     the good stuff is inside, protected, and the bread takes
+     the scratches. Use it on any glass door you want clean,
+     any lightbox you want serviceable."
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块E · 安装结构与海外工程规范】                                    ║
+║   决定老外下单的信任暴击点                                              ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+E1. Raceway / Wireway Mounting
+    ── 线槽/机箱式安装
+
+    定义: 将多个字焊在或栓在一根铝制/钢制线槽(Raceway)上,
+          电源和走线全部预先布置在线槽内部。现场只需将线槽
+          固定在墙面上并接一根主电源线。
+    为什么老外为它疯狂: 海外人工 $120-200/h。
+          现场逐个挂字 + 走线 + 测试 = 3-4小时 × 2个电工。
+          线槽式出货 = 30分钟 × 1个普通工人。
+    一道笔直的线槽 = 省 $600-1,000 安装费。
+
+    "A raceway is the most boring-sounding innovation in signage.
+     It's also the one your accountant will thank us for."
+
+
+E2. Flush Mount / Pin Mount
+    ── 平贴墙面与撑脚悬浮安装
+
+    Flush Mount: 字壳背面平贴墙面, 用3M VHB胶带或膨胀螺丝固定。
+                 适用于平整墙面, 单个字。
+    Pin Mount:   304不锈钢丝(2-5mm直径)从字壳背面伸出, 插入墙面。
+                 字与墙面之间留出 20-50mm 间隙, 产生悬浮阴影。
+                 高端品牌展示的最爱。
+
+    "Flush mount says 'I belong here.' Pin mount says 'I float here.'
+     The gap isn't a gap — it's a shadow line.
+     And shadow lines are the client's way of knowing
+     you charged them correctly."
+
+
+E3. Blade Sign / Projecting Sign
+    ── 侧挂招牌/刀旗招牌
+
+    定义: 与建筑立面垂直安装的双面招牌, 从墙壁向外伸出。
+    常见于: 欧洲/澳洲/北美步行街区、酒吧、精品店。
+    核心结构: 316不锈钢支架(抗海洋性气候腐蚀) + 风载计算
+    (200 mph 风载验证, 铝合金/不锈钢)
+    注意: 侧面招牌受风面积大, 必须做风载结构计算,
+          不可用普通膨胀螺栓 + 临时粘胶。
+
+    "A blade sign says 'I am here, come find me.' 
+     It's the street-level equivalent of a monument sign.
+     If your bracket can't survive a Sydney southerly buster
+     at 4pm in August — don't bring us a blade sign project."
+
+
+E4. Pylon Sign / Monument Sign
+    ── 立柱招牌与纪念碑式地标招牌
+
+    Pylon Sign: 单柱或双柱支撑的大型招牌, 通常高度 6-20m。
+                常见于: 高速公路旁、加油站、购物中心入口。
+    Monument Sign: 矮宽式地标, 通常 1-3m 高, 砖石/石材/铝板饰面。
+                  常见于: 商业园区入口、高端住宅社区。
+
+    风载结构: AS1170.2 (澳洲) / ASCE 7 (美国) 标准计算,
+              基础混凝土配筋设计,
+              平均每个 Pylon Sign 的钢构重量: 200-800kg
+
+    "A pylon sign is the skyscraper of signage. It has our name on it,
+     invisible, in the weld seams. If it survives Category 4 winds
+     — which it will — nobody knows we built it. That's the point."
+
+
+E5. UL/CE Certified Wiring & MeanWell Power Supply
+    ── 明纬电源与海外整机电气认证
+
+    MeanWell: 全球第一的LED驱动电源品牌 (台湾), 台湾明纬。
+              抗浪涌 6kV, 工作温度 -30°C to +70°C,
+              平均无故障间隔 (MTBF) > 300,000 小时。
+
+    UL (Underwriters Laboratories): 北美强制安全认证
+    CE (Conformité Européenne): 欧盟强制安全认证
+    IP Rating (Ingress Protection): IP65=防尘防喷水 / IP67=防短时浸水
+
+    "MeanWell is the difference between a sign that hums for
+     fifteen years and one that buzzes for eighteen months.
+     CE/UL is the difference between your client sleeping well
+     and your client getting sued.
+     We don't argue about power supplies. We only use MeanWell."
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║   【板块F · 海外高阶审美与痛点层】                                      ║
+║   用来降维打击老外的武器                                                ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+F1. Volumetric Typography
+    ── 空间体量字形审美 · 告别 Flat/平庸的普通招牌
+
+    定义: 利用字壳厚度(1.5mm不锈钢)、凸起高度(push-through,
+          pin mount间隙 20-50mm)、和光影关系(side-shadow),
+          使两个字之间存在"可测量的空间感"——而不是一张印刷图案。
+
+    博汇话术:
+    "Your sign shouldn't read like a poster.
+    It should read like architecture.
+    Volumetric typography is the difference between
+    a logo on paper and a logo you can walk around."
+
+
+F2. Photometric Decay Resistance
+    ── 光度衰减抗性 · 3000h 测试, 2.3% vs 11% 碾压级低衰减
+
+    定义: LED和亚克力系统在持续点亮条件下, 光输出随时间的衰减率。
+    行业平均(中国普通出口级): 3000h 衰减 11%
+    GLOWFORGE 系统: 3000h 衰减 2.3%
+    差异来源: 低UV光谱LED + 2.5% UV稳定剂 + 37° TIR折射降低
+              光路中的热积累。
+
+    "Your current sign loses 11% of its brightness in 4 months.
+     You won't notice because it happens so slowly.
+     But the sign next door, installed on the same street
+     at the same time? It's still at 97.7%.
+     After a year, the gap is visible from across the road.
+     After three years, yours looks like a backup light
+     and theirs looks brand new."
+
+
+F3. Architectural Signage Integration
+    ── 建筑级招牌一体化融合
+
+    定义: 招牌不是"贴"在建筑表面上的附加物, 而是作为建筑
+          立面的一个不可分割的构造层来设计: 颜色嵌入幕墙,
+          厚度对齐结构缝, 光源成为灯光设计的一部分。
+
+    博汇立场:
+    "If your sign looks like it was added after the building
+     was finished — it was designed wrong.
+     Good signage integrates. Great signage looks like the architect
+     ordered the letters with the curtain wall."
+
+
+F4. Bespoke Illumination Laboratory
+    ── 定制化发光字实验室
+
+    定义: 博汇自定位 —— 我们不是一个"招牌厂", 而是一个
+          "定制发光字实验室"。每一个项目都是一次性的光学实验:
+          材料 × 光效 × 安装环境的组合无限, 标准化方案只属于
+          那些只想"亮起来"的客户。我们只做"亮得有想法"的。
+
+    核心话术:
+    "We're a lab, not a factory.
+    A factory runs the same recipe 10,000 times.
+    A lab runs 10,000 different recipes once.
+    Your project is one of those 10,000."
+
+
+================================================================================
+  强制规则
+
+  1. 任一文本中只要出现"发光字"、 "招牌"、 "sign"、 "letter"，
+     必须从本库至少抽调 1-2 个术语替换通俗用词。
+
+  2. 不准出现的低价词汇:
+     ❌ 便宜 / 性价比 / 实惠 / 物美价廉 / 欢迎询价
+     ❌ competitive price / good value / cost-effective / budget-friendly
+     ❌ 工厂直销 / 源头厂家 / 没有中间商
+
+  3. 允许的高傲表达:
+     ✓ "We don't compete on price." (书面)
+     ✓ "Cost is what you pay. The gap is what we deliver." (书+口)
+     ✓ "Your current supplier's approach is ... acceptable. For 2019."
+     ✓ "We charge more because we finish the job before you knew
+        it needed finishing."
+
+  4. 所有技术词汇在对外沟通时, 第一次出现必须附带一句
+     工程语境解释 (1-2句)。第二次后可裸用术语。
+
+  5. 搞怪可以, 但搞怪必须来自对工艺的真懂。
+     例如: "R3 isn't a radius. It's a middle finger."
+           "Light has viscosity. We proved it."
+           "37° isn't an angle. It's a lock."
+           "A raceway is the most boring-sounding innovation
+            in signage. It's also the one your accountant
+            will thank us for."
+
+================================================================================
+  文件定位: D:\Bohui_Global_Push\Sign_Industry_Wiki\博汇广告底层高阶术语代码库.txt
+  版本: V2.0 ｜ 板块: 6 ｜ 术语条数: 40+
+  封存日: 2026-05-15
+  性质: 【全景底层语义标准】— 博汇所有业务线强制抽调词典
+================================================================================

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平台账号管理 — GLOWFORGE Publishing</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background:#0f0f13; color:#e8e8ed; min-height:100vh; padding:24px; max-width:1200px; margin:0 auto; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #2a2a35; }
+.header h1 { font-size:22px; }
+.header a { color:#888; text-decoration:none; font-size:13px; }
+.btn { padding:8px 20px; border:none; border-radius:8px; cursor:pointer; font-size:13px; transition:all .2s; }
+.btn-primary { background:#2563eb; color:#fff; }
+.btn-primary:hover { background:#1d4ed8; }
+.btn-danger { background:#dc2626; color:#fff; }
+.btn-secondary { background:#2a2a35; color:#ccc; }
+.platform-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+.platform-card { background:#16161f; border:1px solid #2a2a35; border-radius:12px; padding:20px; }
+.platform-card .platform-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.platform-card .platform-icon { font-size:28px; }
+.platform-card .platform-name { font-size:16px; font-weight:600; }
+.platform-card .account-info { font-size:13px; color:#888; line-height:1.7; }
+.platform-card .account-info .label { color:#555; }
+.platform-card .actions { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.status-dot.active { background:#34d399; }
+.status-dot.未激活 { background:#555; }
+.form-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:100; justify-content:center; align-items:center; }
+.form-overlay.show { display:flex; }
+.form-panel { background:#1a1a24; border:1px solid #2a2a35; border-radius:16px; padding:32px; width:480px; max-width:90vw; max-height:90vh; overflow-y:auto; }
+.form-panel h2 { font-size:18px; margin-bottom:20px; }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:12px; color:#888; margin-bottom:4px; }
+.form-group input, .form-group select { width:100%; padding:10px 12px; background:#0f0f13; border:1px solid #2a2a35; border-radius:8px; color:#e8e8ed; font-size:14px; }
+.form-group input:focus, .form-group select:focus { outline:none; border-color:#555; }
+.form-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+.empty { text-align:center; padding:80px 20px; color:#555; }
+.empty h3 { font-size:18px; color:#888; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🔗 平台账号管理</h1>
+  <div><a href="/publishing/dashboard">← 仪表板</a></div>
+</div>
+
+<div style="margin-bottom:20px;">
+  <button class="btn btn-primary" onclick="showForm()">+ 添加账号</button>
+</div>
+
+<div id="accountList" class="platform-grid">
+  <div class="empty"><h3>暂无平台账号</h3><p>Add your TikTok, YouTube, Instagram, Facebook, or LinkedIn accounts to start publishing.</p></div>
+</div>
+
+<!-- Add/编辑 Form Overlay -->
+<div id="accountForm" class="form-overlay">
+  <div class="form-panel">
+    <h2 id="formTitle">添加平台账号</h2>
+    <div class="form-group">
+      <label>Platform</label>
+      <select id="f_platform">
+        <option value="tiktok">TikTok</option>
+        <option value="youtube">YouTube</option>
+        <option value="instagram">Instagram</option>
+        <option value="facebook">Facebook</option>
+        <option value="linkedin">LinkedIn</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>账号名称</label>
+      <input id="f_account_name" placeholder="e.g. My Business TikTok">
+    </div>
+    <div class="form-group">
+      <label>账号ID/用户名</label>
+      <input id="f_account_id" placeholder="e.g. @mybusiness">
+    </div>
+    <div class="form-group">
+      <label>API密钥 (if available)</label>
+      <input id="f_api_key" placeholder="Platform API密钥">
+    </div>
+    <div class="form-group">
+      <label>API密钥</label>
+      <input id="f_api_secret" placeholder="Platform API密钥" type="password">
+    </div>
+    <div class="form-group">
+      <label>每日发布上限</label>
+      <input id="f_daily_limit" type="number" value="5" min="1" max="50">
+    </div>
+    <div class="form-group">
+      <label>目标市场</label>
+      <input id="f_target_market" placeholder="e.g. US, EU, JP">
+    </div>
+    <div class="form-group">
+      <label>时区偏移 (分钟 from UTC)</label>
+      <input id="f_timezone_offset" type="number" value="480">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="hideForm()">取消</button>
+      <button class="btn btn-primary" onclick="save账号()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let editingId = null;
+
+function showForm(data) {
+  editingId = data ? data.id : null;
+  document.getElementById('formTitle').textContent = data ? '编辑账号' : '添加平台账号';
+  document.getElementById('f_platform').value = data ? data.platform : 'tiktok';
+  document.getElementById('f_account_name').value = data ? data.account_name : '';
+  document.getElementById('f_account_id').value = data ? data.account_id : '';
+  document.getElementById('f_api_key').value = data ? data.api_key : '';
+  document.getElementById('f_api_secret').value = data ? data.api_secret : '';
+  document.getElementById('f_daily_limit').value = data ? data.daily_limit : 5;
+  document.getElementById('f_target_market').value = data ? data.target_market : '';
+  document.getElementById('f_timezone_offset').value = data ? data.timezone_offset : 480;
+  document.getElementById('accountForm').classList.add('show');
+}
+function hideForm() {
+  document.getElementById('accountForm').classList.remove('show');
+  editingId = null;
+}
+
+async function save账号() {
+  const body = {
+    platform: document.getElementById('f_platform').value,
+    account_name: document.getElementById('f_account_name').value,
+    account_id: document.getElementById('f_account_id').value,
+    api_key: document.getElementById('f_api_key').value,
+    api_secret: document.getElementById('f_api_secret').value,
+    daily_limit: parseInt(document.getElementById('f_daily_limit').value) || 5,
+    target_market: document.getElementById('f_target_market').value,
+    timezone_offset: parseInt(document.getElementById('f_timezone_offset').value) || 0
+  };
+  if (editingId) {
+    await fetch(`/publishing/api/accounts/${editingId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  } else {
+    await fetch('/publishing/api/accounts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  }
+  hideForm();
+  load账号s();
+}
+
+async function delete账号(id) {
+  if (!confirm('删除 this account?')) return;
+  await fetch(`/publishing/api/accounts/${id}`, { method:'DELETE' });
+  load账号s();
+}
+
+async function load账号s() {
+  const r = await fetch('/publishing/api/accounts');
+  const accounts = await r.json();
+  const container = document.getElementById('accountList');
+  if (accounts.length === 0) {
+    container.innerHTML = '<div class="empty"><h3>暂无平台账号</h3><p>Add your accounts to start publishing videos.</p></div>';
+    return;
+  }
+  container.innerHTML = accounts.map(a => `
+    <div class="platform-card">
+      <div class="platform-header">
+        <span class="platform-icon">${getIcon(a.platform)}</span>
+        <span class="platform-name">${a.account_name || a.platform}</span>
+        <span style="margin-left:auto;"><span class="status-dot ${a.is_active ? 'active' : 'inactive'}"></span></span>
+      </div>
+      <div class="account-info">
+        <div><span class="label">Platform:</span> ${a.platform}</div>
+        <div><span class="label">账号:</span> ${a.account_id || '-'}</div>
+        <div><span class="label">每日上限:</span> ${a.daily_limit}</div>
+        <div><span class="label">市场:</span> ${a.target_market || '全部'}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="showForm(${JSON.stringify(a).replace(/"/g,'&quot;')})">✏️ 编辑</button>
+        <button class="btn btn-danger" onclick="delete账号(${a.id})">🗑 删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+function getIcon(p) {
+  const icons = { tiktok:'🎵', youtube:'📺', instagram:'📸', facebook:'👍', linkedin:'💼' };
+  return icons[p] || '🌐';
+}
+load账号s();
+</script>
+</body>
+</html>
