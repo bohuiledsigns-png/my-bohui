@@ -1,0 +1,52 @@
+比价应对模板
+═══════════════════════════════════
+场景: 比价
+适用国家: 通用
+语气: 自信专业，不卑不亢
+
+=== 核心策略 ===
+1. 先确认客户需求准确无误（避免低配比高配）
+2. 不直接降价，强调价值差异
+3. 指出品质/材料/工艺的区别
+4. 提供折中方案（简化配置降价格）
+5. 用量化数据支撑品质优势
+
+=== 中文模板 ===
+感谢您的反馈！关于价格的问题，我很理解您的考虑。
+
+我们的报价基于以下几个方面的品质保障：
+
+1. 【材料差异】我们采用国标304不锈钢+进口亚克力面板（透光率92%，10年不黄变），这与普通材料有明显成本差异
+2. 【工艺标准】激光焊接无缝工艺，表面拉丝处理，边缘精细打磨
+3. 【LED光源】使用高显色LED模组（CRI≥90），寿命50,000小时以上，含CE/RoHS认证
+4. 【质保服务】字壳保3年，LED保2年，提供长期技术支持和配件供应
+
+为了让价格更适合您的预算，我们也可以提供以下调整方案：
+- 简化方案：采用常规材料，品质同样可靠
+- 数量折扣：如果批量采购，可以给更优价格
+
+您方便告诉我别家的报价大概在什么范围吗？我看看能不能尽量匹配，同时保证品质。
+
+=== English Template ===
+Thank you for your feedback! I fully understand your concern about pricing.
+
+Our quotation is based on the following quality assurances:
+
+1. [Materials] We use standard 304 stainless steel + imported acrylic face panels (92% light transmittance, no yellowing for 10 years)
+2. [Craftsmanship] Laser welding seamless process, brushed finish, precision edge polishing
+3. [LED] High CRI LED modules (CRI≥90), 50,000+ hours lifespan, CE/RoHS certified
+4. [Warranty] 3 years on housing, 2 years on LED, long-term technical support
+
+We can also offer budget-friendly options:
+- Simplified version with standard materials
+- Quantity discount for bulk orders
+
+Would you mind sharing the competitor's price range? I'll see what we can do to match it while maintaining quality.
+
+=== 国家变体提示 ===
+[US] 强调"总拥有成本"和长期价值，提供3档对比
+[UK] 措辞更礼貌，强调品质差异
+[DE] 用技术参数和数据说话，提供规格对比表
+[FR] 理性辩论式沟通，列举具体品质差异点
+[RU] 直接说明可议价空间，强调长期合作价格可谈
+[JP] 非常委婉，先道歉再解释价值差异，不直接拒绝降价

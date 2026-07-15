@@ -1,0 +1,62 @@
+2026-07-12 19:09:04 [INFO] glowforge: Logging initialized
+2026-07-12 19:09:04 [INFO] glowforge: V0-SAFETY dashboard registered
+2026-07-12 19:09:04 [INFO] glowforge.database: Business Graph tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: V7 Constraint Governance tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: V8 Execution Intelligence tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: V9 Autonomous Business Organization tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: V1.7 Escalation Routing Engine tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: UEE tables initialized
+2026-07-12 19:09:04 [INFO] glowforge.database: V8.5-B Constraint Causal Memory tables initialized
+[PublishingDB] Initialized at D:\Bohui_Global_Push\GLOWFORGE_CRM\crm_data.db
+[Publishing] Manager initialized
+2026-07-12 19:09:04 [INFO] glowforge.commercial_reality.db: [CommercialReality] Tables initialized: order_fulfillment, payment_lifecycle, stripe_events, wa_accounts
+2026-07-12 19:09:04 [INFO] glowforge.commercial_reality.reality: [HealthMonitor] Started (interval=300s)
+2026-07-12 19:09:04 [INFO] glowforge.commercial_reality: [CommercialReality] Health monitor started
+2026-07-12 19:09:04 [INFO] glowforge.commercial_reality: [CommercialReality] Layer initialized — tables + routes + health monitor ready
+2026-07-12 19:09:04 [WARNING] glowforge.commercial_reality: [Stripe] app module not loaded yet — skip public path registration
+2026-07-12 19:09:04 [WARNING] glowforge.commercial_reality.reality: [HealthMonitor] Status=critical | P0=1 P1=0 P2=0
+2026-07-12 19:09:04 [WARNING] glowforge.commercial_reality.reality: [HealthMonitor] [P0] 所有 WhatsApp 号离线，需人工处理
+2026-07-12 19:09:04 [INFO] glowforge.commercial_reality.wa_rotation: [Account#1 主号] Chrome launched on port 9223
+2026-07-12 19:09:11 [INFO] glowforge.commercial_reality.wa_rotation: [Account#1 主号] Playwright connected
+2026-07-12 19:09:11 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Account #1 主号 launched (OK)
+2026-07-12 19:09:11 [INFO] glowforge.commercial_reality.wa_rotation: [Account#2 备用1] Chrome launched on port 9224
+2026-07-12 19:09:19 [INFO] glowforge.commercial_reality.wa_rotation: [Account#2 备用1] Playwright connected
+2026-07-12 19:09:19 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Account #2 备用1 launched (OK)
+2026-07-12 19:09:19 [INFO] glowforge.commercial_reality.wa_rotation: [Account#3 备用2] Chrome launched on port 9225
+2026-07-12 19:09:26 [INFO] glowforge.commercial_reality.wa_rotation: [Account#3 备用2] Playwright connected
+2026-07-12 19:09:26 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Account #3 备用2 launched (OK)
+2026-07-12 19:09:26 [WARNING] glowforge.commercial_reality.wa_rotation: [WARotation] No logged-in account available
+2026-07-12 19:09:26 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Health monitor started (interval=60s)
+2026-07-12 19:09:26 [INFO] glowforge.commercial_reality: [WARotation] send_text + is_logged_in + get_monitor_status + start_monitor monkey-patched
+2026-07-12 19:09:26 [INFO] glowforge.commercial_reality: [WARotation] Manager initialized
+[CommercialReality] Layer initialized
+[Graph] Engine initialized: 77 nodes, 44 edges
+[V7] PolicyEngine ready, 15 active policies
+[V7] AuditLogger initialized
+2026-07-12 19:09:26 [INFO] glowforge.execution_kernel: [WorkerLoop] Registered handler: send_message
+2026-07-12 19:09:26 [INFO] glowforge.execution_kernel: [WorkerLoop] Registered handler: update_crm
+2026-07-12 19:09:26 [INFO] glowforge.resource_scheduler: [ResourceScheduler] Seeded 0 default agents
+[V8] ResourceScheduler seeded 0 agents
+2026-07-12 19:09:26 [INFO] glowforge.execution_kernel: [WorkerLoop] Started (interval=5s, max_retries=3)
+[V8] ExecutionKernel started (5s interval, 3 max retries)
+[V8.3] BusinessPolicyGate ready (policies already seeded)
+2026-07-12 19:09:26 [INFO] glowforge.autonomous_org: [V9] VirtualBoard initialized
+2026-07-12 19:09:26 [INFO] glowforge.department_system: [DeptSystem] Initialized 0 departments
+2026-07-12 19:09:26 [INFO] glowforge.autonomous_org: [V9] DepartmentSystem initialized with 0 depts
+2026-07-12 19:09:26 [INFO] glowforge.autonomous_org: [V9] BudgetAllocator initialized
+2026-07-12 19:09:26 [INFO] glowforge.autonomous_org: [V9] InterDeptProtocol initialized
+2026-07-12 19:09:26 [INFO] glowforge.autonomous_org: [V9] AutonomousDecisionLoop created (daemon disabled — no consumers)
+[V9] Autonomous Business Organization objects ready (daemon loop disabled)
+[SLA Monitor] Started (check interval: 60s)
+[UEE Scanner] Started (interval: 120s)
+2026-07-12 19:09:26 [INFO] UEE: [UEE Scanner] Started (interval: 120s)
+2026-07-12 19:09:26 [INFO] UEE: [UEE Scanner] Found 4 new escalations
+[LeadState] 客户状态引擎已就绪
+[LeadState] 动作回调已注册: GENERATE_QUOTE, SEND_QUOTE, DESIGN_SIGN, FOLLOW_UP, ESCALATE
+[启动] PID=13364
+GLOWFORGE CRM 启动中: http://localhost:5789
+ * Serving Flask app 'app'
+ * Debug mode: on
+2026-07-12 19:09:26 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5789
+2026-07-12 19:09:26 [INFO] werkzeug: [33mPress CTRL+C to quit[0m

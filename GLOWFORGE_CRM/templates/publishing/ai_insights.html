@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AI 洞察 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1200px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px}
+.controls{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+.controls button{padding:8px 16px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:13px}
+.controls button:hover{border-color:#555;background:#1e1e2a}
+
+.insight-card{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:20px;margin-bottom:12px}
+.insight-card .icon{font-size:20px;margin-bottom:8px}
+.insight-card h3{font-size:14px;color:#e8e8ed;margin-bottom:6px}
+.insight-card p{font-size:13px;color:#aaa;line-height:1.5}
+.insight-card .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;margin-top:6px}
+.tag-growth{background:#34d39933;color:#34d399}
+.tag-decline{background:#ef444433;color:#ef4444}
+.tag-info{background:#60a5fa33;color:#60a5fa}
+.tag-suggestion{background:#fbbf2433;color:#fbbf24}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.metric-card{background:#16161f;border:1px solid #2a2a35;border-radius:10px;padding:16px;text-align:center}
+.metric-card .label{font-size:11px;color:#888;margin-bottom:4px}
+.metric-card .value{font-size:22px;font-weight:700}
+.metric-card .sub{font-size:11px;color:#888;margin-top:2px}
+
+.suggestion-list{list-style:none;padding:0}
+.suggestion-list li{padding:10px 0;border-bottom:1px solid #1a1a24;font-size:13px;display:flex;align-items:flex-start;gap:8px}
+.suggestion-list li:last-child{border-bottom:none}
+.suggestion-list li i{color:#fbbf24;margin-top:2px}
+
+.empty-msg{text-align:center;padding:60px 20px;color:#555}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px}
+.btn-primary{background:#7c3aed;color:#fff}.btn-primary:hover{background:#6d28d9}
+</style></head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-brain"></i> AI 洞察</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/content">内容管理</a>
+    <a href="/publishing/analytics">数据分析</a>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="loadInsights()"><i class="fas fa-sync"></i> 刷新</button>
+  <span id="statusText" style="font-size:12px;color:#888"></span>
+</div>
+
+<div id="content">
+  <div class="empty-msg"><h3>Loading insights...</h3><p>Analyzing your publishing data.</p></div>
+</div>
+
+<script>
+async function loadInsights() {
+  document.getElementById('statusText').textContent = 'Analyzing...';
+  try {
+    const r = await fetch('/publishing/api/ai-insights');
+    const data = await r.json();
+    render(data);
+    document.getElementById('statusText').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div class="empty-msg"><h3>Error</h3><p>Could not load insights.</p></div>';
+  }
+}
+
+function render(data) {
+  const m = data.metrics || {};
+  const sentiment = m.sentiment || {};
+  const total情感分析 = Object.values(sentiment).reduce((a,b)=>a+b,0);
+
+  document.getElementById('content').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="label">播放变化</div>
+        <div class="value" style="color:${m.views_change>=0?'#34d399':'#ef4444'}">${m.views_change>=0?'+':''}${m.views_change}%</div>
+        <div class="sub">vs prior period</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">当前播放</div>
+        <div class="value" style="color:#60a5fa">${fmt(m.current_views)}</div>
+        <div class="sub">Last 7 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">最佳日</div>
+        <div class="value" style="color:#fbbf24;font-size:16px">${m.best_day ? dayName(m.best_day.dow) : 'N/A'}</div>
+        <div class="sub">高est avg views</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">情感分析</div>
+        <div class="value" style="font-size:16px">
+          ${total情感分析 > 0 ? Math.round((sentiment.positive||0)/total情感分析*100)+'% positive' : 'N/A'}
+        </div>
+        <div class="sub">${total情感分析} comments analyzed</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="icon">💡</div>
+      <h3>关键洞察</h3>
+      ${data.insights && data.insights.length > 0 ? data.insights.map(i =>
+        `<p style="margin-bottom:6px;padding-left:12px;border-left:2px solid #60a5fa">${esc(i)}</p>`
+      ).join('') : '<p style="color:#555">Not enough data for insights.</p>'}
+    </div>
+
+    <div class="insight-card">
+      <div class="icon">🎯</div>
+      <h3>智能建议</h3>
+      ${data.suggestions && data.suggestions.length > 0 ? `<ul class="suggestion-list">${data.suggestions.map(s =>
+        `<li><i class="fas fa-lightbulb"></i> ${esc(s)}</li>`
+      ).join('')}</ul>` : '<p style="color:#555">No suggestions yet.</p>'}
+    </div>
+
+    <div class="insight-card">
+      <div class="icon">📊</div>
+      <h3>热门内容</h3>
+      ${m.top_content && m.top_content.length > 0 ? m.top_content.map(c =>
+        `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a24;font-size:13px">
+          <span>${esc(c.title)}</span>
+          <span style="color:#60a5fa">${fmt(c.views)} views · ${Math.round(c.comp*100)}% completion</span>
+        </div>`
+      ).join('') : '<p style="color:#555">No content data.</p>'}
+    </div>
+  `;
+}
+
+function dayName(n) { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][n] || '?'; }
+function fmt(n) { return (n||0).toLocaleString(); }
+function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+loadInsights();
+</script>
+</body>
+</html>

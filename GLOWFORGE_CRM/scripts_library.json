@@ -1,0 +1,470 @@
+[
+  {
+    "id": "calc_01",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Factory Direct Price Shock",
+    "keywords": ["price", "calculator", "direct factory", "no middleman", "cost saving"],
+    "style_tags": ["dialogue", "price contrast", "calculator reveal", "factory direct"],
+    "scenes": ["foreign customer at factory", "calculating costs"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（震惊，模拟按计算器）"},
+      {"speaker": "老外", "text": "How can custom store sign letters be this cheap?"},
+      {"speaker": "工厂", "text": "Direct factory supply, no middleman markup."},
+      {"speaker": "旁白", "text": "Overseas buyers never imagine this price gap between retail and source factory."}
+    ]
+  },
+  {
+    "id": "calc_02",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Same Sign, Fraction of Cost",
+    "keywords": ["cost comparison", "stainless steel", "304", "local shop", "retail price"],
+    "style_tags": ["dialogue", "price contrast", "material quality"],
+    "scenes": ["comparing local and Chinese quotes"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（不敢置信反复换算）"},
+      {"speaker": "老外", "text": "The same 304 stainless sign costs 10x more in my city!"},
+      {"speaker": "工厂", "text": "We process raw materials ourselves, cut all extra costs."},
+      {"speaker": "旁白", "text": "Most local sign shops earn huge hidden profits from brand owners."}
+    ]
+  },
+  {
+    "id": "calc_03",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Budget Surprise for Premium Sign",
+    "keywords": ["budget", "expensive", "affordable", "backlit", "luxury concern"],
+    "style_tags": ["dialogue", "price contrast", "budget reveal"],
+    "scenes": ["foreign customer hesitant to ask price"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（小心翼翼试探）"},
+      {"speaker": "老外", "text": "Is this high-end backlit sign out of my budget?"},
+      {"speaker": "工厂", "text": "The price is far lower than your expectation."},
+      {"speaker": "旁白", "text": "Global shop owners always overestimate the cost of commercial luminous signage."}
+    ]
+  },
+  {
+    "id": "calc_04",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Waterproof Is Standard Here",
+    "keywords": ["waterproof", "IP65", "outdoor", "extra charge", "standard"],
+    "style_tags": ["dialogue", "price contrast", "value surprise"],
+    "scenes": ["foreign customer reading spec sheet"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（皱眉核对报价）"},
+      {"speaker": "老外", "text": "Why waterproof outdoor signs don't charge extra fees here?"},
+      {"speaker": "工厂", "text": "Full sealing craft is our standard production step."},
+      {"speaker": "旁白", "text": "Many factories add waterproof processing as an extra paid item overseas."}
+    ]
+  },
+  {
+    "id": "calc_05",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Fine Polishing Included",
+    "keywords": ["polishing", "craft", "finishing", "export quality", "premium"],
+    "style_tags": ["dialogue", "price contrast", "craftsmanship reveal"],
+    "scenes": ["customer inspecting polished edge"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（瞪大双眼）"},
+      {"speaker": "老外", "text": "Such delicate polishing craft, I thought it would cost a fortune."},
+      {"speaker": "工厂", "text": "Fine polishing is mandatory for all export orders."},
+      {"speaker": "旁白", "text": "Premium workmanship does not equal high cost at professional signage plant."}
+    ]
+  },
+  {
+    "id": "calc_06",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Small Batch, Factory Price",
+    "keywords": ["small batch", "custom", "wholesale", "minimum order", "one piece"],
+    "style_tags": ["dialogue", "price contrast", "order quantity"],
+    "scenes": ["customer checking order form"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（反复敲击计算器）"},
+      {"speaker": "老外", "text": "Even small batch custom logo signs have factory wholesale price?"},
+      {"speaker": "工厂", "text": "One piece custom and bulk orders share the same cost system."},
+      {"speaker": "旁白", "text": "Middlemen separate small orders and raise prices deliberately."}
+    ]
+  },
+  {
+    "id": "calc_07",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Low Cost Doesn't Mean Cheap",
+    "keywords": ["low price", "material quality", "lamp beads", "stainless steel", "standard"],
+    "style_tags": ["dialogue", "price contrast", "quality guarantee"],
+    "scenes": ["customer worried about quality"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（顾虑重重）"},
+      {"speaker": "老外", "text": "I worried low price means shoddy lamp beads and thin steel."},
+      {"speaker": "工厂", "text": "We never reduce material standards to cut prices."},
+      {"speaker": "旁白", "text": "This is why countless foreign merchants abandon local suppliers."}
+    ]
+  },
+  {
+    "id": "calc_08",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Rooftop Sign Affordability",
+    "keywords": ["rooftop", "large sign", "anti-rust", "304 stainless", "affordable"],
+    "style_tags": ["dialogue", "price contrast", "value surprise"],
+    "scenes": ["looking at large rooftop installation"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（惊喜）"},
+      {"speaker": "老外", "text": "Anti-rust rooftop large luminous signs are so affordable!"},
+      {"speaker": "工厂", "text": "304 stainless steel is always in sufficient stock."},
+      {"speaker": "旁白", "text": "Chinese manufacturers break the high-price monopoly of foreign signage market."}
+    ]
+  },
+  {
+    "id": "calc_09",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Overpriced Local Shops",
+    "keywords": ["overpriced", "local supplier", "information gap", "distributor"],
+    "style_tags": ["dialogue", "price contrast", "market insight"],
+    "scenes": ["customer realising market reality"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（困惑）"},
+      {"speaker": "老外", "text": "All shops around my town use overpriced simple luminous letters."},
+      {"speaker": "工厂", "text": "They haven't found the direct source factory yet."},
+      {"speaker": "旁白", "text": "Information difference creates the biggest profit space for distributors."}
+    ]
+  },
+  {
+    "id": "calc_10",
+    "category": "calculator_price_contrast",
+    "category_zh": "计算器价格反差",
+    "title": "Past Cooperation Regret",
+    "keywords": ["past experience", "triple price", "inferior", "premium", "buyer lesson"],
+    "style_tags": ["dialogue", "price contrast", "experience story"],
+    "scenes": ["customer recalling bad experience"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（叹气感慨）"},
+      {"speaker": "老外", "text": "I paid triple money for inferior signs in last cooperation."},
+      {"speaker": "工厂", "text": "Most overseas buyers bear unnecessary premium every year."},
+      {"speaker": "旁白", "text": "This single video can save thousands of dollars for global store operators."}
+    ]
+  },
+  {
+    "id": "mystery_11",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "The Secret Behind Night Glow",
+    "keywords": ["night glow", "lamp density", "sealing", "craft secret", "texture"],
+    "style_tags": ["narration", "mystery", "insider secret", "craft reveal"],
+    "scenes": ["close-up of sign lighting up at night"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（好奇探秘语气）"},
+      {"speaker": "老外", "text": "Why do Chinese luminous signs look more textured after dark?"},
+      {"speaker": "旁白", "text": "The core secret lies in lamp density and full glue sealing craft rarely disclosed by factories."}
+    ]
+  },
+  {
+    "id": "mystery_12",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Why Yours Last for Years",
+    "keywords": ["long lasting", "fade", "dim", "waterproof glue", "durability"],
+    "style_tags": ["narration", "mystery", "quality secret"],
+    "scenes": ["comparing faded local sign with GLOWFORGE sign"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（疑惑不解）"},
+      {"speaker": "老外", "text": "Local signs fade and dim within one year, but yours keep bright for years."},
+      {"speaker": "旁白", "text": "Most small factories save cost on waterproof glue, while we prioritize long-term durability."}
+    ]
+  },
+  {
+    "id": "mystery_13",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Rust-Proof Technology Revealed",
+    "keywords": ["rust", "anti-rust", "raw material", "edge polishing", "export grade"],
+    "style_tags": ["narration", "mystery", "technical reveal"],
+    "scenes": ["close-up of stainless steel edge"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（凑近样品仔细观察）"},
+      {"speaker": "老外", "text": "What technology keeps outdoor letters from rusting all year round?"},
+      {"speaker": "旁白", "text": "Strict raw material screening and full edge polishing are the core of export-grade signage."}
+    ]
+  },
+  {
+    "id": "mystery_14",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Anti-Strobe Lamp Module",
+    "keywords": ["flicker", "camera", "lamp module", "anti-strobe", "domestic vs export"],
+    "style_tags": ["narration", "mystery", "technical secret"],
+    "scenes": ["camera filming sign without flicker"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（对着灯珠特写发问）"},
+      {"speaker": "老外", "text": "Why your light is even without flickering on camera?"},
+      {"speaker": "旁白", "text": "We adopt export anti-strobe lamp modules, completely different from cheap domestic lamp beads."}
+    ]
+  },
+  {
+    "id": "mystery_15",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Export Standard Beats Local",
+    "keywords": ["export standard", "local manufacturer", "quality comparison", "craft detail"],
+    "style_tags": ["narration", "mystery", "standard revelation"],
+    "scenes": ["comparing details of export vs local sign"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（惊叹）"},
+      {"speaker": "老外", "text": "Your fine craft details beat all local sign manufacturers I contacted."},
+      {"speaker": "旁白", "text": "The unified high standard of Chinese export signage is invisible to ordinary buyers."}
+    ]
+  },
+  {
+    "id": "mystery_16",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Rainy Season Breakdown Reason",
+    "keywords": ["rainy season", "waterproof", "breakdown", "small workshop", "loophole"],
+    "style_tags": ["narration", "mystery", "pain point"],
+    "scenes": ["sign short-circuiting in rain"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（想起过往踩坑经历）"},
+      {"speaker": "老外", "text": "Why many luminous signs break down once rainy season arrives?"},
+      {"speaker": "旁白", "text": "Hidden waterproof loopholes are the common trick of low-cost small workshops."}
+    ]
+  },
+  {
+    "id": "mystery_17",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Three-Second Quality Test",
+    "keywords": ["quality check", "identification", "three seconds", "trick", "professional"],
+    "style_tags": ["narration", "mystery", "educational"],
+    "scenes": ["expert inspecting sign quality"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（求知欲强）"},
+      {"speaker": "老外", "text": "How to distinguish high-quality luminous letters in just three seconds?"},
+      {"speaker": "旁白", "text": "Professional factory reveals three identification tricks hidden from ordinary customers."}
+    ]
+  },
+  {
+    "id": "mystery_18",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Why Global Brands Choose China",
+    "keywords": ["international brand", "chain store", "consistent quality", "procurement"],
+    "style_tags": ["narration", "mystery", "industry insight"],
+    "scenes": ["international brand storefront"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（恍然大悟）"},
+      {"speaker": "老外", "text": "No wonder international chain brands all cooperate with Chinese factories."},
+      {"speaker": "旁白", "text": "Stable consistent quality is the unspoken rule of global chain store procurement."}
+    ]
+  },
+  {
+    "id": "mystery_19",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "The Delicate Steel Surface Secret",
+    "keywords": ["steel surface", "polishing", "inspection", "texture", "commodity standard"],
+    "style_tags": ["narration", "mystery", "craft detail"],
+    "scenes": ["close-up of brushed metal surface"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（对比样品质感）"},
+      {"speaker": "老外", "text": "Why does your steel surface have unique delicate texture?"},
+      {"speaker": "旁白", "text": "Every polishing step strictly follows overseas commodity inspection standards."}
+    ]
+  },
+  {
+    "id": "mystery_20",
+    "category": "mystery_insider_secrets",
+    "category_zh": "悬疑探秘内幕",
+    "title": "Export vs Domestic: The Real Difference",
+    "keywords": ["export sign", "domestic sign", "anti-corrosion", "high temperature", "climate"],
+    "style_tags": ["narration", "mystery", "comparison reveal"],
+    "scenes": ["two signs side by side in harsh weather"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（深度探秘提问）"},
+      {"speaker": "老外", "text": "What's the essential difference between export signs and ordinary domestic ones?"},
+      {"speaker": "旁白", "text": "Anti-corrosion, anti-high temperature, anti-rain performance all upgraded for complex foreign climate."}
+    ]
+  },
+  {
+    "id": "conflict_21",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Premium Is Basic Here",
+    "keywords": ["expensive abroad", "premium standard", "source factory", "price bubble"],
+    "style_tags": ["dialogue", "reversal", "perception conflict"],
+    "scenes": ["factory workshop panoramic view"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（无奈吐槽）"},
+      {"speaker": "老外", "text": "Any decent luminous sign is extremely expensive in my country."},
+      {"speaker": "工厂", "text": "At our source factory, premium texture is the basic matching standard."},
+      {"speaker": "旁白", "text": "The overseas signage market has serious price bubbles for a long time."}
+    ]
+  },
+  {
+    "id": "conflict_22",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Free Customization Surprise",
+    "keywords": ["free", "customization", "LOGO", "design service", "global scenario"],
+    "style_tags": ["dialogue", "reversal", "service surprise"],
+    "scenes": ["design studio showing customization process"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（惊喜错愕）"},
+      {"speaker": "老外", "text": "You support free customization of any LOGO and store style?"},
+      {"speaker": "工厂", "text": "We provide design customization service for global commercial scenarios."},
+      {"speaker": "旁白", "text": "Most overseas sign companies charge extra for custom design services."}
+    ]
+  },
+  {
+    "id": "conflict_23",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Years of Overcharging Exposed",
+    "keywords": ["overcharged", "local vendor", "rough product", "price bubble"],
+    "style_tags": ["dialogue", "reversal", "past experience"],
+    "scenes": ["customer showing photos of previous bad signs"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（满心委屈）"},
+      {"speaker": "老外", "text": "I was overcharged and supplied rough products by local vendors for years."},
+      {"speaker": "工厂", "text": "The overseas signage market has serious price bubbles for a long time."},
+      {"speaker": "旁白", "text": "Information asymmetry keeps loyal customers trapped in unfair pricing cycles."}
+    ]
+  },
+  {
+    "id": "conflict_24",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Short Lead Time Reality",
+    "keywords": ["lead time", "bulk order", "assembly line", "production flow", "efficiency"],
+    "style_tags": ["dialogue", "reversal", "efficiency"],
+    "scenes": ["automated assembly line in factory"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（疑惑提问）"},
+      {"speaker": "老外", "text": "How can you finish customized bulk orders in such a short cycle?"},
+      {"speaker": "工厂", "text": "Complete standardized assembly line and mature export production flow."},
+      {"speaker": "旁白", "text": "Local sign makers lack the scale to match Chinese factory production efficiency."}
+    ]
+  },
+  {
+    "id": "conflict_25",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "No Minimum Order Surcharge",
+    "keywords": ["small order", "single store", "no surcharge", "long-term cooperation"],
+    "style_tags": ["dialogue", "reversal", "flexible policy"],
+    "scenes": ["small boutique storefront"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（意外）"},
+      {"speaker": "老外", "text": "You also accept tiny single store custom orders without extra surcharge?"},
+      {"speaker": "工厂", "text": "We don't set order quantity threshold, focus on long-term stable cooperation."},
+      {"speaker": "旁白", "text": "Other suppliers reject small orders or add hidden surcharges arbitrarily."}
+    ]
+  },
+  {
+    "id": "conflict_26",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Longer Warranty, More Trust",
+    "keywords": ["warranty", "global", "quality guarantee", "material", "craft technology"],
+    "style_tags": ["dialogue", "reversal", "trust building"],
+    "scenes": ["warranty document close-up"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（对比质保政策）"},
+      {"speaker": "老外", "text": "Why your global warranty period is far longer than local suppliers?"},
+      {"speaker": "工厂", "text": "We fully recognize the quality of our own materials and craft technology."},
+      {"speaker": "旁白", "text": "Confidence in product quality allows us to offer superior warranty terms."}
+    ]
+  },
+  {
+    "id": "conflict_27",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Mini Letters, Big Capability",
+    "keywords": ["mini letters", "front desk", "delicate", "industrial chain", "mature"],
+    "style_tags": ["dialogue", "reversal", "capability reveal"],
+    "scenes": ["mini delicate letters on reception desk"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（失落回忆）"},
+      {"speaker": "老外", "text": "Local factories cannot produce such delicate mini front desk letters."},
+      {"speaker": "工厂", "text": "China has formed a complete mature industrial chain of luminous signage export."}
+    ]
+  },
+  {
+    "id": "conflict_28",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Why Foreign Brands Come Here",
+    "keywords": ["foreign brands", "source factory", "stable quality", "export service", "transparent"],
+    "style_tags": ["dialogue", "reversal", "trust factor"],
+    "scenes": ["containers being loaded at factory"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（好奇）"},
+      {"speaker": "老外", "text": "What attracts numerous foreign brands to place orders with your factory?"},
+      {"speaker": "工厂", "text": "Stable quality, transparent factory price and one-stop export service."},
+      {"speaker": "旁白", "text": "Reliability and transparency make Chinese manufacturers trusted global partners."}
+    ]
+  },
+  {
+    "id": "conflict_29",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Wholesale Discount That Impresses",
+    "keywords": ["wholesale", "discount", "bulk", "direct manufacturer", "margin"],
+    "style_tags": ["dialogue", "reversal", "value deal"],
+    "scenes": ["reviewing bulk order pricing"],
+    "characters": ["老外", "工厂", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（核算批量订单）"},
+      {"speaker": "老外", "text": "The wholesale discount for large orders is more sincere than I expected."},
+      {"speaker": "工厂", "text": "As direct manufacturer, we abandon excessive profit margins to win global partners."},
+      {"speaker": "旁白", "text": "Direct factory pricing model creates a win-win for both manufacturer and buyer."}
+    ]
+  },
+  {
+    "id": "conflict_30",
+    "category": "china_vs_foreign_conflict",
+    "category_zh": "中外认知冲突反转",
+    "title": "Chinese Manufacturing Redefines Standards",
+    "keywords": ["china manufacturing", "global standard", "commercial display", "industry reshaping"],
+    "style_tags": ["dialogue", "reversal", "grand finale"],
+    "scenes": ["montage of global stores using GLOWFORGE signs"],
+    "characters": ["老外", "旁白"],
+    "script": [
+      {"speaker": "scene", "text": "老外（彻底改观）"},
+      {"speaker": "老外", "text": "This cooperation completely changes my cognition of commercial signage."},
+      {"speaker": "旁白", "text": "Chinese manufacturing is reshaping the global commercial display industry standard."}
+    ]
+  }
+]

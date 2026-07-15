@@ -1,0 +1,13 @@
+发光字招牌·夜晚门头实景
+═══════════════════════════════════
+类别: 生图 / 招牌展示
+场景: 夜晚店铺门头
+最佳尺寸: 1024*1024
+
+提示词:
+A premium illuminated channel letter sign on a storefront at night. The sign reads "GLOWFORGE" in elegant 3D letters with warm white LED lighting. Stainless steel backing, brushed metal finish. The light casts a warm glow on the surrounding wall. Dark night sky background, street reflections, cinematic lighting, hyper-realistic, 8K detail, commercial architectural photography.
+
+变体:
+- 换色: change LED color to cool blue / RGB chromatic / gold warm
+- 双面: double-sided projecting sign, illuminated from both sides
+- 迷你字: ultra-slim channel letters, side-lit acrylic face

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>数据分析 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1400px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:22px}.header .nav a{color:#888;text-decoration:none;font-size:13px;margin-left:12px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:20px}
+.stat-card .label{font-size:11px;color:#888;text-transform:uppercase;margin-bottom:6px}
+.stat-card .value{font-size:28px;font-weight:700}
+.stat-card .sub{font-size:11px;color:#888;margin-top:4px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-box{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:20px}
+.chart-box h3{font-size:14px;color:#aaa;margin-bottom:12px}
+.chart-box.full{grid-column:1/-1}
+.platform-table{width:100%;border-collapse:collapse;margin-top:12px}
+.platform-table th{text-align:left;font-size:11px;color:#666;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid #2a2a35}
+.platform-table td{padding:12px;border-bottom:1px solid #1a1a24;font-size:13px}
+.platform-table tr:hover td{background:#1a1a24}
+.engagement-ring{display:inline-flex;align-items:center;gap:8px}
+.engagement-ring .ring{width:40px;height:40px;border-radius:50%;border:3px solid #2563eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#60a5fa}
+.empty-msg{text-align:center;padding:60px 20px;color:#555}
+.empty-msg p{margin-bottom:8px}
+.btn{padding:8px 18px;border:1px solid #2a2a35;border-radius:8px;background:#16161f;color:#e8e8ed;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.btn-primary:hover{background:#1d4ed8}
+.controls{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.color-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+</style></head>
+<body>
+<div class="header">
+  <h1><i class="fas fa-chart-bar"></i> 数据分析</h1>
+  <div class="nav">
+    <a href="/publishing/dashboard">仪表板</a>
+    <a href="/publishing/content">内容管理</a>
+    <a href="/publishing/schedule">发布排期</a>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="loadData()"><i class="fas fa-sync"></i> 刷新</button>
+  <button class="btn-primary" onclick="seedData()"><i class="fas fa-flask"></i> 播种 Sample Data</button>
+  <span id="dataStatus" style="font-size:12px;color:#888"></span>
+</div>
+
+<div id="mainContent">
+<div class="empty-msg">
+  <h3>No analytics data yet</h3>
+  <p>Click "播种 Sample Data" to generate test data, or publish videos to collect real metrics.</p>
+</div>
+</div>
+
+<script>
+let charts = {};
+
+async function loadData() {
+  document.getElementById('dataStatus').textContent = 'Loading...';
+  try {
+    const r = await fetch('/publishing/api/analytics/summary');
+    const data = await r.json();
+    render全部(data);
+    document.getElementById('dataStatus').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  } catch(e) {
+    document.getElementById('dataStatus').textContent = 'Error loading data';
+  }
+}
+
+async function seedData() {
+  document.getElementById('dataStatus').textContent = '播种ing data...';
+  try {
+    const r = await fetch('/publishing/api/analytics/seed', {method:'POST'});
+    const data = await r.json();
+    document.getElementById('dataStatus').textContent = `播种ed ${data.seeded} data points`;
+    loadData();
+  } catch(e) {
+    document.getElementById('dataStatus').textContent = 'Error seeding data';
+  }
+}
+
+function render全部(data) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">总播放量</div>
+        <div class="value" style="color:#60a5fa">${fmt(data.total_views)}</div>
+        <div class="sub">Across all platforms</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Engagement</div>
+        <div class="value" style="color:#34d399">${data.engagement_rate}%</div>
+        <div class="sub">(likes+comments+shares)/views</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Avg Completion</div>
+        <div class="value" style="color:#fbbf24">${(data.avg_completion_rate*100).toFixed(0)}%</div>
+        <div class="sub">Average watch-through rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">已发布</div>
+        <div class="value" style="color:#a78bfa">${data.total_published}</div>
+        <div class="sub">合计 successful publishes</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">点赞</div>
+        <div class="value" style="color:#f472b6">${fmt(data.total_likes)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">评论管理</div>
+        <div class="value" style="color:#38bdf8">${fmt(data.total_comments)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">分享</div>
+        <div class="value" style="color:#34d399">${fmt(data.total_shares)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">保存s</div>
+        <div class="value" style="color:#fb923c">${fmt(data.total_saves)}</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-box full">
+        <h3><i class="fas fa-chart-line"></i> 播放趋势 (Last 60 Days)</h3>
+        <canvas id="trendChart" height="80"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-box">
+        <h3><i class="fas fa-chart-pie"></i> 播放 by Platform</h3>
+        <canvas id="platformChart" height="160"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3><i class="fas fa-chart-bar"></i> Engagement by Platform</h3>
+        <canvas id="engagementChart" height="160"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box full" style="margin-bottom:24px">
+      <h3><i class="fas fa-table"></i> 平台分布</h3>
+      <table class="platform-table">
+        <tr><th>Platform</th><th>视频s</th><th>播放</th><th>点赞</th><th>评论管理</th><th>分享</th><th>Avg Completion</th></tr>
+        ${(data.platforms||[]).map(p => `<tr>
+          <td><span class="color-dot" style="background:${platformColor(p.platform)}"></span>${p.platform||'Unknown'}</td>
+          <td>${p.videos}</td><td>${fmt(p.views)}</td><td>${fmt(p.likes)}</td>
+          <td>${fmt(p.comments)}</td><td>${fmt(p.shares)}</td>
+          <td>${(p.avg_completion*100).toFixed(1)}%</td>
+        </tr>`).join('')}
+      </table>
+    </div>
+  `;
+
+  // Destroy old charts
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e) {} });
+  charts = {};
+
+  renderTrendChart(data.trends || []);
+  renderPlatformChart(data.platforms || []);
+  renderEngagementChart(data.platforms || []);
+}
+
+function renderTrendChart(trends) {
+  const ctx = document.getElementById('trendChart');
+  if (!ctx || trends.length === 0) return;
+  charts.trend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: trends.map(t => t.date),
+      datasets: [
+        { label: '播放', data: trends.map(t => t.views), borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', fill: true, tension: 0.3 },
+        { label: '点赞', data: trends.map(t => t.likes), borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.05)', fill: true, tension: 0.3 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#888', font: {size:11} } } },
+      scales: { x: { ticks: { color:'#666', font:{size:10}, maxTicksLimit:15 }, grid: { color:'#1a1a24' } },
+               y: { ticks: { color:'#666', font:{size:10} }, grid: { color:'#1a1a24' } } }
+    }
+  });
+}
+
+function renderPlatformChart(platforms) {
+  const ctx = document.getElementById('platformChart');
+  if (!ctx || platforms.length === 0) return;
+  charts.platform = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: platforms.map(p => p.platform),
+      datasets: [{ data: platforms.map(p => p.views), backgroundColor: platforms.map(p => platformColor(p.platform)) }]
+    },
+    options: { responsive: true, plugins: { legend: { position:'bottom', labels: { color:'#888', font:{size:11} } } } }
+  });
+}
+
+function renderEngagementChart(platforms) {
+  const ctx = document.getElementById('engagementChart');
+  if (!ctx || platforms.length === 0) return;
+  charts.engagement = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: platforms.map(p => p.platform),
+      datasets: [
+        { label: '点赞', data: platforms.map(p => p.likes), backgroundColor: '#f472b6' },
+        { label: '评论管理', data: platforms.map(p => p.comments), backgroundColor: '#38bdf8' },
+        { label: '分享', data: platforms.map(p => p.shares), backgroundColor: '#34d399' }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color:'#888', font:{size:11} } } },
+      scales: { x: { ticks: { color:'#666' }, grid: { color:'#1a1a24' } },
+               y: { ticks: { color:'#666' }, grid: { color:'#1a1a24' } } } }
+  });
+}
+
+function platformColor(p) {
+  const colors = { tiktok:'#ff0050', youtube:'#ff0000', instagram:'#e1306c', facebook:'#1877f2', linkedin:'#0a66c2' };
+  return colors[p] || '#888';
+}
+
+function fmt(n) { return n.toLocaleString(); }
+
+// Auto-load
+loadData();
+</script>
+</body>
+</html>

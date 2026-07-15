@@ -1,0 +1,16 @@
+Three-Second Quality Test
+═══════════════════════════════════
+场景: expert inspecting sign quality
+类别: 悬疑探秘内幕
+关键词: quality check, identification, three seconds, trick, professional
+风格: narration, mystery, educational
+语气: 专业B2B友好
+
+=== 核心策略 ===
+根据悬疑探秘内幕类别的训练话术，针对客户场景生成个性化回复。
+
+=== 话术对话内容 ===
+scene: 老外（求知欲强）
+老外: How to distinguish high-quality luminous letters in just three seconds?
+旁白: Professional factory reveals three identification tricks hidden from ordinary customers.
+

@@ -1,0 +1,50 @@
+样品与打样模板
+═══════════════════════════════════
+场景: 样品/打样
+适用国家: 通用
+语气: 专业配合
+
+=== 核心策略 ===
+1. 确认客户是需要样品还是效果图
+2. 说明打样流程和周期
+3. 解释打样费政策（下单后可退）
+4. 发效果图帮助客户降低决策风险
+5. 引导客户尽快确认下单
+
+=== 中文模板 ===
+好的，我们可以为您安排打样！
+
+【打样流程】
+1. 您确认设计图和规格
+2. 我们制作3D效果图给您确认（免费）
+3. 确认效果后开始打样
+4. 打样周期：简单款3-5天，复杂款5-10天
+
+【打样费用】
+- 打样费：【具体金额】，在您正式下单后从货款中退还
+- 如需加急，我们可以协调优先安排
+
+【建议】
+在打样之前，我先用AI生成效果图给您看效果，满意了再打样，可以节省时间和费用。您看方便发一张安装位置的照片吗？我可以帮您合成效果图。
+
+=== English Template ===
+Sure, we can arrange a sample for you!
+
+[Sample Process]
+1. Confirm the design and specifications
+2. We create a 3D render/effect image for your approval (free of charge)
+3. Start sample production after confirmation
+4. Sample production time: 3-5 days (simple), 5-10 days (complex)
+
+[Sample Fee]
+- Sample fee: [amount], refundable upon formal order placement
+- Rush service available upon request
+
+[Suggestion]
+Before making the sample, I can use AI to generate an effect image so you can see how it looks first. Do you have a photo of the installation location? I can create a composite effect image for you.
+
+=== 国家变体提示 ===
+[US] 行动导向，强调快速出效果图
+[DE] 打样前先确认所有技术参数
+[JP] 多次确认设计细节，减少修改
+[RU] 强调打样费可退，降低客户顾虑

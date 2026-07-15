@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;display:flex;justify-content:center;align-items:center;height:100vh;font-family:Georgia,serif;overflow:hidden}
+.stage{position:relative;width:720px;height:720px;display:flex;justify-content:center;align-items:center}
+.sign{position:relative;text-align:center}
+
+/* Main letter - GLOWFORGE dual channel effect */
+.letter-main{font-size:160px;font-weight:bold;letter-spacing:8px;
+  background:linear-gradient(135deg,#ff6b35,#ffd700,#ff6b35,#ff1493,#00d4ff,#ff6b35);
+  background-size:400% 400%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:chromaFlow 3s ease infinite;
+  text-shadow:0 0 40px rgba(255,107,53,0.5),0 0 80px rgba(255,215,0,0.3)}
+@keyframes chromaFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Outline channel - the dual channel effect */
+.letter-outline{position:absolute;top:0;left:0;right:0;font-size:160px;font-weight:bold;letter-spacing:8px;
+  -webkit-text-stroke:3px rgba(255,255,255,0.8);color:transparent;
+  animation:pulseGlow 2s ease-in-out infinite;pointer-events:none}
+@keyframes pulseGlow{0%,100%{opacity:0.3;filter:blur(2px)}50%{opacity:0.8;filter:blur(0px)}}
+
+.subtitle{font-size:24px;color:#888;margin-top:20px;letter-spacing:4px;font-family:'Segoe UI',sans-serif;
+  animation:fadeInUp 2s ease 0.5s both}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.badge{position:absolute;top:-20px;right:-40px;background:#ffd700;color:#000;padding:8px 16px;border-radius:4px;
+  font-size:16px;font-weight:bold;font-family:'Segoe UI',sans-serif;animation:bounce 2s ease infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* Decorative particles */
+.particles{position:absolute;width:100%;height:100%;overflow:hidden;z-index:-1}
+.p{position:absolute;width:4px;height:4px;background:#ffd700;border-radius:50%;animation:float 4s ease infinite}
+.p:nth-child(1){left:10%;top:20%;animation-delay:0s}
+.p:nth-child(2){left:30%;top:60%;animation-delay:1s;width:2px;height:2px}
+.p:nth-child(3){left:50%;top:10%;animation-delay:2s}
+.p:nth-child(4){left:70%;top:50%;animation-delay:0.5s;width:6px;height:6px;background:#ff6b35}
+.p:nth-child(5){left:85%;top:30%;animation-delay:1.5s}
+.p:nth-child(6){left:20%;top:80%;animation-delay:3s;background:#00d4ff}
+.p:nth-child(7){left:60%;top:75%;animation-delay:2.5s;width:3px;height:3px;background:#ff1493}
+.p:nth-child(8){left:90%;top:85%;animation-delay:0.8s}
+@keyframes float{0%,100%{opacity:0;transform:translateY(0) scale(0)}50%{opacity:1;transform:translateY(-60px) scale(1)}}
+
+.info{position:absolute;bottom:60px;left:0;right:0;text-align:center;color:#555;font-family:'Segoe UI',sans-serif;font-size:14px;letter-spacing:2px}
+.info span{color:#ffd700}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="particles">
+    <div class="p"></div><div class="p"></div><div class="p"></div>
+    <div class="p"></div><div class="p"></div><div class="p"></div>
+    <div class="p"></div><div class="p"></div>
+  </div>
+  <div class="sign">
+    <div class="badge">GLOWFORGE™</div>
+    <div class="letter-main">BOHUI</div>
+    <div class="letter-outline">BOHUI</div>
+    <div class="subtitle">DUAL-CHANNEL · CHROMA ILLUMINATED</div>
+  </div>
+  <div class="info">中山博汇广告 · <span>GLOWFORGE</span> 幻彩发光字专利技术</div>
+</div>
+</body>
+</html>

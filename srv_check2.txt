@@ -1,0 +1,18 @@
+2026-07-12 19:09:52 [INFO] glowforge.database: V7 Constraint Governance tables initialized
+2026-07-12 19:09:52 [INFO] glowforge.database: V8 Execution Intelligence tables initialized
+2026-07-12 19:09:52 [INFO] glowforge.database: V9 Autonomous Business Organization tables initialized
+2026-07-12 19:09:52 [INFO] glowforge.database: V1.7 Escalation Routing Engine tables initialized
+2026-07-12 19:09:52 [INFO] glowforge.database: V8.5-B Constraint Causal Memory tables initialized
+2026-07-12 19:09:52 [INFO] glowforge.commercial_reality.reality: [HealthMonitor] Started (interval=300s)
+2026-07-12 19:09:52 [INFO] glowforge.commercial_reality: [CommercialReality] Health monitor started
+2026-07-12 19:09:52 [INFO] glowforge.commercial_reality: [CommercialReality] Layer initialized — tables + routes + health monitor ready
+2026-07-12 19:09:52 [WARNING] glowforge.commercial_reality: [Stripe] app module not loaded yet — skip public path registration
+2026-07-12 19:09:53 [INFO] glowforge.commercial_reality.wa_rotation: [Account#1 主号] Chrome launched on port 9223
+2026-07-12 19:09:53 [WARNING] glowforge.commercial_reality.reality: [HealthMonitor] Status=critical | P0=1 P1=0 P2=0
+2026-07-12 19:09:53 [WARNING] glowforge.commercial_reality.reality: [HealthMonitor] [P0] 所有 WhatsApp 号离线，需人工处理
+2026-07-12 19:09:56 [INFO] glowforge.commercial_reality.wa_rotation: [Account#1 主号] Playwright connected
+2026-07-12 19:09:56 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Account #1 主号 launched (OK)
+2026-07-12 19:09:56 [INFO] glowforge.commercial_reality.wa_rotation: [Account#2 备用1] Chrome launched on port 9224
+2026-07-12 19:10:00 [INFO] glowforge.commercial_reality.wa_rotation: [Account#2 备用1] Playwright connected
+2026-07-12 19:10:00 [INFO] glowforge.commercial_reality.wa_rotation: [WARotation] Account #2 备用1 launched (OK)
+2026-07-12 19:10:00 [INFO] glowforge.commercial_reality.wa_rotation: [Account#3 备用2] Chrome launched on port 9225

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>内容详情 — GLOWFORGE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0f0f13;color:#e8e8ed;padding:24px;max-width:1100px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #2a2a35}
+.header h1{font-size:20px}.header a{color:#888;text-decoration:none;font-size:13px}.header a:hover{color:#e8e8ed}
+.detail-card{background:#16161f;border:1px solid #2a2a35;border-radius:12px;padding:24px;margin-bottom:16px}
+.detail-card label{display:block;font-size:11px;color:#888;text-transform:uppercase;margin-bottom:4px}
+.detail-card .value{font-size:14px;margin-bottom:12px}
+.detail-card .value:last-child{margin-bottom:0}
+.tag{display:inline-block;background:#2a2a35;padding:2px 10px;border-radius:4px;font-size:11px;color:#aaa;margin:2px}
+.schedule-entry{padding:12px 0;border-bottom:1px solid #1a1a24;display:flex;justify-content:space-between;align-items:center}
+.schedule-entry:last-child{border-bottom:none}
+.status-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:500}
+.status-badge.pending{background:#fbbf2433;color:#fbbf24}.status-badge.success{background:#34d39933;color:#34d399}
+.status-badge.failed{background:#ef444433;color:#ef4444}.status-badge.publishing{background:#60a5fa33;color:#60a5fa}
+.btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#2a2a35;color:#ccc}.btn-secondary:hover{background:#3a3a45}
+.btn-sm{padding:4px 10px;font-size:11px}
+.empty-msg{text-align:center;padding:40px;color:#555}
+.loading{text-align:center;padding:80px;color:#888}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.metric-card{background:#1a1a24;border:1px solid #2a2a35;border-radius:10px;padding:16px;text-align:center}
+.metric-card .num{font-size:24px;font-weight:700;color:#e8e8ed}
+.metric-card .lbl{font-size:11px;color:#888;margin-top:4px}
+.comment-item{padding:10px 0;border-bottom:1px solid #1a1a24;font-size:13px}
+.comment-item:last-child{border-bottom:none}
+.comment-item .c-head{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:2px}
+.comment-item .c-text{color:#ccc}.platform-tag{font-size:10px;color:#555}
+.sentiment-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.sentiment-dot.positive{background:#34d399}.sentiment-dot.negative{background:#ef4444}.sentiment-dot.neutral{background:#888}
+.platform-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #1a1a24}
+.platform-row:last-child{border-bottom:none}
+.layout-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.layout-2col{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div class="header">
+  <h1><i class="fas fa-file-video"></i> 内容详情</h1>
+  <a href="/publishing/content"><i class="fas fa-arrow-left"></i> 返回内容列表</a>
+</div>
+<div id="content" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+<script>
+const ITEM_ID = {{ item_id }};
+
+async function loadDetail() {
+  const el = document.getElementById('content');
+  try {
+    const [cr, sr, ar] = await Promise.all([
+      fetch(`/publishing/api/content/${ITEM_ID}`),
+      fetch(`/publishing/api/schedules?content_item_id=${ITEM_ID}&limit=50`),
+      fetch(`/publishing/api/content/${ITEM_ID}/analytics`)
+    ]);
+    if (!cr.ok) { el.innerHTML = '<div class="empty-msg"><h3>Not Found</h3></div>'; return; }
+    const c = await cr.json();
+    const schedules = await sr.json();
+    const analytics = await ar.json();
+    render(c, schedules, analytics, el);
+  } catch(e) {
+    el.innerHTML = `<div class="empty-msg"><h3>Error</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function render(c, schedules, a, el) {
+  const tags = (c.tags||'').split(',').filter(Boolean);
+  const time = c.created_at ? new Date(c.created_at*1000).toLocaleString() : '-';
+  const updated = c.updated_at ? new Date(c.updated_at*1000).toLocaleString() : '-';
+  const stats = a.stats || {};
+  const recentComments = a.recent_comments || [];
+  const platformStats = a.platform_stats || [];
+
+  let schedHtml = schedules.length === 0
+    ? '<div class="empty-msg">No schedules for this content.</div>'
+    : schedules.map(s => {
+        const t = s.scheduled_at ? new Date(s.scheduled_at*1000).toLocaleString() : '-';
+        return `<div class="schedule-entry">
+          <div><strong>${esc(s.platform||'-')}</strong> ${esc(s.platform_account_name||'')}<br><span style="font-size:12px;color:#888">${t}</span></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge ${s.status}">${s.status}</span>
+            <button class="btn btn-sm btn-secondary" onclick="window.location.href='/publishing/schedule'">编辑</button>
+          </div>
+        </div>`;
+      }).join('');
+
+  let commentHtml = recentComments.length === 0
+    ? '<div style="font-size:12px;color:#555;padding:10px 0">No comments yet.</div>'
+    : recentComments.map(co =>
+        `<div class="comment-item">
+          <div class="c-head">
+            <span>${esc(co.author_name||'Anonymous')} · <span class="platform-tag">${esc(co.platform||'')}</span></span>
+            <span>${co.created_at ? new Date(co.created_at*1000).toLocaleString() : '-'}</span>
+          </div>
+          <div class="c-text"><span class="sentiment-dot ${co.sentiment||'neutral'}"></span>${esc(co.text||'')}</div>
+        </div>`
+      ).join('');
+
+  let platformHtml = platformStats.length === 0
+    ? '<div style="font-size:12px;color:#555;padding:6px 0">无数据 yet.</div>'
+    : platformStats.map(p =>
+        `<div class="platform-row"><span>${esc(p.platform)}</span><span>${(p.views||0).toLocaleString()} views · ${(p.likes||0).toLocaleString()} likes</span></div>`
+      ).join('');
+
+  el.innerHTML = `
+    <h1 style="margin-bottom:16px">${esc(c.title||'未命名')}</h1>
+
+    <div class="metrics-row">
+      <div class="metric-card"><div class="num">${(stats.views||0).toLocaleString()}</div><div class="lbl"><i class="fas fa-eye"></i> 播放</div></div>
+      <div class="metric-card"><div class="num">${(stats.likes||0).toLocaleString()}</div><div class="lbl"><i class="fas fa-thumbs-up"></i> 点赞</div></div>
+      <div class="metric-card"><div class="num">${(stats.comments||0).toLocaleString()}</div><div class="lbl"><i class="fas fa-comment"></i> 评论管理</div></div>
+      <div class="metric-card"><div class="num">${(stats.shares||0).toLocaleString()}</div><div class="lbl"><i class="fas fa-share"></i> 分享</div></div>
+      <div class="metric-card"><div class="num">${(stats.avg_completion||0).toFixed(1)}%</div><div class="lbl"><i class="fas fa-chart-line"></i> Completion</div></div>
+    </div>
+
+    <div class="layout-2col">
+      <div class="detail-card">
+        <label>Description</label>
+        <div class="value">${esc(c.description||'-')}</div>
+        <label>Category</label>
+        <div class="value">${c.category||'未分类'}</div>
+        <label>Tags</label>
+        <div class="value">${tags.length ? tags.map(t => `<span class="tag">${esc(t.trim())}</span>`).join('') : '-'}</div>
+        <label>时长</label>
+        <div class="value">${c.duration_seconds||0}s</div>
+        <label>Status</label>
+        <div class="value"><span class="status-badge ${c.status||'draft'}">${c.status||'draft'}</span></div>
+        <label>视频 Path</label>
+        <div class="value" style="font-family:monospace;font-size:12px;color:#888">${esc(c.video_path||'-')}</div>
+        <label>Created / Updated</label>
+        <div class="value" style="font-size:12px;color:#aaa">${time}<br>${updated}</div>
+      </div>
+      <div>
+        <div class="detail-card">
+          <h3 style="font-size:14px;color:#aaa;margin-bottom:10px"><i class="fas fa-chart-bar"></i> 平台分布</h3>
+          ${platformHtml}
+        </div>
+        <div class="detail-card">
+          <h3 style="font-size:14px;color:#aaa;margin-bottom:10px"><i class="fas fa-comments"></i> Recent 评论管理 <span style="font-weight:400;font-size:11px;color:#555">(last 10)</span></h3>
+          ${commentHtml}
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="font-size:14px;color:#aaa"><i class="fas fa-calendar"></i> Publication 发布排期s</h3>
+        <button class="btn btn-primary" onclick="window.location.href='/publishing/schedule'"><i class="fas fa-plus"></i> Add 发布排期</button>
+      </div>
+      ${schedHtml}
+    </div>
+  `;
+}
+
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+loadDetail();
+</script>
+</body>
+</html>

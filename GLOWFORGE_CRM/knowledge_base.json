@@ -1,0 +1,871 @@
+[
+  {
+    "id": "kb_acrylic_throughbody",
+    "category": "亚克力通体发光字",
+    "en_name": "Acrylic Through-Body Luminous Letters",
+    "keywords": [
+      "acrylic",
+      "through-body",
+      "luminous",
+      "glow",
+      "acrylic letter"
+    ],
+    "materials": "进口高品质亚克力板材（透光率92%以上）、高亮度LED灯带、不锈钢或铝合金底座",
+    "features": [
+      "通体发光无暗区，360度均匀发光",
+      "透光率92%以上，色彩鲜艳饱满",
+      "白天不开灯时呈现纯白/彩色质感",
+      "轻便安装，厚度可选2-20cm",
+      "支持定制任意颜色（Pantone对色）"
+    ],
+    "selling_points": [
+      "白天是质感装饰，晚上是发光招牌",
+      "360度发光无死角，从任何角度都清晰可见",
+      "色彩均匀不偏色，品牌色精准还原",
+      "重量轻，墙面承重小"
+    ],
+    "technical_details": "采用进口亚克力板材激光切割成型，边缘抛光处理，内置高亮LED灯带。灯带间距精确计算确保无暗区。密封采用硅胶防水处理。色温可选3000K暖白/4000K自然白/6500K冷白/RGB全彩。",
+    "applications": [
+      "品牌连锁店",
+      "商场中庭",
+      "酒店大堂",
+      "企业前台",
+      "咖啡厅"
+    ],
+    "process": "设计图纸→激光切割亚克力→边缘打磨抛光→LED灯带固定安装→密封封装→接线测试→包装出货",
+    "lifespan": "LED光源50000小时以上，亚克力户外耐候5-8年"
+  },
+  {
+    "id": "kb_titanium_backlit",
+    "category": "钛金不锈钢背发光字",
+    "en_name": "Titanium Brushed Backlit Sign",
+    "keywords": [
+      "titanium",
+      "brushed",
+      "backlit",
+      "stainless steel",
+      "halo",
+      "metal"
+    ],
+    "materials": "304/316不锈钢、钛金电镀层、高亮LED模组、亚克力导光板",
+    "features": [
+      "不锈钢拉丝表面，质感高级",
+      "钛金电镀色可选：玫瑰金/亮金/黑钛/香槟金",
+      "背面发光形成光环效果（Halo Effect）",
+      "全密封结构，防水防尘等级IP65",
+      "表面耐腐蚀，适合沿海高湿度环境"
+    ],
+    "selling_points": [
+      "金属拉丝纹理彰显高端品牌形象",
+      "背光环影效果让招牌看起来悬浮在墙上",
+      "钛金表面永不生锈褪色",
+      "适合高端品牌、美容院、精品店"
+    ],
+    "technical_details": "面板采用1.2mm 304不锈钢激光切割，表面经拉丝处理后再进行PVD真空电镀。背面镶嵌高亮LED模组，光线通过亚克力导光板均匀散射，形成柔和光环。底部设有硅胶排水孔。色温推荐4000K自然白。",
+    "applications": [
+      "美容院",
+      "精品店",
+      "高端品牌",
+      "珠宝店",
+      "餐厅"
+    ],
+    "process": "不锈钢激光切割→打磨拉丝→PVD电镀→LED模组安装→密封测试→包装",
+    "lifespan": "LED光源50000小时，不锈钢结构使用寿命10年以上"
+  },
+  {
+    "id": "kb_waterproof_outdoor",
+    "category": "户外防水发光字",
+    "en_name": "Waterproof Outdoor LED Letters",
+    "keywords": [
+      "waterproof",
+      "outdoor",
+      "weatherproof",
+      "IP65",
+      "anti-UV",
+      "all-weather"
+    ],
+    "materials": "镀锌板/不锈钢外壳、硅胶密封圈、防水LED模组、钢化玻璃面板（可选）",
+    "features": [
+      "IP65防水等级，全方位密封",
+      "抗UV紫外线，户外5年不黄变",
+      "防锈防腐处理（热镀锌+喷涂）",
+      "防水透气阀设计，防止内部结露",
+      "工作温度：-20°C至+60°C"
+    ],
+    "selling_points": [
+      "暴雨暴晒全天候正常工作",
+      "密封结构彻底解决进水问题",
+      "抗紫外线面板长期使用不发黄",
+      "零维护成本，安装后无需操心"
+    ],
+    "technical_details": "外壳采用1.5mm镀锌板折弯焊接，接缝处满焊后打磨喷涂。LED模组灌封防水胶处理。出线口使用防水葛兰头。底部设有单向排水阀。面板可选钢化玻璃或PC耐力板。密封胶圈采用EPDM橡胶。",
+    "applications": [
+      "户外招牌",
+      "楼顶大字",
+      "门店门头",
+      "加油站",
+      "商业街"
+    ],
+    "process": "钣金折弯→焊接打磨→表面喷涂→LED安装→密封测试→老化测试→包装",
+    "lifespan": "户外使用寿命8年以上，LED光源50000小时"
+  },
+  {
+    "id": "kb_mini_delicate",
+    "category": "迷你精细小字",
+    "en_name": "Mini Delicate LED Letters",
+    "keywords": [
+      "mini",
+      "delicate",
+      "small",
+      "precision",
+      "compact",
+      "narrow storefront"
+    ],
+    "materials": "亚克力、不锈钢、铝合金、高密度LED",
+    "features": [
+      "字高最小可达3cm，适合狭窄门面",
+      "精密激光切割，边缘光滑无毛刺",
+      "发光均匀，小字体也能清晰辨识",
+      "安装深度仅需2-5cm"
+    ],
+    "selling_points": [
+      "窄门面也能装出大气招牌",
+      "精致小巧不占空间，适合走廊/小店",
+      "小字体同样亮度充足",
+      "多种材质可选：亚克力/不锈钢/铝合金"
+    ],
+    "technical_details": "采用光纤激光切割，精度±0.1mm。内部LED采用微型贴片灯珠，间距极小确保小字体均匀发光。字壳深度常规3-5cm，特殊可定制2cm超薄款。",
+    "applications": [
+      "窄门面小店",
+      "走廊招牌",
+      "美甲店",
+      "工作室",
+      "柜台上方"
+    ],
+    "process": "激光精密切割→打磨抛光→LED灯板定制→组装→测试",
+    "lifespan": "LED光源40000小时"
+  },
+  {
+    "id": "kb_high_brightness",
+    "category": "夜市高亮发光字",
+    "en_name": "High-Brightness Night Market Sign",
+    "keywords": [
+      "high brightness",
+      "night market",
+      "super bright",
+      "far visible",
+      "daylight visible"
+    ],
+    "materials": "高亮SMD5050/5054LED模组、铝合金外壳、高透光面板",
+    "features": [
+      "超高亮度3000-5000cd/m²",
+      "远距离100米外清晰可见",
+      "白天强光下依然醒目",
+      "低功耗设计，比传统霓虹灯省电80%"
+    ],
+    "selling_points": [
+      "夜市中最亮的招牌",
+      "百米外就能吸引顾客",
+      "白天夜晚同样醒目",
+      "省电耐用，亮一晚不到1度电"
+    ],
+    "technical_details": "采用高密度SMD5054 LED模组，灯珠间距加密至常规1.5倍密度。铝基板散热结构确保长时间工作不衰减。亮度可调（30%-100%）。驱动器采用恒流设计，电压宽幅AC90-265V。",
+    "applications": [
+      "夜市摊位",
+      "大排档",
+      "商业街",
+      "步行街",
+      "集市"
+    ],
+    "process": "外壳加工→LED灯板固晶→散热测试→组装密封→亮度检测→老化测试",
+    "lifespan": "LED光源30000小时（高亮模式）"
+  },
+  {
+    "id": "kb_color_electroplated",
+    "category": "彩色电镀发光字",
+    "en_name": "Color Electroplated LED Sign",
+    "keywords": [
+      "color electroplated",
+      "rainbow",
+      "metallic",
+      "gradient",
+      "colorful"
+    ],
+    "materials": "不锈钢基材、电镀药水（金/银/铜/玫瑰金/幻彩）、LED光源",
+    "features": [
+      "表面电镀处理，呈现金属光泽",
+      "可电镀颜色：玫瑰金、亮金、枪黑、古铜、幻彩渐变色",
+      "电镀层耐腐蚀、耐刮擦",
+      "配合LED发光，金属与光的双重效果"
+    ],
+    "selling_points": [
+      "金属质感+发光效果，独一无二",
+      "酒店夜场首选，华丽吸睛",
+      "颜色持久不褪色",
+      "远看是金属质感，近看发光均匀"
+    ],
+    "technical_details": "不锈钢经打磨抛光后进行电镀处理。幻彩款采用多层电镀工艺，在不同角度呈现不同颜色。LED色温可选配暖白/彩色/RGB。建议搭配深色背景凸显金属质感。",
+    "applications": [
+      "酒吧",
+      "夜店",
+      "KTV",
+      "美容美发",
+      "潮牌店"
+    ],
+    "process": "不锈钢成型→精细打磨→电镀处理→LED组装→整体测试",
+    "lifespan": "电镀层户外3-5年，室内8年以上"
+  },
+  {
+    "id": "kb_iridescent",
+    "category": "炫彩发光字",
+    "en_name": "Iridescent Color-Shifting Sign",
+    "keywords": [
+      "iridescent",
+      "color-shifting",
+      "rainbow",
+      "gradient",
+      "holographic"
+    ],
+    "materials": "炫彩亚克力、不锈钢底座、LED灯带/RGB灯带",
+    "features": [
+      "炫彩亚克力面板，随视角变换颜色",
+      "内置RGB灯带可实现动态变色效果",
+      "不开灯时呈现炫彩质感，开灯后更炫丽",
+      "颜色变化流畅自然无断层"
+    ],
+    "selling_points": [
+      "视角变化颜色就跟着变，路人都会回头看",
+      "动态RGB+炫彩面板双重效果",
+      "不开灯也是艺术品",
+      "街上一眼就看到你的店"
+    ],
+    "technical_details": "采用多层复合炫彩板材，光线在不同折射层产生干涉形成彩虹效果。灯珠采用RGBW四合一灯珠，色彩更纯净。色彩变化模式可编程（渐变/呼吸/跳变/流水）。",
+    "applications": [
+      "娱乐场所",
+      "潮牌店",
+      "网红店",
+      "酒吧",
+      "游戏厅"
+    ],
+    "process": "板材裁切→边缘精磨→LED灯带安装→编程设置→测试验收",
+    "lifespan": "LED光源50000小时，炫彩板材室内永久不褪色"
+  },
+  {
+    "id": "kb_rgb_programmable",
+    "category": "幻彩RGB发光字",
+    "en_name": "RGB Programmable LED Sign",
+    "keywords": [
+      "RGB",
+      "programmable",
+      "dynamic",
+      "color cycling",
+      "DMX",
+      "app control"
+    ],
+    "materials": "铝合金/不锈钢外壳、RGBW LED模组、DMX512控制器/手机蓝牙控制器",
+    "features": [
+      "全彩RGB变色，1600万色可选",
+      "多种动态模式：渐变/呼吸/跳变/流水/音乐律动",
+      "支持手机APP控制（蓝牙/WiFi）",
+      "支持DMX512舞台灯光协议",
+      "可保存自定义灯光场景"
+    ],
+    "selling_points": [
+      "招牌色彩随心换，节日促销一键切换",
+      "RGB动态效果吸引年轻人目光",
+      "手机APP控制，不用爬梯子开关",
+      "DMX联控，全店灯光同步"
+    ],
+    "technical_details": "LED采用WS2815/WS2811贴片灯珠，数据信号串联。控制器支持Art-Net/DMX512/蓝牙4.2/WiFi。灯珠密度每米60-144颗。功率根据尺寸30-200W。防护等级IP20室内/IP65户外可选。",
+    "applications": [
+      "电竞馆",
+      "网咖",
+      "潮玩店",
+      "DISCO",
+      "数码体验店"
+    ],
+    "process": "字壳制作→灯板布局→控制器编程→整机调试→老化测试",
+    "lifespan": "LED光源50000小时，控制器质保2年"
+  },
+  {
+    "id": "kb_smart_dimming",
+    "category": "智能调光发光字",
+    "en_name": "Smart Dimming Sensor Sign",
+    "keywords": [
+      "smart",
+      "dimming",
+      "sensor",
+      "auto brightness",
+      "light sensor",
+      "energy saving"
+    ],
+    "materials": "不锈钢/铝合金外壳、光敏传感器、智能调光驱动器、高亮LED模组",
+    "features": [
+      "内置环境光传感器，根据日照自动调节亮度",
+      "白天高亮（100%），傍晚柔光（50%），深夜微光（20%）",
+      "节能模式，比普通发光字省电40%",
+      "支持定时开关/光控开关双模式",
+      "传感器灵敏度可调"
+    ],
+    "selling_points": [
+      "全天候最佳亮度，白天清晰夜间不刺眼",
+      "智能省电，一年省下的电费抵半个招牌",
+      "自动运行，无需人工干预",
+      "延长LED使用寿命"
+    ],
+    "technical_details": "光敏传感器内置在招牌侧面，检测环境照度（0-20000Lux）。调光驱动器采用PWM调光技术，无频闪。亮度曲线可编程。可选配WIFI模块查看用电数据。防护等级IP65。",
+    "applications": [
+      "24小时营业门店",
+      "连锁店统一管理",
+      "便利店",
+      "药店",
+      "加油站"
+    ],
+    "process": "字壳制造→传感器安装→驱动器编程→整机组装→场景测试→包装",
+    "lifespan": "LED光源60000小时（智能调光降低功耗延长寿命）"
+  },
+  {
+    "id": "kb_general_factory",
+    "category": "工厂概况",
+    "en_name": "Factory Overview",
+    "keywords": [
+      "glowforge",
+      "bohui",
+      "factory",
+      "manufacturer",
+      "China",
+      "LED sign factory"
+    ],
+    "materials": "",
+    "features": [
+      "10年以上发光字制造经验",
+      "5000平米现代化厂房",
+      "产品远销美国、欧洲、中东、东南亚等50+国家",
+      "ISO9001质量管理体系认证",
+      "月产能5000+套发光字"
+    ],
+    "selling_points": [
+      "工厂直供，没有中间商赚差价",
+      "交期准时，急单7天出货",
+      "免费设计打样",
+      "一年质保，终身维护"
+    ],
+    "technical_details": "位于中国广东省，拥有激光切割机5台、CNC雕刻机3台、自动焊机、UV打印机等全套生产设备。品控流程：来料检验→首件确认→过程巡检→出货全检。",
+    "applications": [],
+    "process": "接单→设计确认→材料采购→生产制造→品检验收→包装出货→物流跟踪",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_led_technology",
+    "category": "LED技术规格",
+    "en_name": "LED Technology Specifications",
+    "keywords": [
+      "LED",
+      "chip",
+      "brightness",
+      "color temperature",
+      "lifespan",
+      "power"
+    ],
+    "materials": "",
+    "features": [
+      "LED芯片品牌：Epistar/Cree/Osram可选",
+      "色温范围：2700K-6500K",
+      "显色指数CRI>80（高显指版本CRI>95）",
+      "光衰：3000小时<5%",
+      "防护等级：IP20室内/IP65户外/IP68水下"
+    ],
+    "selling_points": [
+      "品牌LED芯片，亮度高寿命长",
+      "多种色温可选，匹配不同场景",
+      "低光衰，三年如新",
+      "质保2-5年可选"
+    ],
+    "technical_details": "常规灯珠型号：SMD2835/3014/5050/5054。功率密度：每米灯带12-36W。驱动电源采用明纬/创联/诚联品牌。输入电压AC100-265V 50/60Hz。功率因数PF>0.9。",
+    "applications": [],
+    "process": "",
+    "lifespan": "LED芯片理论寿命100000小时，整灯寿命50000小时"
+  },
+  {
+    "id": "kb_competitor_accounts",
+    "category": "竞品账号分析",
+    "en_name": "Competitor Account Analysis",
+    "keywords": [
+      "competitor",
+      "LC Sign",
+      "TikTok",
+      "3D printing",
+      "signage",
+      "account analysis"
+    ],
+    "materials": "",
+    "features": [
+      "30个竞品视频素材收集分析（YouTube Shorts 7 + TikTok 23）",
+      "LC Sign系账号群：15个视频，主攻LED发光字/亚克力/精工字/灯箱",
+      "3D打印技术类：2个视频，展示3D打印在标识行业的应用",
+      "其他设计类账号：almadina3d, stellar.signage, qm.sign, xdsign_official",
+      "个人创作者：gurungrobyn, soyfaxuss, 3dinfinity0, carey.pippa等"
+    ],
+    "selling_points": [
+      "LC Sign是最大竞品，矩阵运营（工厂号/展示号/经销商号）",
+      "竞品内容策略：60%产品展示 + 30%安装过程 + 10%客户反馈",
+      "热门视频特征：开头3秒价格悬念 + 中间工艺特写 + 结尾价格揭晓",
+      "高频标签：#LEDsign #signage #business #smallbusiness #storefront"
+    ],
+    "technical_details": "",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_content_strategy",
+    "category": "内容类型策略",
+    "en_name": "Content Type Strategy",
+    "keywords": [
+      "content strategy",
+      "video type",
+      "installation",
+      "product showcase",
+      "manufacturing",
+      "before-after"
+    ],
+    "materials": "",
+    "features": [
+      "安装/过程类（40%）：安装过程、工艺展示、工具使用 — 展示专业度",
+      "成品展示类（33%）：成品效果、亮灯测试、多角度展示 — 吸引购买欲",
+      "生产过程类（17%）：工厂设备、切割/折弯/焊接 — 建立信任",
+      "应用案例类（10%）：客户门店、改造前后对比 — 提供社会证明"
+    ],
+    "selling_points": [
+      "安装类视频最适合展示技术实力和工艺细节",
+      "成品展示类最适合配合价格悬念文案（点击率最高）",
+      "生产类视频建立工厂信任感，适合B2B客户",
+      "应用案例类提供社会证明，促进成交转化"
+    ],
+    "technical_details": "内容改进方向：1. 强化产品卖点表达（不仅展示产品，更要突出差异化优势）2. 增加改造前后对比（突出改变效果）3. 增加行业专业知识输出（建立权威感）4. 前3秒必须有价格悬念或视觉冲击",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_script_templates",
+    "category": "AI视频脚本模板",
+    "en_name": "AI Video Script Templates",
+    "keywords": [
+      "script template",
+      "3-role",
+      "customer",
+      "factory",
+      "wisdom",
+      "dialogue",
+      "price reveal"
+    ],
+    "materials": "",
+    "features": [
+      "3种核心对话模板：价格反差类 / 行业内幕揭秘类 / 中外认知反差类",
+      "3角色结构：Customer（惊讶/好奇/质疑）→ Factory（专业/自信/解答）→ Wisdom（洞察/总结/升华）",
+      "价格反差类：客户震惊于低价→工厂解释成本优势→智者总结「中国制造红利」",
+      "行业内幕类：客户发现海外价格虚高→智者揭秘行业潜规则",
+      "中外认知类：客户以为中国货=低质→工厂展示出口标准→智者升华认知"
+    ],
+    "selling_points": [
+      "价格悬念+揭秘是短视频最优结构（完播率最高）",
+      "3角色对话比单口播更有戏剧张力和传播力",
+      "前三句必须包含'价格'或'秘密'相关关键词触发好奇",
+      "智者结尾必须升华到行业/国家层面增强说服力"
+    ],
+    "technical_details": "情绪关键词：Customer角色使用 'cheap', 'unbelievable', 'can't believe', 'overpriced'；Factory角色使用 'factory direct', 'cost advantage', 'raw materials', 'mass production'；Wisdom角色使用 'global', 'industry', 'China manufacturing', 'reshape'",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_style_reference_30",
+    "category": "对话脚本风格参考",
+    "en_name": "30 Dialogue Script Style Reference",
+    "keywords": [
+      "dialogue",
+      "30 scripts",
+      "price contrast",
+      "mystery",
+      "china vs foreign",
+      "style reference"
+    ],
+    "materials": "",
+    "features": [
+      "30条对话式视频脚本（3类×10条），作为AI风格参考",
+      "calculator_price_contrast（计算器价格反差）：以计算器算账形式展示工厂价vs海外零售价差",
+      "mystery_insider_secrets（行业内幕揭秘）：以揭秘者身份揭示行业潜规则和价格虚高真相",
+      "china_vs_foreign_conflict（中外认知冲突）：以外国客户的认知转变切入，打破'中国货=低质'偏见"
+    ],
+    "selling_points": [
+      "每条脚本按具体产品嵌入：发光字/亚克力字/不锈钢字/迷你字等",
+      "风格统一：前3秒抛悬念 → 中段展示产品/工艺 → 结尾价格或认知反转",
+      "语言风格：口语化、节奏快、每句不超过15个单词",
+      "适合AI仿写：AI学习这些脚本的语调和节奏后生成新内容"
+    ],
+    "technical_details": "30条脚本已存储在 scripts_library.json 中，AI自动生成视频内容时可按相关度匹配1-3条作为风格参考。脚本覆盖发光字、不锈钢字、亚克力字、迷你字、LED灯带、灯箱等全产品线。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_brain_decision_logic",
+    "category": "AI大脑决策逻辑",
+    "en_name": "AI Brain Decision Logic — IF-THEN Rules",
+    "keywords": [
+      "ai brain",
+      "decision logic",
+      "video type",
+      "copy style",
+      "IF-THEN",
+      "mystery insider",
+      "price contrast",
+      "perception reversal",
+      "content matching",
+      "script selection"
+    ],
+    "materials": "",
+    "features": [
+      "视频类型判断规则：IF 产品细节丰富 → 选用行业内幕揭秘脚本；IF 产品展示为主 → 选用价格反差脚本；IF 安装案例展示 → 选用中外认知反差脚本",
+      "文案风格规则：IF 客户痛点强 → 强调价格优势；IF 客户关注品质 → 强调工艺价值；IF 客户有技术背景 → 强调创新科技",
+      "语音情绪规则：IF 【Customer】提问句 → 增强惊讶/好奇情绪；IF 【Factory】回答解释 → 自信专业的语气；IF 【Wisdom】总结金句 → 稳重洞察升华感",
+      "所有生成必须符合外贸营销调性：口语化、节奏快、每句不超过15个单词",
+      "前3秒必须有价格悬念或视觉冲击，中间工艺特写，结尾价格揭晓或认知反转"
+    ],
+    "selling_points": [
+      "IF-THEN 规则确保AI精准匹配视频类型到正确文案风格",
+      "相比随机生成，有决策逻辑的AI产出质量提升60%",
+      "每次生成自动判断内容类型，选择最适合的脚本框架",
+      "语音情绪规则让多角色对话更自然真实"
+    ],
+    "technical_details": "决策逻辑覆盖4种视频类型 × 3种客户类型 × 3种情绪模式 = 36种组合。AI 在 auto_generate_video_content 中自动应用此逻辑进行文案和语调选择。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_brain_multi_role_voice",
+    "category": "AI大脑多角色语音",
+    "en_name": "AI Brain Multi-Role Voice System",
+    "keywords": [
+      "multi-role",
+      "voice",
+      "dialogue",
+      "customer",
+      "factory",
+      "wisdom",
+      "TTS",
+      "emotion",
+      "voice markers",
+      "【Customer】",
+      "【Factory】",
+      "【Wisdom】"
+    ],
+    "materials": "",
+    "features": [
+      "3角色结构：Customer（惊讶/好奇/质疑）、Factory（专业/自信/解答）、Wisdom（洞察/总结/升华）",
+      "角色标记识别：自动识别文案中的【Customer】【Factory】【Wisdom】标记，分配不同音色",
+      "音色分配：Customer用年轻女声（好奇惊讶语气）、Factory用成熟男声（专业自信语气）、Wisdom用沉稳中音（智者洞察语气）",
+      "情绪动态调节：Customer疑问句→惊讶情绪增强；Factory解释句→专业自信语气；Wisdom金句→稳重升华感",
+      "专业术语准确发音：LED/UV/IP65/CRI/SMD/RGB等行业术语保证TTS发音准确"
+    ],
+    "selling_points": [
+      "多角色对话比单口播更有戏剧张力，完播率提升40%",
+      "Customer角色用好奇/惊讶拉近观众距离，产生代入感",
+      "Factory角色用专业自信建立权威和信任感",
+      "Wisdom角色用洞察升华增加分享价值"
+    ],
+    "technical_details": "语音基于TTS角色标记解析实现。文案中必须包含【Customer】【Factory】【Wisdom】三个角色标记，每个标记后跟对应台词。AI生成文案时会自动按此格式输出。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_brain_platform_learning",
+    "category": "AI大脑平台规则学习",
+    "en_name": "AI Brain Platform Learning Rules",
+    "keywords": [
+      "platform learning",
+      "TikTok",
+      "YouTube",
+      "Facebook",
+      "Instagram",
+      "algorithm",
+      "hashtag",
+      "completion rate",
+      "CTA",
+      "risk control",
+      "A/B testing"
+    ],
+    "materials": "",
+    "features": [
+      "TikTok规则：前3秒抓眼球、最佳时长15-60秒、Hashtag策略（热门标签自动识别）、目标→完播率>90% 点赞>5% 评论>3% 保存>1%",
+      "YouTube规则：完播率优化、强CTA（订阅/评论）、标题关键词策略、缩略图吸引力、目标→观看时长优先 点赞/点踩比>10:1",
+      "Facebook/Instagram规则：互动优先（点赞>5%）、视觉冲击、价值内容、短平快格式、@品牌合作方标签",
+      "A/B测试优化：不同策略对比测试、效果数据分析、最优策略选择、持续改进",
+      "风控机制：合规率>99%、推荐率>85%、内容多样性避免同质化、频率控制避免风控标记"
+    ],
+    "selling_points": [
+      "AI自动适配各平台算法要求，最大化自然流量",
+      "TikTok风格：快节奏、前3秒hook、价格悬念",
+      "YouTube风格：信息密度高、强CTA、有深度",
+      "Instagram风格：视觉美学、品牌故事感、话题标签"
+    ],
+    "technical_details": "当前AI生成主要针对 TikTok 和 YouTube Shorts 短视频格式。平台学习规则在每轮AI生成时注入作为系统约束，确保输出内容符合平台推荐算法偏好。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_brain_workflow",
+    "category": "AI大脑工作流程",
+    "en_name": "AI Brain Full Workflow Pipeline",
+    "keywords": [
+      "workflow",
+      "pipeline",
+      "input processing",
+      "content analysis",
+      "copy generation",
+      "voice synthesis",
+      "video output",
+      "AI brain architecture"
+    ],
+    "materials": "",
+    "features": [
+      "Step 1 输入处理：用户上传视频/图片 → 系统智能预处理（格式转换/画质优化/关键帧提取）",
+      "Step 2 智能分析：视觉识别产品类型/工艺/场景 → 内容匹配（确定视频类型：产品展示/安装案例/生产过程/应用场景）→ 输出文案方向标签",
+      "Step 3 文案生成：匹配30个标准外贸脚本模板 → 三角色对话结构（Customer+Factory+Wisdom）→ 应用IF-THEN决策逻辑 → 注入价格反差/行业揭秘/认知冲突策略",
+      "Step 4 多输出合成：多角色语音（按角色标记分配音色和情绪）+ 视频渲染（AI生成+实拍素材合成）+ 字幕+BGM+特效",
+      "Step 5 输出优化：平台格式适配 + 画质检查 + 合规审核 → 输出成品视频"
+    ],
+    "selling_points": [
+      "完整AI大脑流水线：从输入到输出全覆盖",
+      "每步有明确输入输出标准，确保质量可控",
+      "模块化设计，可单独优化每个环节",
+      "持续学习闭环：优质输出→反馈学习→模型迭代→更优输出"
+    ],
+    "technical_details": "此工作流是AI系统的完整架构蓝图。当前video_tool_server.py已实现Step 1（部分）、Step 3（文案生成）、Step 4（合成输出）。Step 2（视觉识别）和Step 5（平台优化）为规划阶段。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_voice_roles",
+    "category": "AI多角色语音系统",
+    "en_name": "Multi-Role Voice System — Scene-Adaptive Config",
+    "keywords": [
+      "voice",
+      "multi-role",
+      "【Customer】",
+      "【Factory】",
+      "【Wisdom】",
+      "scene config",
+      "installation",
+      "price contrast",
+      "product showcase",
+      "night club",
+      "manufacturing",
+      "voice speed",
+      "voice emotion"
+    ],
+    "materials": "",
+    "features": [
+      "三角色配置：【Customer】欧美女声，语速1.0，疑惑/震惊/好奇情绪；【Factory】成熟商务男声，语速0.95，松弛自信感；【Wisdom】低沉磁性男声，语速0.9，悬疑厚重感",
+      "价格对比类场景 → 【Customer】语速1.0震惊高亢 + 【Factory】语速0.9淡定回应，语速反差突出戏剧效果",
+      "安装过程类场景 → 【Factory】语速0.85，低沉专业讲解感，长时间说话不疲劳",
+      "成品展示类场景 → 【Wisdom】语速0.8，慢速悬疑赞叹，配合镜头推进营造仪式感",
+      "生产过程/工厂类场景 → 【Wisdom】语速0.85纪录片旁白风格，稳重权威",
+      "夜店/潮牌场景 → 【Wisdom】语速0.8，深沉磁性更加突出，配合RGB灯光视觉效果",
+      "店铺改造/对比类场景 → 【Customer】语速0.95从怀疑→惊喜递进 + 【Wisdom】语速0.9总结升华"
+    ],
+    "selling_points": [
+      "不同视频场景自动匹配最优语音配置，完播率提升预估30%",
+      "价格类用语速反差制造戏剧张力，安装类用低沉讲解建立专业信任",
+      "5种视频场景各有专属语音方案，而非一刀切的固定配置"
+    ],
+    "technical_details": "场景识别基于文案内容分析和模板类型判断。在AI生成文案时，根据所选模板类型（price_contrast/mystery_insider/china_vs_foreign/manufacturing/nightlife）自动注入对应的语音配置指令。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_voice_emotion_params",
+    "category": "AI语音情绪参数",
+    "en_name": "Voice Emotion Parameter Mapping Table",
+    "keywords": [
+      "emotion",
+      "pitch",
+      "speed",
+      "volume",
+      "pause",
+      "疑惑",
+      "震惊",
+      "好奇",
+      "专业",
+      "淡定",
+      "悬疑",
+      "惊喜",
+      "自信",
+      "升华"
+    ],
+    "materials": "",
+    "features": [
+      "疑惑（疑惑/好奇）→ pitch +5%，speed 0.95，句末升调，适合Customer开场提问",
+      "震惊（震惊/难以置信）→ pitch +10%，speed 1.1，volume +15%，句首重音，适合Customer发现低价时",
+      "好奇（好奇/探究）→ pitch +8%，speed 1.0，短语间停顿0.3s，适合Customer追问细节",
+      "专业（自信/专业）→ pitch 0%，speed 0.95，平稳语调，适合Factory解释工艺",
+      "淡定（淡定/松弛）→ pitch -3%，speed 0.9，句末降调放松，适合Factory回应震惊",
+      "悬疑（悬疑/厚重）→ pitch -5%，speed 0.85，volume -10%，句末延长，适合Wisdom开场",
+      "赞叹（赞叹/升华）→ pitch +3%，speed 0.85，volume +5%，句末重音缓收，适合Wisdom金句结尾",
+      "惊喜（惊喜/反转）→ pitch +12%，speed 1.05，先抑后扬升调，适合Customer认知反转时刻"
+    ],
+    "selling_points": [
+      "8种情绪参数精确到 pitch/speed/volume/停顿，AI按文本情绪自动匹配",
+      "相比无情绪的平淡TTS，带参数的情绪化语音互动感提升显著",
+      "情绪递进：Customer从疑惑→震惊→惊喜，形成完整情绪弧线"
+    ],
+    "technical_details": "情绪参数通过TTS引擎的SSML标签实现（<prosody pitch='+5%' rate='95%'>）。在AI生成文案时，自动在【Customer】【Factory】【Wisdom】角色台词前后注入对应情绪标签。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_multi_language_scripts",
+    "category": "AI多语言剧本模板",
+    "en_name": "Multi-Language Script Templates (8 Languages × 3 Types)",
+    "keywords": [
+      "multi-language",
+      "English",
+      "Spanish",
+      "French",
+      "Arabic",
+      "Russian",
+      "Portuguese",
+      "German",
+      "Japanese",
+      "price contrast",
+      "insider secret",
+      "perception reversal"
+    ],
+    "materials": "",
+    "features": [
+      "英语(EN)｜价格反差：【Customer】I can't believe how cheap premium sign letters are in China! 【Factory】Factory direct price, cut off all middlemen. 【Wisdom】This is the real gap between foreign retail and Chinese source factory.",
+      "西班牙语(ES)｜价格反差：【Customer】¡No puedo creer lo baratas que son! 【Factory】Precio directo de fábrica, sin intermediarios. 【Wisdom】Esta es la diferencia real entre el precio minorista y la fábrica china.",
+      "法语(FR)｜价格反差：【Customer】Je n'arrive pas à croire à quel point c'est bon marché! 【Factory】Prix direct d'usine, sans intermédiaires. 【Wisdom】Voici l'écart réel entre le prix de détail et la fabrique chinoise.",
+      "阿拉伯语(AR)｜价格反差：【Customer】لا أصدق كم هي رخيصة أحرف LED عالية الجودة في الصين! 【Factory】سعر المصنع مباشرة، بدون وسطاء. 【Wisdom】هذه هي الفجوة الحقيقية بين التجزئة الأجنبية والمصنع الصيني.",
+      "俄语(RU)｜价格反差：【Customer】Не могу поверить, как дёшево стоят качественные световые буквы в Китае! 【Factory】Цена напрямую с завода, без посредников. 【Wisdom】Это реальный разрыв между розничной ценой за рубежом и китайской фабрикой.",
+      "葡萄牙语(PT)｜价格反差：【Customer】Não acredito como as letras luminosas de qualidade são baratas na China! 【Factory】Preço direto de fábrica, sem intermediários. 【Wisdom】Esta é a verdadeira diferença entre o preço estrangeiro e a fábrica chinesa.",
+      "德语(DE)｜价格反差：【Customer】Ich kann nicht glauben, wie günstig hochwertige Leuchtbuchstaben in China sind! 【Factory】Fabrikdirektpreis, ohne Zwischenhändler. 【Wisdom】Das ist die echte Lücke zwischen ausländischem Einzelhandel und chinesischer Fabrik.",
+      "日语(JA)｜价格反差：【Customer】中国で高品質なLEDサインがこんなに安いなんて信じられない！ 【Factory】工場直販価格、中間業者を排除。 【Wisdom】これが海外小売りと中国工場の本当の価格差です。"
+    ],
+    "selling_points": [
+      "8种核心出口语言全覆盖，每种保持相同的营销策略和情感调性",
+      "AI自动根据目标市场选择对应语言模板生成文案",
+      "每种语言保持同一话术结构：Customer震惊→Factory解释→Wisdom升华"
+    ],
+    "technical_details": "生成时由 use_language 参数指定目标语言，默认英语。AI同时生成该语言的文案+voiceover+字幕。每种语言模板需保持3角色对话结构和外贸营销调性。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_ai_voice_industry_terms",
+    "category": "AI行业术语发音词典",
+    "en_name": "Industry Term Pronunciation Dictionary (EN/ES/FR/AR/PT)",
+    "keywords": [
+      "pronunciation",
+      "industry terms",
+      "TTS phoneme",
+      "304 stainless steel",
+      "IP65",
+      "SMD5054",
+      "waterproof sealing",
+      "technical vocabulary"
+    ],
+    "materials": "",
+    "features": [
+      "材质类：304 stainless steel（发音：three-oh-four stainless steel）、acrylic（发音：uh-kril-ik）、titanium（发音：tie-tay-nee-um）、brushed metal、galvanized steel、polycarbonate",
+      "工艺类：waterproof sealing（发音自然连读）、anti-UV coating、powder coating、laser cutting、PVD electroplating、CNC engraving",
+      "规格类：IP65（读 I-P-six-five 而非 ip-sixty-five）、SMD5050/SMD5054（读 S-M-D-fifty-fifty）、CRI>90（读 C-R-I greater than ninety）、RGB（读 R-G-B）、DMX512（读 D-M-X-five-twelve）",
+      "产品类：channel letters、backlit sign、halo effect、lightbox、through-body acrylic、face-lit letters、reverse halo",
+      "外贸类：FOB（读 F-O-B）、factory direct price、MOQ（读 M-O-Q或读作mock）、lead time、bulk order、OEM/ODM（读 O-E-M / O-D-M）"
+    ],
+    "selling_points": [
+      "行业术语TTS发音标准化，避免机器音读错专业词汇",
+      "外贸常用缩略语全覆盖（FOB/MOQ/OEM/ODM/CIF）",
+      "AI生成文案时自动为术语添加SSML发音标记"
+    ],
+    "technical_details": "实现方式：在AI生成文案时，将行业术语替换为带SSML<phoneme>标签的拼写形式。例如 'IP65' → '<phoneme alphabet=\"ipa\" ph=\"aɪ piː sɪks faɪv\">IP65</phoneme>'。适用于ElevenLabs和Azure TTS引擎。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_camera_narrative_theory",
+    "category": "AI镜头叙事理论",
+    "en_name": "Camera Narrative Theory — Shot Types, Rhythm & Emotion",
+    "keywords": [
+      "camera",
+      "shot",
+      "narrative",
+      "establishing shot",
+      "close-up",
+      "medium shot",
+      "wide shot",
+      "insert shot",
+      "reaction shot",
+      "visual metaphor",
+      "match cut",
+      "parallel editing",
+      "shot sequence",
+      "rhythm"
+    ],
+    "materials": "",
+    "features": [
+      "叙事镜头4类型：建立镜头(展示环境)→主镜头(主要动作)→插入镜头(关键细节)→反应镜头(情感反馈)",
+      "镜头叙事4技巧：视觉隐喻(用画面象征意义)、对比剪辑(通过对比突出变化)、匹配剪辑(动作连续性)、平行剪辑(同时发生事件)",
+      "三幕式镜头序列：故事开篇(建立环境/情感/问题)→制作过程(工艺/品质/专业)→成果展示(成就/效果/升华)",
+      "节奏控制：快节奏(制作过程快速剪辑展现效率) + 慢节奏(细节特写/情感时刻长镜头) + 节奏转换(从困境到成功)"
+    ],
+    "selling_points": [
+      "镜头即故事：每个镜头都承载叙事功能，无需过多解说",
+      "视觉优先：用画面传达情感，而非文字——更适合短视频平台算法",
+      "三幕式结构确保完整情感弧线：困境→转折→成就"
+    ],
+    "technical_details": "在AI生成video prompt时，自动应用此理论框架：指定每个镜头的类型(wide/medium/close-up/insert)、镜头运动(push/pull/track/orbit)、情绪基调、光影风格。生成的prompt应包含完整的镜头序列而非松散描述。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  },
+  {
+    "id": "kb_camera_lighting_mood",
+    "category": "AI光影情绪语言",
+    "en_name": "Cinematic Lighting & Mood — Color Temperature, Emotion Arcs",
+    "keywords": [
+      "lighting",
+      "mood",
+      "color temperature",
+      "cold tone",
+      "warm tone",
+      "emotion arc",
+      "composition"
+    ],
+    "materials": "",
+    "features": [
+      "情绪三段式光影：困境(低饱和度+冷色调+静态镜头) → 转折(色彩渐暖+构图变化+运动镜头) → 成就(高饱和度+暖色调+动态镜头)",
+      "光影语言3种：阴暗光线(表现困难挑战)、明亮光线(表现希望成功)、温暖光线(表现温馨满意)",
+      "情绪递进映射：Customer从疑惑→震惊→惊喜 + 画面从冷→暖 + 节奏从慢→快",
+      "景别递进：远景建环境→中景展主体→特写抓细节→全景亮成果"
+    ],
+    "selling_points": [
+      "情绪镜头让观众在10秒内经历完整情感旅程，完播率提升显著",
+      "冷暖色调对比自动引导观众注意力，无需文字解说",
+      "光影语言匹配产品卖点：冷色显技术/暖色显品质"
+    ],
+    "technical_details": "在AI prompt中注入色彩指令和光影描述。示例：困境段用'cold blue tint, moody shadows, low saturation'；成果段用'golden hour warm light, high saturation, volumetric glow'。",
+    "applications": [],
+    "process": "",
+    "lifespan": ""
+  }
+]

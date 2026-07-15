@@ -1,0 +1,59 @@
+澳洲比价客户绝杀拦截
+═══════════════════════════════════════════════
+类别: media
+
+================================================================================
+  澳洲比价客户 433 — 绝杀拦截方案
+  客户状态: 拿着博汇的工艺去比价
+  目标: 用整体工程性价比 + 精工参数 全面拦截低价竞争
+================================================================================
+
+【诊断】
+
+  客户想用博汇的工艺去压现有供应商的价格。
+  这是最危险的询盘类型——他拿你的参数去换别人的低价。
+
+  拦截策略:
+    不报裸价。不跟垃圾比价格。直接给他算总账:
+    40%现场安装工时节省 + 3000h光衰2.3% vs 11%
+    = 3年综合成本比低价供应商还低。
+
+
+================================================================================
+【WhatsApp 绝杀话术】
+
+Mate — Philip here.
+
+You want a price. I'll give you one. But let me tell you what that number actually means before you compare it to your current supplier's quote.
+
+Most sign shops in Australia think the cost is the factory price. It's not. The cost is:
+  → Factory price
+  → Plus 3 hours × 2 electricians × $180/hr = $1,080 in installation
+  → Plus relamping every 18 months because your LEDs degraded
+  → Plus the headache when your client asks why the sign turned yellow
+
+Now read our spec sheet:
+
+Flexible LED Neon. 0.3mm step micro-grading into Optically Clear Cast Acrylic. 1500# brushed stainless frame with Laser-Seamed Hermetic welding — zero exposed joints.
+
+And the killer: Pre-wired Raceway Mounting.
+
+Your current supplier ships you loose letters and a bag of wires. Your guys spend an afternoon on a lift, running cables, testing connections.
+
+We ship you a complete assembly — pre-wired, pre-terminated, with MeanWell driver mounted inside the raceway. Your guy hangs it on 4 screws and plugs in one aviation connector. 15 minutes. Done.
+
+That's 40% off your on-site labor. Every project. Forever.
+
+Now ask your current supplier this one question:
+
+"Can you guarantee 2.3% photometric decay at 3,000 hours UV?"
+
+If they can't show you a test report — they're selling you a sign that'll lose 11% of its brightness in the first 4 months. You'll see the difference from across the street in year one.
+
+Our test report is attached. MeanWell datasheet is attached. UV test results: 2.3% at 3,000 hours.
+
+My team is generating the full engineering quote right now — with structural wind load calcs and a 3D GLOWFORGE flow animation of your project.
+
+Send me your forwarder's contact. And tell your current supplier to keep their door sign cheap. You're ready for something else.
+
+— Philip

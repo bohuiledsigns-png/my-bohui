@@ -1,0 +1,47 @@
+售后处理模板
+═══════════════════════════════════
+场景: 售后
+适用国家: 通用
+语气: 积极负责，解决问题为导向
+
+=== 核心策略 ===
+1. 第一时间响应，显示重视
+2. 先道歉安抚情绪（无论谁的责任）
+3. 详细了解问题（照片/视频最有效）
+4. 给出明确解决方案和时间
+5. 跟进至问题解决
+
+=== 中文模板 ===
+收到您反馈的问题，非常抱歉给您带来不便！
+
+请您发几张照片或短视频给我，我帮您看一下具体情况。这样我能更准确地判断问题原因，并给出最快的解决方案。
+
+（收到照片后）
+
+根据照片分析，问题可能是【原因说明】。以下是我们的处理方案：
+
+方案一：【立即解决方案】
+方案二：【备用方案】
+
+如果是我们的品质问题，我们会承担相关费用，并尽快安排补发/维修。请您放心！
+
+=== English Template ===
+Thank you for bringing this to our attention. I apologize for the inconvenience!
+
+Could you please send a few photos or a short video? This will help me accurately identify the issue and provide the fastest solution.
+
+(After receiving photos)
+
+Based on the photos, the issue is likely [cause]. Here's our solution:
+
+Solution 1: [immediate fix]
+Solution 2: [backup plan]
+
+If it's our quality issue, we will cover the costs and arrange a replacement/repair as soon as possible. Rest assured!
+
+=== 国家变体提示 ===
+[US] 行动导向，快速给出方案
+[JP] 非常郑重的道歉，详细解释原因和预防措施
+[DE] 条理清晰，给出系统性解决方案
+[RU] 直接谈解决办法，减少客套
+[FR] 礼貌道歉，理性解释原因

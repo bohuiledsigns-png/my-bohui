@@ -1,0 +1,49 @@
+节日问候模板
+═══════════════════════════════════
+场景: 节日问候
+适用国家: 通用
+语气: 温暖真诚
+
+=== 核心策略 ===
+1. 使用客户所在国家的节日（不要用中国节日问候海外客户）
+2. 在重大节日前发送祝福
+3. 保持简短真诚，不加营销内容
+4. 节后问候可以作为跟进的切入点
+
+=== 中文模板 ===
+【圣诞节 - 西方客户】
+Merry Christmas and Happy New Year! 🎄
+Wishing you and your family a wonderful holiday season and a prosperous year ahead!
+Best regards,
+Philip | GLOWFORGE
+
+【感恩节 - 美国客户】
+Happy Thanksgiving! 🦃
+Thank you for your continued support. Wishing you a warm and joyful holiday with your loved ones!
+Best regards,
+Philip | GLOWFORGE
+
+【新年 - 通用】
+Happy New Year! 🎉
+May the new year bring you success and happiness. Looking forward to creating more amazing signage together!
+Best regards,
+Philip | GLOWFORGE
+
+【开斋节 - 中东/穆斯林客户】
+Eid Mubarak! 🌙
+Wishing you and your family a blessed and joyful Eid!
+Best regards,
+Philip | GLOWFORGE
+
+=== English Template ===
+(Same as above - holidays vary by country)
+
+=== 国家变体提示 ===
+[US] 感节、圣诞节、独立日
+[UK] 圣诞节、节礼日
+[DE] 圣诞节、复活节
+[FR] 圣诞节、新年
+[ES] 圣诞节、三王节
+[RU] 新年（最重要）、妇女节、胜利日
+[JP] 正月、中元节（盂兰盆节期间问候要谨慎）
+[IT] 圣诞节、Ferragosto（8月）
